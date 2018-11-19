@@ -1,0 +1,23 @@
+# Binomial likelihood, logit link, inconsistency model
+# Random effects model
+model{                      # *** PROGRAM STARTS
+  for(i in 1:ns){             # LOOP THROUGH STUDIES
+    delta[i,1]<-0           # treatment effect is zero in control arm
+    mu[i] ~ dnorm(0,.0001)  # vague priors for trial baselines
+    for (k in 1:na[i])  {   # LOOP THROUGH ARMS
+      r[i,k] ~ dbin(p[i,k],n[i,k]) # binomial likelihood
+      log(p[i,k]) <- min(mu[i] + delta[i,k], -1E-16) # model for linear predictor
+    }
+    for (k in 2:na[i]) {  # LOOP THROUGH ARMS
+      # trial-specific LOR distributions
+      delta[i,k] ~ dnorm(d[min(t[i,1],t[i,k]), max(t[i,1],t[i,k])] ,tau) 
+    }
+  }   
+  for (c in 1:(nt-1)) {  # priors for all mean treatment effects
+    for (k in (c+1):nt)  { 
+      d[c,k] ~ dnorm(0,(15*2.51)^(-2))
+    } 
+  }  
+  sd ~ dunif(0,2.51)  # vague prior for between-trial standard deviation
+  tau <- pow(sd,-2)   # between-trial precision = (1/between-trial variance)
+}

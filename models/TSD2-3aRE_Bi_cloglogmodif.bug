@@ -1,0 +1,55 @@
+#Diabetes example 
+#(data from Elliott and Meyer, 2007)
+#1=Diuretic
+#2=Placebo
+#3=? blocker
+#4=CCB
+#5=ACE inhibitor
+#6=ARB
+
+#This code is part of 
+#Dias, S., Welton, N.J., Sutton, A.J. & Ades, A.E. NICE DSU Technical Support Document 2: A Generalised Linear Modelling Framework for Pairwise and Network Meta-Analysis of Randomised Controlled Trials. 2011; last updated September 2016 (available from http://www.nicedsu.org.uk).
+#This work should be cited whenever the code is used whether in its standard form or adapted.
+
+# Binomial likelihood, cloglog link
+# Random effects model for multi-arm trials
+model{                               # *** PROGRAM STARTS
+for(i in 1:ns){                      # LOOP THROUGH STUDIES
+    w[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
+    delta[i,1] <- 0             # treatment effect is zero for control arm
+    mu[i] ~ dnorm(0,.0001)           # vague priors for all trial baselines
+    for (k in 1:na[i]) {             # LOOP THROUGH ARMS
+        r[i,k] ~ dbin(p[i,k],n[i,k]) # Binomial likelihood
+# model for linear predictor
+        cloglog(p[i,k]) <-  mu[i] + delta[i,k]
+        rhat[i,k] <- p[i,k] * n[i,k] # expected value of the numerators 
+#Deviance contribution
+        dev[i,k] <- 2 * (r[i,k] * (log(r[i,k])-log(rhat[i,k]))  
+            +  (n[i,k]-r[i,k]) * (log(n[i,k]-r[i,k]) - log(n[i,k]-rhat[i,k])))         }
+#  summed residual deviance contribution for this trial
+    resdev[i] <- sum(dev[i,1:na[i]])       
+    for (k in 2:na[i]) {             # LOOP THROUGH ARMS
+# trial-specific LOR distributions
+        delta[i,k] ~ dnorm(md[i,k],taud[i,k])
+# mean of LOR distributions, with multi-arm trial correction
+        md[i,k] <-  d[t[i,k]] - d[t[i,1]] + sw[i,k]
+# precision of LOR distributions (with multi-arm trial correction)
+        taud[i,k] <- tau *2*(k-1)/k
+# adjustment, multi-arm RCTs
+        w[i,k] <- (delta[i,k] - d[t[i,k]] + d[t[i,1]])
+# cumulative adjustment for multi-arm trials
+        sw[i,k] <- sum(w[i,1:(k-1)])/(k-1)
+      }
+  }   
+totresdev <- sum(resdev[])            #Total Residual Deviance
+d[1]<-0       # treatment effect is zero for reference treatment
+# vague priors for treatment effects
+for (k in 2:nt){  d[k] ~ dnorm(0,.0001) }
+sd ~ dunif(0,5)     # vague prior for between-trial SD
+tau <- pow(sd,-2)   # between-trial precision = (1/between-trial variance)
+# Provide estimates of treatment effects T[k] on the natural (probability) scale
+# Given a Mean Effect, meanA, for 'standard' treatment A, 
+# with precision (1/variance) precA
+A ~ dnorm(meanA,precA)
+for (k in 1:nt) { cloglog(T[k]) <-  A + d[k]  }
+}

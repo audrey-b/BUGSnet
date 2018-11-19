@@ -1,0 +1,302 @@
+#' Make Bugs Model
+#' @description Creates bugs BUGS code which will can be ran through \code{nma.analysis()}.
+#' 
+#' @param slr An slr data object produced by \code{data.slr()}
+#' @param outcome A string indicating the name of your outcome variable
+#' @param N A string indicating the name of the variable containing the number of participants in each arm
+#' @param baseline.name This is the drug that all treatments will be compared to in the network. This is often
+#' a placebo or control drug of some kind.
+#' @param sd A string (only required for continuous outcomes) indicating variable name
+#' of the standard deviation of the outcome
+#' @param type If type="inconsistency", an inconsistency model will be built. Otherwise a consistency model
+#' will be built
+#' @param exposure.time A string (only required for rate or rate2 outcomes) indicating the name of variable 
+#'   indicating person-time followup (e.g person years) or study followup time.
+#' @param family A string indicating the family of the distribution of the outcome. Options are:
+#' "binomial", "normal", "poisson".
+#' @param link The link function for the nma model. Options are "logit", "log", "cloglog", "identity".
+#' @param effects Options are "fixed" or "random".
+#' 
+#' @return \code{model.str} - A long character string containing BUGS code that will be run in \code{rjags}.
+#' @return \code{bugsdata2} - Data accompanying BUGS code.
+#' @return \code{scale} - The scale of the outcome, based on the chosen family and link function
+#' examples are "RR", "OR", "SMD", "HR"
+#' @return \code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
+#' 
+#' @examples
+#' #Example 1
+#' #Fixed effects, consistency model.
+#' #Binomial family, log link. This implies that the relative risk (RR) will be the scale.
+#' 
+#'nma.bugs(slr = my.slr,
+#'        outcome = "n_died", 
+#'        N = "n",
+#'        baseline.name = "plbo",
+#'        family = "binomial",
+#'        link = "log",
+#'        effects = "fixed")
+#'        
+#' #Example 2
+#' #Random Effects, inconsistency model
+#' #Normal family, identity link.        
+#'  
+#'nma.bugs(slr = my.slr,
+#'         outcome = "weight_change", 
+#'         N = "n",
+#'         baseline.name = "control",
+#'         type = "inconsistency",
+#'         sd = "std_dev",
+#'         family = "normal",
+#'         link = "identity",
+#'         effects = "random")
+#'         
+#'# Example 3
+#'# Random Effects, consistency model,
+#'# Poisson family, cloglog link.
+#'
+#'nma.bugs(slr = my.slr,
+#'         outcome = "n_died", 
+#'         N = "n",
+#'         baseline.name = "plbo",
+#'         exposure.time="personyears",
+#'         family = "poisson",
+#'         link = "cloglog",
+#'         effects = "random")
+
+
+nma.bugs <- function(slr,
+                     outcome, 
+                     N,
+                     baseline.name,
+                     type=NULL,
+                     sd=NULL,
+                     exposure.time=NULL,
+                     family,
+                     link,
+                     effects){
+  
+  
+  data <- slr$raw.data
+  
+  # rename variables as appropriate
+  names(data)[names(data) == slr$varname.t] <- "trt"
+  names(data)[names(data) == slr$varname.s] <- "trial"
+  names(data)[names(data) == outcome] <- "r1"
+  names(data)[names(data) == N] <- "N"
+  if (family == "normal"){names(data)[names(data) == sd] <- "sd"}
+  if (!is.null(exposure.time)){names(data)[names(data) == exposure.time] <- "timevar"}
+  
+  #Trt mapping
+  trt.map.table <- data$trt %>%
+    unique %>% 
+    sort  %>%
+    tibble(trt.ini=.) %>%
+    filter(trt.ini!=baseline.name) %>%
+    add_row(trt.ini=baseline.name, .before=1) %>%
+    mutate(trt.jags = 1:dim(.)[1])
+  
+  data %<>% mutate(trt.jags=mapvalues(trt,
+                                      from=trt.map.table$trt.ini,
+                                      to=trt.map.table$trt.jags) %>% as.integer)
+  
+  nt = slr$treatments %>% nrow()
+  ns = slr$studies %>% nrow()
+  na = slr$n.arms %>% select(n.arms) %>% t() %>% as.vector
+  
+  
+  
+  sorted.data <- data 
+  
+  # rename variables as appropriate
+  names(sorted.data)[names(sorted.data) == slr$varname.t] <- "trt"
+  names(sorted.data)[names(sorted.data) == slr$varname.s] <- "trial"
+  names(sorted.data)[names(sorted.data) == outcome] <- "r1"
+  names(sorted.data)[names(sorted.data) == N] <- "N"
+  if (family == "normal"){names(sorted.data)[names(sorted.data) == sd] <- "sd"}
+  if (!is.null(exposure.time)){names(sorted.data)[names(sorted.data) == exposure.time] <- "timevar"}
+  
+  sorted.data %<>% arrange(trial, trt.jags)
+  
+  if (family == "binomial" && link %in% c("log","logit")){
+    r <- matrix(NA, ns, max(na))
+    n <- matrix(NA, ns, max(na))
+    t <- matrix(NA, ns, max(na))
+    line <- 1
+    
+    for(i in 1:ns){
+      for(a in 1:na[i]){
+        r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
+        n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
+        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric() ###need to work on this
+      }
+      line <- line + na[i]
+    }
+    
+    bugsdata2 <- list(ns=ns,
+                      nt=nt,
+                      #meanA=0,
+                      #precA=0.5,
+                      r=r,
+                      n=n,
+                      t=t,
+                      na=na) 
+  } else if (family == "normal" && link=="identity"){
+    y <- matrix(NA, ns, max(na))
+    n <- matrix(NA, ns, max(na))
+    sd<- matrix(NA, ns, max(na))
+    se<- matrix(NA, ns, max(na))
+    t <- matrix(NA, ns, max(na))
+    line <- 1
+    
+    for(i in 1:ns){
+      for(a in 1:na[i]){
+        y[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
+        sd[i,a]<- sorted.data %>% select(sd) %>% slice(line+a-1) %>% as.numeric()
+        n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
+        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
+        
+      }
+      line <- line + na[i]
+    }
+    se <- sd/sqrt(n)
+    
+    bugsdata2 <- list(ns=ns,
+                      nt=nt,
+                      #meanA=0,
+                      #precA=0.5,
+                      y=y,
+                      se=se,
+                      t=t,
+                      na=na)
+    
+  } else if (family == "poisson" && link == "log"){
+    E <- matrix(NA, ns, max(na))
+    r <- matrix(NA, ns, max(na))
+    t <- matrix(NA, ns, max(na))
+    line <- 1
+    
+    for(i in 1:ns){
+      for(a in 1:na[i]){
+        E[i,a] <- sorted.data %>% select(timevar) %>% slice(line+a-1) %>% as.numeric()
+        r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
+        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric() ###need to work on this
+      }
+      line <- line + na[i]
+    }
+    
+    bugsdata2 <- list(ns=ns,
+                      nt=nt,
+                      #meanA=0,
+                      #precA=0.5,
+                      E=E,
+                      r=r,
+                      t=t,
+                      na=na) 
+  } else if (family == "binomial" && link == "cloglog"){
+    time <- matrix(NA, ns, max(na))
+    n <- matrix(NA, ns, max(na))
+    r <- matrix(NA, ns, max(na))
+    t <- matrix(NA, ns, max(na))
+    line <- 1
+    
+    for(i in 1:ns){
+      for(a in 1:na[i]){
+        time[i,a] <- sorted.data %>% select(timevar) %>% slice(line+a-1) %>% as.numeric()
+        n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
+        r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
+        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric() ###need to work on this
+      }
+      line <- line + na[i]
+    }
+    
+    bugsdata2 <- list(ns=ns,
+                      nt=nt,
+                      #meanA=0,
+                      #precA=0.5,
+                      time=time,
+                      n=n,
+                      r=r,
+                      t=t,
+                      na=na) 
+  } 
+  add.to.model <- trt.map.table %>% 
+    transmute(Treatments = paste0("# ", trt.jags, ": ", trt.ini, "\n")) %>% 
+    t() %>% 
+    paste0() %>% 
+    paste(collapse="") %>%
+    paste0("\n\n# Treatment key\n",.)
+  
+  ############
+  ###Priors###
+  ############
+  
+  #prior.mu.str
+  
+  if(link == "log"){
+    prior.mu.str <-  "for(i in 1:ns){
+    mu[i] <- log(p.base[i])           #priors for all trial baselines
+    p.base[i] ~ dunif(0, 1)
+  }"
+  } else if(link=="logit"){
+    prior.mu.str <-  "for(i in 1:ns){
+    mu[i] ~ dnorm(0,(15*2.3)^(-2))          #priors for all trial baselines
+}"
+  } else if(link=="identity"){
+    prior.mu.str <-  "for(i in 1:ns){
+    mu[i] ~ dnorm(0,(15*2.3)^(-2))          #priors for all trial baselines
+}"
+  }else if(link=="cloglog"){
+    prior.mu.str <-  "for(i in 1:ns){
+    mu[i] ~ dnorm(0,(15*2.3)^(-2))          #priors for all trial baselines
+  }"
+  }
+  
+  #prior.d.str
+  if(is.null(type)){
+    prior.d.str <- "for (k in 2:nt){  
+    d[k] ~ dnorm(0,(15*2.3)^(-2)) # vague priors for treatment effects
+  }"
+  }else if(type=="inconsistency"){
+    prior.d.str <- "for (c in 1:(nt-1)) {  # priors for all mean treatment effects
+    for (k in (c+1):nt)  { 
+    d[c,k] ~ dnorm(0,(15*2.3)^(-2)) # vague priors for treatment effects
+    } 
+    }"
+  }
+  
+  #prior.sigma2.str
+  
+  prior.sigma2.str <-  "sigma ~ dunif(0,3)     # vague prior for between-trial SD
+  sigma2 <- sigma^2"
+  
+  
+  
+  source("makeBUGScode.R")
+  
+  
+  if(!is.null(type)){
+    if(type=="inconsistency"){     
+      model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=TRUE, prior.mu.str, prior.d.str, prior.sigma2.str) %>%
+        paste0(add.to.model)
+    }
+  } else if(is.null(type)){
+    model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=FALSE, prior.mu.str, prior.d.str, prior.sigma2.str) %>%
+      paste0(add.to.model)
+  }
+  
+  
+  if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
+    scale <- "OR"
+  }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
+    scale <- "RR"
+  }else if(link== "identity" & family =="normal"){
+    scale <- "SMD"
+  }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
+    scale <- "lograte"
+  }else if(link == "log" & family =="poisson"){
+    scale <- "HR"
+  }
+  
+  return(bugs=list(model.str=model.str, bugsdata2=bugsdata2, scale=scale, trt.map.table=trt.map.table))
+}
+
