@@ -27,10 +27,6 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
       select(slr$varname.s, slr$varname.t) %>% 
       nest(slr$varname.t)
     
-    tmp1 <- slr$raw.data %>% 
-      select(slr$varname.s, slr$varname.t) %>% 
-      nest(slr$varname.t)
-    
     cnt <- slr$raw.data %>% 
       select(slr$varname.s, slr$varname.t) %>% 
       count_(slr$varname.s)
@@ -43,8 +39,6 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
     }
     
     n.pairwise.direct <- unique(pairs, MARGIN=2) %>% ncol()
-    
-    source("R\\network.structure.R")
     
     edgesANDnodes <- network.structure(slr)
     edges <- edgesANDnodes[[1]]
@@ -243,7 +237,7 @@ intervention.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
 }
 
 comparison.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
-  source('by.comparison.R')
+
   tmp1 <- by.comparison(slr=slr, outcome=outcome, type.outcome, N=N, time=time)
   
   add.patients <- tmp1 %>% select(paste0(N,".e"), paste0(N,".c")) %>% rowSums()

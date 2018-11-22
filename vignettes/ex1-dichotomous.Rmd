@@ -1,0 +1,117 @@
+---
+title: "NMA for Dichotomous Outcomes"
+author: "Justin Slater"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{NMA for Dichotomous Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### Data Preparation
+
+```{r, include = FALSE}
+source("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\misc_code\\load.packages.R")
+library(devtools)
+library(roxygen2)
+library(gemtc)
+library(knitr)
+load_all(path = "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\R")
+```
+
+``` {r}
+dich.slr <- data.slr(raw.data = tbl_df(thrombolytic$data.ab),
+                     patient.data = thrombolytic$studies,
+                     varname.t = "treatment",
+                     varname.s = "study",
+                     N = sampleSize)
+
+#ensure that treatment and study variables are both of class character
+dich.slr$raw.data$treatment <- as.character(dich.slr$raw.data$treatment)
+dich.slr$raw.data$study <- as.character(dich.slr$raw.data$study)
+```
+
+##Feasibility Assessment
+
+### Network Plot
+
+
+```{r, network.plot, echo=TRUE, fig.width=6, fig.height=6}
+ network.plot(dich.slr, node.scale = 1.5, edge.scale=0.5)
+```
+
+### Generate Network Characteristics via `netmetaxl.tables()`
+
+```{r, results = "hide"}
+network.char <- netmetaxl.tables(slr = dich.slr,
+                                outcome = "responders",
+                                N = "sampleSize",
+                                type.outcome = "binomial",
+                                time = NULL)
+```
+
+#### Network Characteristics
+`network.char$network` generates characteristics about the network, such as connectedness, number of treatments in the network, and in the case of a binomial outcome, the number of events in the network.
+```{r, echo = FALSE}
+kable(network.char$network)
+```
+
+#### Intervention Characteristics
+`network.char$intervention` generates outcome and sample size data broken down by treatment.
+
+```{r, echo=FALSE}
+kable(network.char$intervention)
+```
+
+#### Comparison Characteristics
+`network.char$comparison` generates outcome and sample size data broken down by treatment **comparison**.
+```{r, echo=FALSE}
+kable(network.char$comparison)
+```
+
+### Placebo-group Meta-analysis
+TO BE PROGRAMMED
+
+## Main analysis
+`nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+```{r}
+makebugs <- nma.bugs(slr=dich.slr,
+                     outcome="responders",
+                     N="sampleSize",
+                     baseline.name="SK",
+                     family="binomial",
+                     link="log",
+                     effects="random")
+```
+If you want to analyse the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+
+The next step is to run the NMA model using `nma.analysis()`
+```{r, results = "hide"}
+jagsoutput <- nma.analysis(makebugs,
+                           monitor = c("d"),
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+```
+
+##results
+
+### League Plot
+```{r, echo=TRUE, fig.width=8, fig.height=4}
+league.out <- leaguetable(jagsoutput, central.tdcy="median", layout="long")
+league.heat.plot(league.out)
+```
+
+### Sucra Plot
+```{r, echo=TRUE, fig.width=6, fig.height=6}
+sucra.out <- sucra(jagsoutput, largerbetter=FALSE, colour.set= "Set1")
+sucra.out$s.plot
+```

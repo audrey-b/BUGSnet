@@ -270,10 +270,6 @@ nma.bugs <- function(slr,
   sigma2 <- sigma^2"
   
   
-  
-  source("makeBUGScode.R")
-  
-  
   if(!is.null(type)){
     if(type=="inconsistency"){     
       model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=TRUE, prior.mu.str, prior.d.str, prior.sigma2.str) %>%

@@ -21,7 +21,7 @@ network.plot <- function(slr,
                          edge.scale=2, flag=NULL, 
                          label.offset1=0, label.offset2=1) {
   
-  source("network.structure.R")
+  #source("R\\network.structure.R")
  edgesANDnodes <- network.structure(slr)
  edges <- edgesANDnodes[[1]]
  nodes <- edgesANDnodes[[2]]

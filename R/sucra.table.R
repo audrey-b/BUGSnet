@@ -24,7 +24,7 @@
 sucra <- function(jagsoutput, 
                   largerbetter, 
                   line.thickness = 1.0,
-                  colour.set= "set1") {
+                  colour.set= "Set1") {
   
   x <- do.call(rbind, jagsoutput$samples) %>% data.frame() %>% select(starts_with("d."))
   
