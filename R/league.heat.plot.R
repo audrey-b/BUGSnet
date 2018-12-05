@@ -15,6 +15,7 @@
 #' league.heat.plot(leaguetable=lt)
 
 league.heat.plot <- function(leaguetable,
+                             sucra.ranks = NULL,
                              low.colour = "red", 
                              mid.colour = "white",
                              high.colour = "springgreen4",
@@ -38,7 +39,7 @@ if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
           legend.position="none", panel.border=element_blank(),
           axis.ticks.x=element_blank(),
           axis.ticks.y=element_blank())+
-    scale_x_discrete(expand = c(0, 0)) +
-    scale_y_discrete(expand = c(0, 0))
+    scale_x_discrete(limits = sucra.ranks, expand = c(0, 0)) +
+    scale_y_discrete(limits = sucra.ranks, expand = c(0, 0))
 }
 
