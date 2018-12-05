@@ -41,7 +41,7 @@ by.comparison <- function(slr, outcome, type.outcome="binomial", N, sd=NULL, tim
                                  paste(trt.e, trt.c, sep = " vs. "),
                                  paste(trt.c, trt.e, sep = " vs. "))) 
     
-  } else if (type.outcome %in% c("rate", "survival")){
+  } else if (type.outcome %in% c("rate", "rate2")){
     
     names(data)[names(data) == slr$time] <- "time"
     
