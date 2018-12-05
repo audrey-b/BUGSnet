@@ -24,9 +24,8 @@
 #' par(mfrow=c(1,2))
 #' assess.model.fit(fixed_effects_results, main = "Fixed Effects Model" )
 #' assess.model.fit(random_effects_results, main= "Random Effects Model")
-#' 
 
-assess.model.fit  <- function(jagsoutput, ...){
+assess.model.fit  <- function(jagsoutput, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   jagssamples <- jagsoutput$samples
   
   if (class(jagssamples) != "mcmc.list"){stop('Object jagssamples must be of class mcmc.list')}
@@ -38,23 +37,38 @@ assess.model.fit  <- function(jagsoutput, ...){
   n <- samples %>% select(., starts_with("n"))
   dev <- samples %>% select(., starts_with("dev"))
   totresdev <- samples$totresdev %>% mean()
-  rhat <- samples %>% select(., starts_with("rhat"))
-  rtilde <- rhat %>%
-    colMeans() %>%
-    matrix(nrow=1, ncol=ncol(rhat)) %>%
-    data.frame() %>%
-    slice(rep(1:n(), each = nrow(rhat)))
+  pmdev <- colMeans(dev)
+
+  if (jagsoutput$family == "binomial") {
+    rhat <- samples %>% select(., starts_with("rhat"))
+    rtilde <- rhat %>%
+      colMeans() %>%
+      matrix(nrow=1, ncol=ncol(rhat)) %>%
+      data.frame() %>%
+      slice(rep(1:n(), each = nrow(rhat)))
+    
+    pmdev_fitted <- 2*(r*log(r/rtilde)+(n-r)*log((n-r)/(n-rtilde)))[1,]
+    
+  } else if (jagsoutput$family == "poisson"){
+    rhat <- samples %>% select(., starts_with("theta"))
+    thetatilde <- rhat %>%
+      colMeans() %>%
+      matrix(nrow=1, ncol=ncol(rhat)) %>%
+      data.frame() %>%
+      slice(rep(1:n(), each = nrow(rhat)))
+    pmdev_fitted <- 2*((thetatilde-r) + r*log(r/thetatilde))[1,]
+  }
   
-  pmdev = 2*(r*log(r/rtilde)+(n-r)*log((n-r)/(n-rtilde)))[1,]
   
-  leverage = colMeans(dev)-pmdev
+  leverage = pmdev-pmdev_fitted
   
   DIC = sum(leverage) + totresdev
   
   sign = sign(colMeans(r)-colMeans(rhat))
   
-  w = sign*sqrt(as.numeric(colMeans(dev)))
+  w = sign*sqrt(as.numeric(pmdev))
   
+  pD = sum(leverage)
   eq = function(x,c){c-x^2}
   x=seq(-3, 3, 0.001)
   c1=eq(x, c=rep(1, 6001))
@@ -65,12 +79,16 @@ assess.model.fit  <- function(jagsoutput, ...){
   lines(x, c1+1, lty=2, col="chartreuse4",   lwd =2)
   lines(x, c1+2, lty=3, col="mediumpurple3", lwd =2)
   lines(x, c1+3, lty=4, col="deepskyblue3",  lwd =2)
-  text(2, 4, paste("DIC=", round(DIC,2)), cex = 0.8)
+  if (plot.pD ==TRUE){text(2, 4.3, paste("pD=", round(pD, 2)), cex = 0.8)}
+  if (plot.Dres == TRUE){text(2, 3.9, paste("Dres=", round(totresdev,2)), cex = 0.8)}
+  if (plot.DIC==TRUE){text(2, 3.5, paste("DIC=", round(DIC,2)), cex = 0.8)}
   
   return(list(DIC=DIC,
               leverage=leverage,
               w=w,
-              pmdev=pmdev)
+              pmdev=pmdev,
+              Dres = totresdev,
+              pD = pD)
   )
 }
 
