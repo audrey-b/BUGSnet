@@ -1,6 +1,6 @@
 #add warning messages for incompatible link and family
 
-makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, prior.d.str, prior.sigma2.str){
+makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg){
   
   if (family=="binomial"){
     family.str <- "r[i,k] ~ dbin(p[i,k],n[i,k]) # binomial likelihood"
@@ -11,7 +11,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
   
   if (family=="normal"){
     family.str <- "y[i,k] ~ dnorm(theta[i,k],prec[i,k])"
-    monitor.str <- "#var[i,k] <- pow(se[i,k],2) # calculate variances
+    monitor.str <- "var[i,k] <- pow(se[i,k],2) # calculate variances
         prec[i,k] <- 1/pow(se[i,k],2) # set precisions
         dev[i,k] <- (y[i,k]-theta[i,k])*(y[i,k]-theta[i,k])*prec[i,k] #Deviance contribution"
   }
@@ -21,6 +21,11 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     monitor.str <- "theta[i,k] <- lambda[i,k]*E[i,k] # failure rate * exposure
     dev[i,k] <- 2*((theta[i,k]-r[i,k]) + r[i,k]*log(r[i,k]/theta[i,k])) #Deviance contribution"
   }
+  
+  if (!is.null(meta.covariate)) {
+    metareg.str <- "+ (beta[t[i,k]]-beta[t[i,1]])*(x[i,k])"
+    } else {metareg.str <- ""}
+  
   
   if (effects == "fixed"){
     
@@ -36,6 +41,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,k]] - d[t[i,1]] # model for linear predictor"
     }
 
+    link.str <- paste0(link.str, metareg.str)
+    
     if(!inconsistency){
       
       code.str <- sprintf("#This code is adapted from
@@ -62,27 +69,31 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
                           
       %s
-                     
+      
+      %s               
     }", monitor.str,
         link.str,
         family.str,
         prior.mu.str,
-        prior.d.str)
+        prior.d.str,
+        prior.meta.reg)
     }
     
     if(inconsistency){
       
       if (family == "binomial" && link=="logit"){
-        link.str <- "logit(p[i,k]) <- mu[i] + d[t[i,k]] - d[t[i,1]]"
+        link.str <- "logit(p[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
       }  else if (family == "binomial" && link=="log"){
         link.str <- "log(p[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
       } else if (family == "normal" && link == "identity"){
-        link.str <- "theta[i,k] <- mu[i] + d[t[i,k]] - d[t[i,1]] # model for linear predictor"
+        link.str <- "theta[i,k] <- mu[i] + d[t[i,1],t[i,k]] # model for linear predictor"
       } else if (family == "poisson" && link=="log"){
-        link.str <- "log(lambda[i,k]) <- mu[i] + d[t[i,k]] - d[t[i,1]] # model for linear predictor"
+        link.str <- "log(lambda[i,k]) <- mu[i] + d[t[i,1],t[i,k]] # model for linear predictor"
       } else if (family== "binomial" && link=="cloglog"){
-        link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,k]] - d[t[i,1]] # model for linear predictor"
+        link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,1],t[i,k]] # model for linear predictor"
       }
+      
+      link.str <- paste0(link.str, metareg.str)
       
       code.str <- sprintf("# inconsistency model
     # fixed effects model
@@ -94,7 +105,6 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
           %s
           %s
           }
- 
           resdev[i]<-sum(dev[i,1:na[i]]) 
       }
         totresdev<-sum(resdev[])
@@ -117,7 +127,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     if (family == "binomial" && link=="logit"){
       link.str <- "logit(p[i,k]) <- mu[i] + delta[i,k]"
     } else if (family == "binomial" && link=="log"){
-      link.str <- "log(p[i,k]) <- mu[i] + d[t[i,k]] - d[t[i,1]]"
+      link.str <- "log(p[i,k]) <- mu[i] + delta[i,k]"
     } else if (family == "normal"){
       link.str <- "theta[i,k] <- mu[i] + delta[i,k] # model for linear predictor"
     } else if (family == "poisson" && link=="log"){
@@ -125,6 +135,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     } else if (family == "binomial" && link=="cloglog"){
       link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + delta[i,k] # model for linear predictor"
     }
+    
+    link.str <- paste0(link.str, metareg.str)
     
     if(!inconsistency){
       
@@ -159,21 +171,18 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       }   
       totresdev <- sum(resdev[])
       d[1]<-0       # treatment effect is zero for reference treatment
-      
       %s
-  
       %s
-    
       %s
-
       tau <- pow(sigma,-2)
-  
+      %s
     }", monitor.str,
         link.str,
         family.str,
         prior.mu.str,
         prior.d.str,
-        prior.sigma2.str)
+        prior.sigma2.str,
+        prior.meta.reg)
       
     }
     
@@ -200,6 +209,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s  
       %s
       tau <- 1/sigma2
+
     }
     ",monitor.str,
       link.str,
