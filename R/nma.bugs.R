@@ -16,6 +16,8 @@
 #' "binomial", "normal", "poisson".
 #' @param link The link function for the nma model. Options are "logit", "log", "cloglog", "identity".
 #' @param effects Options are "fixed" or "random".
+#' @param meta.covariate Optional string indicating the name of the variable in your data set that you would like to
+#' adjust for via meta regression.
 #' 
 #' @return \code{model.str} - A long character string containing BUGS code that will be run in \code{rjags}.
 #' @return \code{bugsdata2} - Data accompanying BUGS code.
@@ -73,7 +75,8 @@ nma.bugs <- function(slr,
                      exposure.time=NULL,
                      family,
                      link,
-                     effects){
+                     effects,
+                     meta.covariate = NULL){
   
   
   data <- slr$raw.data
@@ -85,6 +88,7 @@ nma.bugs <- function(slr,
   names(data)[names(data) == N] <- "N"
   if (family == "normal"){names(data)[names(data) == sd] <- "sd"}
   if (!is.null(exposure.time)){names(data)[names(data) == exposure.time] <- "timevar"}
+  if (!is.null(meta.covariate)){names(data)[names(data) == meta.covariate] <- "covariate"}
   
   #Trt mapping
   trt.map.table <- data$trt %>%
@@ -114,23 +118,29 @@ nma.bugs <- function(slr,
   names(sorted.data)[names(sorted.data) == N] <- "N"
   if (family == "normal"){names(sorted.data)[names(sorted.data) == sd] <- "sd"}
   if (!is.null(exposure.time)){names(sorted.data)[names(sorted.data) == exposure.time] <- "timevar"}
-  
+  if (!is.null(meta.covariate)){names(sorted.data)[names(sorted.data) == meta.covariate] <- "covariate"}
+    
   sorted.data %<>% arrange(trial, trt.jags)
   
   if (family == "binomial" && link %in% c("log","logit")){
     r <- matrix(NA, ns, max(na))
     n <- matrix(NA, ns, max(na))
     t <- matrix(NA, ns, max(na))
+    x <- matrix(NA, ns, max(na))
+    
     line <- 1
     
     for(i in 1:ns){
       for(a in 1:na[i]){
         r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
         n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
-        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric() ###need to work on this
+        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
+        if (!is.null(meta.covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()} #fix
       }
       line <- line + na[i]
     }
+    
+    if (!is.null(meta.covariate)) {x <- x-mean(x, na.rm=TRUE)}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -139,13 +149,16 @@ nma.bugs <- function(slr,
                       r=r,
                       n=n,
                       t=t,
-                      na=na) 
+                      na=na,
+                      x=x) 
   } else if (family == "normal" && link=="identity"){
     y <- matrix(NA, ns, max(na))
     n <- matrix(NA, ns, max(na))
     sd<- matrix(NA, ns, max(na))
     se<- matrix(NA, ns, max(na))
     t <- matrix(NA, ns, max(na))
+    x <- matrix(NA, ns, max(na))
+    
     line <- 1
     
     for(i in 1:ns){
@@ -154,11 +167,12 @@ nma.bugs <- function(slr,
         sd[i,a]<- sorted.data %>% select(sd) %>% slice(line+a-1) %>% as.numeric()
         n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
         t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
-        
+        if (!is.null(meta.covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()}        
       }
       line <- line + na[i]
     }
     se <- sd/sqrt(n)
+    if (!is.null(meta.covariate)) {x <- x-mean(x, na.rm=TRUE)}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -167,22 +181,27 @@ nma.bugs <- function(slr,
                       y=y,
                       se=se,
                       t=t,
-                      na=na)
+                      na=na,
+                      x = x)
     
   } else if (family == "poisson" && link == "log"){
     E <- matrix(NA, ns, max(na))
     r <- matrix(NA, ns, max(na))
     t <- matrix(NA, ns, max(na))
+    x <- matrix(NA, ns, max(na))
+    
     line <- 1
     
     for(i in 1:ns){
       for(a in 1:na[i]){
         E[i,a] <- sorted.data %>% select(timevar) %>% slice(line+a-1) %>% as.numeric()
         r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
-        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric() ###need to work on this
+        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
+        if (!is.null(meta.covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()}
       }
       line <- line + na[i]
     }
+    if (!is.null(meta.covariate)) {x <- x-mean(x, na.rm=TRUE)}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -191,12 +210,15 @@ nma.bugs <- function(slr,
                       E=E,
                       r=r,
                       t=t,
-                      na=na) 
+                      na=na,
+                      x=x) 
   } else if (family == "binomial" && link == "cloglog"){
     time <- matrix(NA, ns, max(na))
     n <- matrix(NA, ns, max(na))
     r <- matrix(NA, ns, max(na))
     t <- matrix(NA, ns, max(na))
+    x <- matrix(NA, ns, max(na))
+    
     line <- 1
     
     for(i in 1:ns){
@@ -204,10 +226,12 @@ nma.bugs <- function(slr,
         time[i,a] <- sorted.data %>% select(timevar) %>% slice(line+a-1) %>% as.numeric()
         n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
         r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
-        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric() ###need to work on this
+        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
+        if (!is.null(meta.covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()}        
       }
       line <- line + na[i]
     }
+    if (!is.null(meta.covariate)) {x <- x-mean(x, na.rm=TRUE)}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -217,7 +241,8 @@ nma.bugs <- function(slr,
                       n=n,
                       r=r,
                       t=t,
-                      na=na) 
+                      na=na,
+                      x=x) 
   } 
   add.to.model <- trt.map.table %>% 
     transmute(Treatments = paste0("# ", trt.jags, ": ", trt.ini, "\n")) %>% 
@@ -270,13 +295,28 @@ nma.bugs <- function(slr,
   sigma2 <- sigma^2"
   
   
+  #meta regression string
+  if (!is.null(meta.covariate)){
+    prior.meta.reg <- "beta[1]<-0
+    for (k in 2:nt){
+      beta[k] <- B
+    }
+    B~dnorm(0, .0001)"
+  } else {
+    prior.meta.reg <- ""
+  }
+  
+  #remove covariate from bugsdata2 if unused
+  if (is.null(meta.covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
+  
+  
   if(!is.null(type)){
     if(type=="inconsistency"){     
-      model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=TRUE, prior.mu.str, prior.d.str, prior.sigma2.str) %>%
+      model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=TRUE, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg) %>%
         paste0(add.to.model)
     }
   } else if(is.null(type)){
-    model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=FALSE, prior.mu.str, prior.d.str, prior.sigma2.str) %>%
+    model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=FALSE, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg) %>%
       paste0(add.to.model)
   }
   
@@ -293,6 +333,6 @@ nma.bugs <- function(slr,
     scale <- "HR"
   }
   
-  return(bugs=list(model.str=model.str, bugsdata2=bugsdata2, scale=scale, trt.map.table=trt.map.table))
+  return(bugs=list(model.str=model.str, bugsdata2=bugsdata2, scale=scale, trt.map.table=trt.map.table, family=family, link=link))
 }
 
