@@ -11,6 +11,8 @@
 #' 
 #' @return \code{s.table} - A dataset containing a SUCRA table.
 #' @return \code{s.plot} - A plot showing the probability of each treatment being the nth best treatment.
+#' @return \code{s.ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
+#' is useful when creating the league heat plot.
 #' 
 #' @examples
 #' 
@@ -87,8 +89,18 @@ if(largerbetter==TRUE){
          color="Treatment")
 }
 
-x5 <- (list(s.table, s.plot))
-names(x5) <- c("s.table", "s.plot")
+#output sucra ranks to input into league table
+sucra.totals <- s.table %>%ungroup() %>% select(-rank) %>% t()
+sucra.ranks <- sucra.totals %*% c(1:ncol(sucra.totals)) %>% 
+  data.frame() %>% 
+  cbind(rownames(sucra.totals))
+
+colnames(sucra.ranks) <- c("total", "treatment")
+
+sucra.ranks <- sucra.ranks %>% arrange(total) %>% select(treatment)
+
+x5 <- (list(s.table, s.plot, sucra.ranks[,1]))
+names(x5) <- c("s.table", "s.plot", "s.ranks")
 return(x5)
 }
 
