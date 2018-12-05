@@ -98,7 +98,7 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
       return(bind_rows(tble,add.tble))
       
     }
-    if(type.outcome %in% c("rate", "survival")){
+    if(type.outcome %in% c("rate", "rate2")){
       
       n.events <- slr$raw.data %>% select(outcome) %>% sum 
       
@@ -208,7 +208,7 @@ intervention.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
       left_join(., tmp.rate, by=slr$varname.t) %>% 
       mutate(events.per.person=n.events/n.patients) %>%
       mutate(av.event.rate=n.events/person.time.fup)
-  } else if (type.outcome =="survival"){
+  } else if (type.outcome =="rate2"){
       time2 <- quo(!! as.name(time))
       
       person.time <- slr$raw.data %>% 
@@ -269,7 +269,7 @@ comparison.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
       mutate(proportion=n.outcomes/n.patients)%>%
       mutate(event.rate=n.outcomes/patient_time)
     
-  } else if(type.outcome == "survival"){
+  } else if(type.outcome == "rate2"){
     add.time <- tmp1 %>% select(paste0(time,".e"), paste0(time,".c")) %>% rowSums()
     add.time <- cbind.data.frame(tmp1$comparison, add.time, stringsAsFactors = FALSE)
     names(add.time) <- c("comparison", "n.time")
