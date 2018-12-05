@@ -9,6 +9,8 @@
 #' @return \code{bugsdata2}
 #' @return \code{scale}
 #' @return \code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
+#' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
+#' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
 #' 
 
 nma.analysis <- function(bugs,
@@ -33,11 +35,14 @@ nma.analysis <- function(bugs,
                               n.iter=n.iter,
                               thin=thin)
   
+  
   # print("The baseline treatment was ...")
   
   return(list(model=jagsmodel, 
               samples=jagssamples, 
               scale=bugs$scale,
+              family=bugs$family,
+              link =bugs$link,
               trt.key=as.character(t(bugs$trt.map.table[1]))))
   
 }
