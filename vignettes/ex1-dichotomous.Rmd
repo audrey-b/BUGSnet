@@ -28,15 +28,18 @@ load_all(path = "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\R")
 ```
 
 ``` {r}
-dich.slr <- data.slr(raw.data = tbl_df(thrombolytic$data.ab),
+age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
+
+dich.slr <- data.slr(raw.data = cbind(tbl_df(thrombolytic$data.ab),age),
                      patient.data = thrombolytic$studies,
                      varname.t = "treatment",
                      varname.s = "study",
-                     N = sampleSize)
+                     N = "sampleSize")
 
 #ensure that treatment and study variables are both of class character
 dich.slr$raw.data$treatment <- as.character(dich.slr$raw.data$treatment)
 dich.slr$raw.data$study <- as.character(dich.slr$raw.data$study)
+
 ```
 
 ##Feasibility Assessment
@@ -83,35 +86,117 @@ TO BE PROGRAMMED
 ## Main analysis
 `nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
-makebugs <- nma.bugs(slr=dich.slr,
+fixed_effects_model <- nma.bugs(slr=dich.slr,
+                     outcome="responders",
+                     N="sampleSize",
+                     baseline.name="SK",
+                     family="binomial",
+                     link="log",
+                     effects="fixed")
+
+random_effects_model <- nma.bugs(slr=dich.slr,
                      outcome="responders",
                      N="sampleSize",
                      baseline.name="SK",
                      family="binomial",
                      link="log",
                      effects="random")
+
 ```
-If you want to analyse the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
 
 The next step is to run the NMA model using `nma.analysis()`
 ```{r, results = "hide"}
-jagsoutput <- nma.analysis(makebugs,
-                           monitor = c("d"),
+fixed_effects_results <- nma.analysis(fixed_effects_model,
+                           monitor = c("d", "dev", "r", "n","totresdev","rhat"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
+
+random_effects_results <- nma.analysis(random_effects_model,
+                           monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+
 ```
+
+#Assess model fit
+```{r, fig.width=7, fig.height=4, results = "hide"}
+par(mfrow = c(1,2))
+assess.model.fit(fixed_effects_results, main = "Fixed Effects Model" )
+assess.model.fit(random_effects_results, main= "Random Effects Model")
+
+```
+
+
 
 ##results
-
-### League Plot
-```{r, echo=TRUE, fig.width=8, fig.height=4}
-league.out <- leaguetable(jagsoutput, central.tdcy="median", layout="long")
-league.heat.plot(league.out)
+### Sucra Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
+sucra.out <- sucra(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out$s.plot
 ```
 
-### Sucra Plot
-```{r, echo=TRUE, fig.width=6, fig.height=6}
-sucra.out <- sucra(jagsoutput, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$s.plot
+
+### League Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4}
+league.out <- leaguetable(fixed_effects_results,  central.tdcy="median", layout="long")
+league.heat.plot(league.out, 
+                 sucra.ranks = rev(sucra.out$s.ranks), 
+                 low.colour = "springgreen4", 
+                 mid.colour = "white",
+                 high.colour = "red")
+```
+
+##Check inconsistency
+```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
+fe_inconsistency_model <- nma.bugs(slr=dich.slr,
+                     outcome="responders",
+                     N="sampleSize",
+                     baseline.name="SK",
+                     family="binomial",
+                     link="log",
+                     type = "inconsistency",
+                     effects="fixed")
+
+fe_inconsistency_results <- nma.analysis(fe_inconsistency_model,
+                           monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+
+nma.trace(fe_inconsistency_results, n=5)
+
+```
+
+```{r, fig.height=4, fig.width=8}
+par(mfrow = c(1,2))
+fe_model_fit <- assess.model.fit(fixed_effects_results)
+inconsist_model_fit <- assess.model.fit(fe_inconsistency_results)
+```
+
+```{r, fig.height=6, fig.width = 6}
+inconsistency.plot(fe_model_fit, inconsist_model_fit)
+```
+
+```{r, fig.height=8, fig.width = 8}
+# inconsistency.PMA(slr = dich.slr, 
+#                   jagsoutput = fixed_effects_results,
+#                   outcome = "responders",
+#                   N = "sampleSize",
+#                   base.trt = "SK",
+#                   effects="fixed", 
+#                   central.tdcy="median", 
+#                   line.size=1,
+#                   x.trans=NULL)
+```
+
+```{r, fig.width = 8, fig.height=6}
+# pairwise <- pairwise(slr = dich.slr,
+#                          name.trt1 = "SK",
+#                          name.trt2 = "Ret",
+#                          outcome = "responders",
+#                          N = "sampleSize")
+```
 ```

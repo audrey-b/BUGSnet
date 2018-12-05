@@ -1,0 +1,209 @@
+---
+title: "NMA for Rate2 Outcomes"
+author: "Justin Slater"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{NMA for rate2 Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r, include = FALSE}
+source("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\misc_code\\load.packages.R")
+library(devtools)
+library(roxygen2)
+library(gemtc)
+library(knitr)
+library(readxl)
+load_all(path = "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\R")
+diabetes <- read_excel("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\data\\rate2_example.xlsx")
+```
+The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2, page 66. We illustrate this example using BUGSnet, a novel package for network meta-analysis developed by Lighthouse Outcomes Inc. The results of our package are concordant with those reported in the TSD.
+
+The Diabetes data has 22 studies and 6 treatments, each study has a follow up time between 1 and 5.8 years:
+```{r, echo = FALSE}
+kable(diabetes)
+```
+
+
+``` {r}
+rate2.slr <- data.slr(raw.data = diabetes,
+                     varname.t = "Treatment",
+                     varname.s = "Study",
+                     N = "n")
+```
+
+##Feasibility Assessment
+
+### Network Plot
+
+```{r, network.plot, echo=TRUE, fig.width=6, fig.height=5}
+par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
+network.plot(rate2.slr, node.scale = 3, edge.scale=1.5)
+```
+
+
+### Generate Network Characteristics via `netmetaxl.tables()`
+
+```{r, results = "hide"}
+network.char <- netmetaxl.tables(slr = rate2.slr,
+                                outcome = "diabetes",
+                                N = "n",
+                                type.outcome = "rate2",
+                                time = "followup")
+```
+
+#### Network Characteristics
+`network.char$network` generates characteristics about the network, such as connectedness, number of treatments in the network, and in the case of a binomial outcome, the number of events in the network.
+```{r, echo = FALSE}
+kable(network.char$network)
+```
+
+#### Intervention Characteristics
+`network.char$intervention` generates outcome and sample size data broken down by treatment.
+
+```{r, echo=FALSE}
+kable(network.char$intervention)
+```
+
+#### Comparison Characteristics
+`network.char$comparison` generates outcome and sample size data broken down by treatment **comparison**.
+```{r, echo=FALSE}
+kable(network.char$comparison)
+```
+
+## Main analysis
+`nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is "Diuretic". Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+
+###Model Choice
+```{r}
+fixed_effects_model <- nma.bugs(slr=rate2.slr,
+                                 outcome="diabetes",
+                                 N="n",
+                                 baseline.name="Diuretic",
+                                 family="binomial",
+                                 link="cloglog",
+                                 exposure.time = "followup",
+                                 effects="fixed")
+
+random_effects_model <- nma.bugs(slr=rate2.slr,
+                                 outcome="diabetes",
+                                 N="n",
+                                 baseline.name="Diuretic",
+                                 family="binomial",
+                                 link="cloglog",
+                                 exposure.time = "followup",
+                                 effects= "random")
+
+```
+
+If you want to review the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+
+The next step is to run the NMA model using `nma.analysis()`
+```{r, results = "hide"}
+fixed_effects_results <- nma.analysis(fixed_effects_model,
+                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+
+random_effects_results <- nma.analysis(random_effects_model,
+                           monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+
+```
+
+Compare fixed vs random effects models by comparing leverage plots and the DIC. A plot of the $leverage_{ik}$ vs $w_{ik}$ (Bayesian deviance residual) for each of the $k$ arms in all $i$ trials can help highlight potential outliers when fitting our model. If a data point lies outside the purple arc ($x^2 + y =3$), then this data point can be said to be contributing to the model's poor fit.
+
+```{r, fig.width=7, fig.height=4, results = "hide"}
+par(mfrow = c(1,2))
+fe_model_fit <- assess.model.fit(fixed_effects_results, main = "Fixed Effects Model" )
+re_model_fit <- assess.model.fit(random_effects_results, main= "Random Effects Model")
+```
+
+The random effects model is obviously the right  choice here. The DIC is considerably lower in the random effects model. The fixed effects model shows that 8 points are largely contributing to the model's poor fit. The random effects model appears to have only 1 outlier, which should be investigated. We can see which arm/study is reponsible for this datapoint by using the command `re_model_fit$w`. From this we can see that Placebo arm from the "MRC-E" study is contributing to the model's poor fit. This may call for a reconsideration of including this study in our evidence base, or to investigate potential effect modifiers. But for the sake of this example, we will assume that this study arm should remain in the evidence base and that there are no imbalanced effect modifiers.
+
+###Check inconsistency
+Next, we will assess consistency in the network by fitting a random effects inconsistency model and comparing it to our
+random effects consistency model. If our inconsistency model shows a better fit than the consistency model, then 
+it is likely that there is inconsistency in the network.
+
+```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
+re_inconsistency_model <- nma.bugs(slr=rate2.slr,
+                                   outcome="diabetes",
+                                   N="n",
+                                   baseline.name="Diuretic",
+                                   family="binomial",
+                                   exposure.time = "followup",
+                                   link="cloglog",
+                                   type = "inconsistency",
+                                   effects="random")
+
+re_inconsistency_results <- nma.analysis(re_inconsistency_model,
+                                         monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                                         n.adapt=1000,
+                                         n.burnin=1000,
+                                         n.iter=10000)
+
+```
+
+Again, rainbow plots and DIC calculations can highlight outliers and can compare model fits between the two models. 
+```{r, fig.width=7, fig.height=4, results = "hide"}
+par(mfrow = c(1,2))
+re_model_fit <- assess.model.fit(random_effects_results, main = "Consistency Model" )
+inconsist_model_fit <- assess.model.fit(re_inconsistency_results, main= "Inconsistency Model")
+```
+When assessing the fit of both models, the consistency model has a smaller DIC, but the inconsistency model seems to have a neater leverage plot. You'll notice that there are a couple of other metrics that are outputted with the leverage plots, namely, the leverage ($pD$) and the posterior mean of the residual deviance ($\bar(D)_{res}$). The leverage can be thought of as the "effective number of parameters", while the residual deviance can be thought of as the "model fit" (the lower the better). We can see that the inconsistency model produces slightly a smaller $\bar(D)_{res}$, but at the expense of increased model complexity (larger $pD$).
+
+A plot of the \code{pmdev} of both models against each other can highlight descrepancies between the two models.
+```{r, fig.height=6, fig.width = 6}
+inconsistency.plot(re_model_fit, inconsist_model_fit)
+```
+
+Seeing as that all the points lie close to the $y=x$ (dotted) line, there is very little evidence of inconsistency.
+
+##Results
+
+### Sucra Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
+sucra.out <- sucra(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out$s.plot
+```
+
+These results are also available in tabular form via `sucra.out$s.table`.
+```{r, echo = FALSE}
+kable(sucra.out$s.table)
+```
+
+### League Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4}
+league.out <- leaguetable(random_effects_results,  central.tdcy="median", layout="long")
+league.heat.plot(league.out, 
+                 sucra.ranks = rev(sucra.out$s.ranks), 
+                 low.colour = "springgreen4", 
+                 mid.colour = "white",
+                 high.colour = "red")
+```
+
+##Appendix
+###Winbugs code for final model
+The following winbugs code is produced by the `nma.analysis()` function.
+```{r}
+random_effects_results$model
+```
+
+###Assessment of convergence of final model
+```{r, fig.height = 15, fig.width=8}
+nma.trace(random_effects_results)
+```
