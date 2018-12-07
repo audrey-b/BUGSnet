@@ -57,6 +57,7 @@ patients.plot <- function(patients.data,
                           errorbar.min = NULL, 
                           errorbar.max = NULL,
                           overall.average=TRUE,
+                          fill.str=NULL,
                           y.lab, 
                           caption,
                           by = "trial"){
@@ -73,8 +74,8 @@ patients.plot <- function(patients.data,
     om <- geom_hline(yintercept = overall.mean, color = "red", linetype=2)}
   else{om=NULL}
   
-  names(patients.data)[names(patients.data) == treatment.var] <- "trt"
-  names(patients.data)[names(patients.data) == trial.var] <- "trial"
+  patients.data <- patients.data %>%
+    mutate(trt =(!! as.name(treatment.var)), trial =(!! as.name(trial.var)))
   
   if (by == "treatment"){
   if(is.null(fill.str)) {p <- ggplot(patients.data, aes_string(x=treatment.var, y=var.name))}
@@ -83,12 +84,13 @@ patients.plot <- function(patients.data,
   p <- p + geom_bar(stat = "identity") +
     eb +
     om + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
           legend.title=element_blank(),
           plot.margin=unit(c(25, 5.5, 5.5, 50), "points"),
           strip.text.x = element_text(angle = 90)) +
     labs(y = y.lab, x="", caption = caption)+
     facet_grid(. ~ trial,  space="free_x", scales="free_x")
+  
   }
   else if (by == "trial"){
     
@@ -98,12 +100,13 @@ patients.plot <- function(patients.data,
   p <- p + geom_bar(stat = "identity") +
     eb +
     om + 
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
           legend.title=element_blank(),
-         plot.margin=unit(c(25, 5.5, 5.5, 50), "points"),
+         plot.margin=unit(c(10, 4, 4, 20), "points"),
           strip.text.x = element_text(angle = 90)) +
     labs(y = y.lab, x="", caption = caption)+
-    facet_grid(. ~ trt,  space="free_x", scales="free_x")  
+    facet_grid(. ~ trt,  space="free_x", scales="free_x")
+  
   }
   p
 }

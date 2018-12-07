@@ -333,6 +333,11 @@ nma.bugs <- function(slr,
     scale <- "HR"
   }
   
-  return(bugs=list(model.str=model.str, bugsdata2=bugsdata2, scale=scale, trt.map.table=trt.map.table, family=family, link=link))
+  return(bugs=list(model.str=model.str,
+                   bugsdata2=bugsdata2, 
+                   scale=scale, 
+                   trt.map.table=trt.map.table, 
+                   family=family, 
+                   link=link))
 }
 

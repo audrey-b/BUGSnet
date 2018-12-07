@@ -1,8 +1,9 @@
 ---
-title: "NMA for Rate2 Outcomes"
+title: "NMA for Survival Outcomes"
 author: "Justin Slater"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{NMA for rate2 Outcomes}
   %\VignetteEngine{knitr::rmarkdown}
@@ -27,14 +28,14 @@ library(readxl)
 load_all(path = "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\R")
 diabetes <- read_excel("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\data\\rate2_example.xlsx")
 ```
-The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2, page 66. We illustrate this example using BUGSnet, a novel package for network meta-analysis developed by Lighthouse Outcomes Inc. The results of our package are concordant with those reported in the TSD.
+The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2 [@TSD2], page 66. The results of our package are concordant with those reported in the TSD.
 
-The Diabetes data has 22 studies and 6 treatments, each study has a follow up time between 1 and 5.8 years:
+The Diabetes data has 22 studies and 6 treatments, each study has a follow up time between 1 and 6.1 years. The outcome for this data (`diabetes`) is the number of new diabetes cases observed during the trial period. An age variable, including its standard deviation, was simulated for demonstration purposes. This data contains multi-arm trials, which can easily be accomodated using BUGSnet. The data is shown here:
 ```{r, echo = FALSE}
 kable(diabetes)
 ```
 
-
+Before any analysis is done, we need to put our data in a form that BUGSnet can easily handle. This is done by simple running the `data.slr()` function and specifying the name of the treatment, study, and samplesize variables:
 ``` {r}
 rate2.slr <- data.slr(raw.data = diabetes,
                      varname.t = "Treatment",
@@ -42,17 +43,23 @@ rate2.slr <- data.slr(raw.data = diabetes,
                      N = "n")
 ```
 
-##Feasibility Assessment
+We will use this `slr` object throughout the rest of our example.
 
-### Network Plot
 
-```{r, network.plot, echo=TRUE, fig.width=6, fig.height=5}
+## Network of Evidence
+
+To generate a network plot, simply input the `slr` object into the `network.plot()` function as shown:
+
+```{r, network.plot, echo=TRUE, fig.width=6, fig.height=5, fig.align="centre"}
 par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
 network.plot(rate2.slr, node.scale = 3, edge.scale=1.5)
 ```
 
+Our network has 6 treatments and a high degree of connectedness.
 
 ### Generate Network Characteristics via `netmetaxl.tables()`
+
+In addition to a plot of the network, BUGSnet can summarize network, intervention, and comparison statistics that can be used to better understand our network of evidence.
 
 ```{r, results = "hide"}
 network.char <- netmetaxl.tables(slr = rate2.slr,
@@ -81,10 +88,38 @@ kable(network.char$intervention)
 kable(network.char$comparison)
 ```
 
+##Patient Characteristics
+**Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `patient.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies, which BUGSnet automatically highlights in red.
+
+```{r, fig.width=8, fig.height = 5, fig.align="centre"}
+patients.plot(patients.data = rate2.slr$raw.data, 
+              treatment.var = "Treatment",
+              trial.var = "Study",
+              var.name = "age", 
+              errorbar = TRUE, # do you want error bars?
+              errorbar.min = "age - age_SD", #formula to calculate error bar minimum
+              errorbar.max = "age + age_SD",
+              fill.str = "age_type", #variable indicating which value is reported (e.g mean/median)
+              overall.average=TRUE, #add overall average line?
+              y.lab = "Age (Years)",
+              caption = "Error bars: Mean +/- sd",
+              by = "trial")
+```
+If there are any imbalances in effect modifiers between trials, subgroup analysis or meta-regression can be employed. For this example, we will assume that there is no significant imbalance in effect modifiers.
+
+For a guide on how to perform meta-regression in BUGSnet, consult BUGSnet's documentation and other vignettes.
+
 ## Main analysis
-`nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is "Diuretic". Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 
 ###Model Choice
+In the case where study followup time is reported along with the number of events we need to employ the "binomial" family along with the complementary log-log (cloglog) link function. An explanation of the models follow.
+
+Let $p_{ik}$ be the probability of an event in arm $k$ of the $i^{th}$ trial, and let $f_i$ be the follow-up time for the $i^{th}$ trial. $\mu_i$ represents the 'baseline' event rate in trial $i$, and $\delta_{i,bk}$ represents the relative treatment effect of treatment $k$ relative to treatment $b$. The generalised linear model can be written as follows:
+$$cloglog(p_{ik})=log(f_i) +\mu_i +\delta_{i,bk}I_{(k \neq I)} $$
+where $\delta_{i, bk} \sim N(d_{bk}, \sigma^2_{bk})$. When we assume that $\sigma^2_{bk} = 0$, this is known as a **fixed effects model**. Otherwise, we are dealing with a **random effects model** where we attempt to model $\sigma^2_{ik}$. We will run both of these models and compare their fit statistics using BUGSnet. Note that both of these models assume a constant hazard ratio for the duration of follow up.
+
+
+`nma.bugs()` builds a model using JAGS code based on the user's specifications. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, we have set the referent treatment to "Diuretic" to be consistent with the TSD and literature. 
 ```{r}
 fixed_effects_model <- nma.bugs(slr=rate2.slr,
                                  outcome="diabetes",
@@ -106,21 +141,21 @@ random_effects_model <- nma.bugs(slr=rate2.slr,
 
 ```
 
-If you want to review the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review the JAGS code that was created, you can use the command `makebugs$model.str` (see appendix for an example).
 
-The next step is to run the NMA model using `nma.analysis()`
+The next step is to run the NMA model using `nma.analysis()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 ```{r, results = "hide"}
 fixed_effects_results <- nma.analysis(fixed_effects_model,
                             monitor = c("d", "dev", "r", "n","totresdev","rhat"),
-                           n.adapt=1000,
-                           n.burnin=1000,
-                           n.iter=10000)
+                           n.adapt=10000,
+                           n.burnin=10000,
+                           n.iter=100000)
 
 random_effects_results <- nma.analysis(random_effects_model,
                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
-                           n.adapt=1000,
-                           n.burnin=1000,
-                           n.iter=10000)
+                           n.adapt=10000,
+                           n.burnin=10000,
+                           n.iter=100000)
 
 ```
 
@@ -136,10 +171,9 @@ The random effects model is obviously the right  choice here. The DIC is conside
 
 ###Check inconsistency
 Next, we will assess consistency in the network by fitting a random effects inconsistency model and comparing it to our
-random effects consistency model. If our inconsistency model shows a better fit than the consistency model, then 
-it is likely that there is inconsistency in the network.
+random effects consistency model [@lu2006assessing]. If our inconsistency model shows a better fit than the consistency model, then it is likely that there is inconsistency in the network.
 
-```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
+```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8, fig.align="centre"}
 re_inconsistency_model <- nma.bugs(slr=rate2.slr,
                                    outcome="diabetes",
                                    N="n",
@@ -147,54 +181,65 @@ re_inconsistency_model <- nma.bugs(slr=rate2.slr,
                                    family="binomial",
                                    exposure.time = "followup",
                                    link="cloglog",
-                                   type = "inconsistency",
+                                   type = "inconsistency", #specifies inconsistency model
                                    effects="random")
 
 re_inconsistency_results <- nma.analysis(re_inconsistency_model,
                                          monitor = c("d", "dev", "r", "n","totresdev","rhat"),
-                                         n.adapt=1000,
-                                         n.burnin=1000,
-                                         n.iter=10000)
+                                         n.adapt=10000,
+                                         n.burnin=10000,
+                                         n.iter=100000)
 
 ```
 
-Again, rainbow plots and DIC calculations can highlight outliers and can compare model fits between the two models. 
+Again, rainbow plots and DIC calculations can highlight outliers and can compare model fit between the two models. 
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
 re_model_fit <- assess.model.fit(random_effects_results, main = "Consistency Model" )
 inconsist_model_fit <- assess.model.fit(re_inconsistency_results, main= "Inconsistency Model")
 ```
-When assessing the fit of both models, the consistency model has a smaller DIC, but the inconsistency model seems to have a neater leverage plot. You'll notice that there are a couple of other metrics that are outputted with the leverage plots, namely, the leverage ($pD$) and the posterior mean of the residual deviance ($\bar(D)_{res}$). The leverage can be thought of as the "effective number of parameters", while the residual deviance can be thought of as the "model fit" (the lower the better). We can see that the inconsistency model produces slightly a smaller $\bar(D)_{res}$, but at the expense of increased model complexity (larger $pD$).
 
-A plot of the \code{pmdev} of both models against each other can highlight descrepancies between the two models.
+When assessing the fit of both models, the consistency model has a smaller DIC, but the inconsistency model seems to have a neater leverage plot. You'll notice that there are a couple of other metrics that are outputted with the leverage plots, namely, the leverage ($pD$) and the posterior mean of the residual deviance ($\bar{D}_{res}$). The leverage can be thought of as the "effective number of parameters", while the residual deviance can be thought of as the "model fit" (the lower the better). We can see that the inconsistency model produces slightly a smaller $\bar{D}_{res}$, but at the expense of increased model complexity (larger $pD$). In general, the consistency model seems to be favourable here, due to it's adequate fit and parsimony.
+
+Furthermore, a plot of the `pmdev` of both models against each other can highlight descrepancies between the two models.
 ```{r, fig.height=6, fig.width = 6}
 inconsistency.plot(re_model_fit, inconsist_model_fit)
 ```
 
-Seeing as that all the points lie close to the $y=x$ (dotted) line, there is very little evidence of inconsistency.
+With the exception of 1 or 2 points, the data lies on or near the $y=x$ line, indicating a general agreement between the two models. This suggests that we proceed with the more parsimonious (consistency) model.
 
 ##Results
 
-### Sucra Plot
-```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
+### SUCRA Plot
+SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,...worst rank. In BUGSnet, simply input the results of your model into the `sucra()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
+
+```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
 sucra.out <- sucra(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
 sucra.out$s.plot
 ```
 
-These results are also available in tabular form via `sucra.out$s.table`.
+From this plot, we can see that there is a $\sim$ 77% chance that ARB's are the best treatments, and a $\sim$ 80% chance that diuretics are the worst treatment.
+
+If you want the exact percentages, these results are also available in tabular form via `sucra.out$s.table`.
 ```{r, echo = FALSE}
 kable(sucra.out$s.table)
 ```
 
 ### League Plot
-```{r, echo=TRUE, fig.width=7, fig.height=4}
+League tables are another great way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes a 95% confidence bound as well as a significance indicator (**) for each comparison. You can also plot the league table as a heat map using the following code:
+
+```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- leaguetable(random_effects_results,  central.tdcy="median", layout="long")
 league.heat.plot(league.out, 
-                 sucra.ranks = rev(sucra.out$s.ranks), 
+                 sucra.ranks = rev(sucra.out$s.ranks), #order treatments for heatmap
                  low.colour = "springgreen4", 
                  mid.colour = "white",
                  high.colour = "red")
 ```
+
+## Conclusion
+
+A random effects model showed to be adequate in modelling the treatment effects across the evidence network. Both the SUCRA plot and league table suggest that all treatments are effective when compared diuretic, with the exception of Beta Blockers. ARB's seem to be the most effective treatment, followed by ACE inhibitors and Placebo.
 
 ##Appendix
 ###Winbugs code for final model
@@ -204,6 +249,10 @@ random_effects_results$model
 ```
 
 ###Assessment of convergence of final model
+
+After a model is fit to the evidence, check the trace plots of the model using `nma.trace()`. Look for spikes or general irregularities in the posterior distributions of the d's. Irregularities in these distributions suggest that the model never converged, and will likely require you to run more have a longer burn-in period, or have more iterations in general. Here, the model shows strong signs of convergence.
 ```{r, fig.height = 15, fig.width=8}
 nma.trace(random_effects_results)
 ```
+
+# References
