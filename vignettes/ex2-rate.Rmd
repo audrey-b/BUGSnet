@@ -18,14 +18,16 @@ knitr::opts_chunk$set(
 
 
 ```{r, include = FALSE}
-source("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\misc_code\\load.packages.R")
+path <- "Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
+sep <- "/"
+source(paste0(path,"misc_code",sep,"load.packages.R"))
 library(devtools)
 library(roxygen2)
 library(gemtc)
 library(knitr)
 library(readxl)
-load_all(path = "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\R")
-fatdiet <- read_excel("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\data\\rate_example.xlsx")
+load_all(path = paste0(path,"R"))
+fatdiet <- read_excel(paste0(path,"data",sep,"rate_example.xlsx"))
 ```
 
 ``` {r}

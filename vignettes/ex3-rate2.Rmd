@@ -19,14 +19,16 @@ knitr::opts_chunk$set(
 
 
 ```{r, include = FALSE}
-source("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\misc_code\\load.packages.R")
+path <- "Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
+sep <- "/"
+source(paste0(path,"misc_code",sep,"load.packages.R"))
 library(devtools)
 library(roxygen2)
 library(gemtc)
 library(knitr)
 library(readxl)
-load_all(path = "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\R")
-diabetes <- read_excel("C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\data\\rate2_example.xlsx")
+load_all(path = paste0(path,"R"))
+diabetes <- read_excel(paste0(path,"data",sep,"rate2_example.xlsx"))
 ```
 The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2 [@TSD2], page 66. The results of our package are concordant with those reported in the TSD.
 
