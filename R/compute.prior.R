@@ -70,7 +70,6 @@ compute.prior <- function(slr, outcome, scale, N, sd=NULL, time = NULL){
   return(max(abs(deltas)))
 }
 
-compute.prior(slr = dich.slr, scale = "RR", outcome = "responders", N = "sampleSize")
 
 
 
