@@ -96,9 +96,9 @@ pairwise <- function(slr,
     
     pairwise.dat.with.c <- pairwise.dat %>% 
       filter(grepl(name.trt1, comparison)) %>%
-      filter(trt.e == name.trt2)
+      filter((trt.e == name.trt2 | trt.c == name.trt2))
     
-    names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
+    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
     
     if(dim(pairwise.dat.with.c)[1]!=0){
       meta1 <- metabin(pairwise.dat.with.c[,paste0(outcome,".e")] %>% t() %>% as.vector,
@@ -121,7 +121,7 @@ pairwise <- function(slr,
         fe.lci = tmp.tab$fixed$lower %>% exp,
         fe.uci = tmp.tab$fixed$upper %>% exp)
       
-      return(list("summary" = est, "forest" = forest(meta1, studlab = pairwise.dat.with.c$study.id),"raw"=meta1))
+      return(list("summary" = est, "forest" = forest(meta1, studlab = pairwise.dat.with.c$trial),"raw"=meta1))
       
     }
     else(return("No direct information for this comparison"))
@@ -133,7 +133,7 @@ pairwise <- function(slr,
       filter(grepl(name.trt1, comparison)) %>%
       filter((trt.e == name.trt2 | trt.c == name.trt2))
     
-    names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
+    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
     
     if(dim(pairwise.dat.with.c)[1]!=0){
       meta1 <- metacont(pairwise.dat.with.c[,paste0(N,".e")] %>% t() %>% as.vector,
@@ -157,7 +157,7 @@ pairwise <- function(slr,
         fe.lci = tmp.tab$fixed$lower %>% exp,
         fe.uci = tmp.tab$fixed$upper %>% exp)
       
-      return(list("summary" = est, "forest" = forest(meta1, studlab = pairwise.dat.with.c$study.id),"raw"=meta1))
+      return(list("summary" = est, "forest" = forest(meta1, studlab = pairwise.dat.with.c$trial),"raw"=meta1))
       
     }
     else(return("No direct information for this comparison"))
@@ -169,7 +169,7 @@ pairwise <- function(slr,
       filter(grepl(name.trt1, comparison)) %>%
       filter((trt.e == name.trt2 | trt.c == name.trt2))
     
-    names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
+    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
     
     if(dim(pairwise.dat.with.c)[1]!=0){
       meta1 <- metainc(event.e = pairwise.dat.with.c[,paste0(outcome,".e")] %>% t() %>% as.vector,

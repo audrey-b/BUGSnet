@@ -2,7 +2,7 @@
 title: "NMA for Survival Outcomes"
 author: "Justin Slater"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: html_document
 bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{NMA for rate2 Outcomes}
@@ -55,7 +55,14 @@ par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
 network.plot(rate2.slr, node.scale = 3, edge.scale=1.5)
 ```
 
-Our network has 6 treatments and a high degree of connectedness.
+Our network has 6 treatments and a high degree of connectedness. If a user wants to highlight a specific node and its direct evidence, this can be done using the `flag` option.
+
+```{r, echo=TRUE, fig.width=6, fig.height=5, fig.align="centre"}
+par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
+network.plot(rate2.slr, node.scale = 3, edge.scale=1.5, flag = "ARB")
+```
+
+This gives us the names of the 5 trials connecting the ARB node to 4 treatments.
 
 ### Generate Network Characteristics via `netmetaxl.tables()`
 
@@ -105,6 +112,7 @@ patients.plot(patients.data = rate2.slr$raw.data,
               caption = "Error bars: Mean +/- sd",
               by = "trial")
 ```
+
 If there are any imbalances in effect modifiers between trials, subgroup analysis or meta-regression can be employed. For this example, we will assume that there is no significant imbalance in effect modifiers.
 
 For a guide on how to perform meta-regression in BUGSnet, consult BUGSnet's documentation and other vignettes.
@@ -147,15 +155,15 @@ The next step is to run the NMA model using `nma.analysis()`. Since we are worki
 ```{r, results = "hide"}
 fixed_effects_results <- nma.analysis(fixed_effects_model,
                             monitor = c("d", "dev", "r", "n","totresdev","rhat"),
-                           n.adapt=10000,
-                           n.burnin=10000,
-                           n.iter=100000)
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
 
 random_effects_results <- nma.analysis(random_effects_model,
                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
-                           n.adapt=10000,
-                           n.burnin=10000,
-                           n.iter=100000)
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
 
 ```
 
@@ -170,8 +178,7 @@ re_model_fit <- assess.model.fit(random_effects_results, main= "Random Effects M
 The random effects model is obviously the right  choice here. The DIC is considerably lower in the random effects model. The fixed effects model shows that 8 points are largely contributing to the model's poor fit. The random effects model appears to have only 1 outlier, which should be investigated. We can see which arm/study is reponsible for this datapoint by using the command `re_model_fit$w`. From this we can see that Placebo arm from the "MRC-E" study is contributing to the model's poor fit. This may call for a reconsideration of including this study in our evidence base, or to investigate potential effect modifiers. But for the sake of this example, we will assume that this study arm should remain in the evidence base and that there are no imbalanced effect modifiers.
 
 ###Check inconsistency
-Next, we will assess consistency in the network by fitting a random effects inconsistency model and comparing it to our
-random effects consistency model [@lu2006assessing]. If our inconsistency model shows a better fit than the consistency model, then it is likely that there is inconsistency in the network.
+Next, we will assess consistency in the network by fitting a random effects inconsistency model and comparing it to our random effects consistency model [@lu2006assessing]. If our inconsistency model shows a better fit than the consistency model, then it is likely that there is inconsistency in the network.
 
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8, fig.align="centre"}
 re_inconsistency_model <- nma.bugs(slr=rate2.slr,
@@ -186,9 +193,9 @@ re_inconsistency_model <- nma.bugs(slr=rate2.slr,
 
 re_inconsistency_results <- nma.analysis(re_inconsistency_model,
                                          monitor = c("d", "dev", "r", "n","totresdev","rhat"),
-                                         n.adapt=10000,
-                                         n.burnin=10000,
-                                         n.iter=100000)
+                                         n.adapt=1000,
+                                         n.burnin=1000,
+                                         n.iter=10000)
 
 ```
 

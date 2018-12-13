@@ -9,8 +9,6 @@ by.comparison <- function(slr, outcome, type.outcome="binomial", N, sd=NULL, tim
 
     names(data)[names(data) == slr$sd] <- "sd"
     
-    #List all possible comparisons per study
-    
     data %<>% select(trial, trt, outcome, N, sd)
     data.st <- select(data, trial, trt)
     data.st %<>% nest(trt, .key="treatments")
@@ -44,8 +42,6 @@ by.comparison <- function(slr, outcome, type.outcome="binomial", N, sd=NULL, tim
   } else if (type.outcome %in% c("rate", "rate2")){
     
     names(data)[names(data) == slr$time] <- "time"
-    
-    #List all possible comparisons per study
     
     data %<>% select(trial, trt, outcome, N, time)
     data.st <- select(data, trial, trt)

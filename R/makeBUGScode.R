@@ -188,7 +188,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     
     if(inconsistency){
       
-      code.str <- sprintf("# Binomial likelihood, log link, inconsistency model
+      code.str <- sprintf("# Binomial likelihood, inconsistency model
       # Random effects model
       model{                      # *** PROGRAM STARTS
     
