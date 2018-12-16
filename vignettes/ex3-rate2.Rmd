@@ -37,7 +37,7 @@ The Diabetes data has 22 studies and 6 treatments, each study has a follow up ti
 kable(diabetes)
 ```
 
-Before any analysis is done, we need to put our data in a form that BUGSnet can easily handle. This is done by simple running the `data.slr()` function and specifying the name of the treatment, study, and samplesize variables:
+Before any analysis is done, we need to put our data in a form that BUGSnet can easily handle. This is done by simple running the `data.slr()` function and specifying the name of the treatment, study, and sample size variables:
 ``` {r}
 rate2.slr <- data.slr(raw.data = diabetes,
                      varname.t = "Treatment",
@@ -129,7 +129,7 @@ $$cloglog(p_{ik})=log(f_i) +\mu_i +\delta_{i,bk}I_{(k \neq I)} $$
 where $\delta_{i, bk} \sim N(d_{bk}, \sigma^2_{bk})$. When we assume that $\sigma^2_{bk} = 0$, this is known as a **fixed effects model**. Otherwise, we are dealing with a **random effects model** where we attempt to model $\sigma^2_{ik}$. We will run both of these models and compare their fit statistics using BUGSnet. Note that both of these models assume a constant hazard ratio for the duration of follow up.
 
 
-`nma.bugs()` builds a model using JAGS code based on the user's specifications. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, we have set the referent treatment to "Diuretic" to be consistent with the TSD and literature. 
+`nma.bugs()` builds a model using BUGS code based on the user's specifications. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, we have set the referent treatment to "Diuretic" to be consistent with the TSD and literature. 
 ```{r}
 fixed_effects_model <- nma.bugs(slr=rate2.slr,
                                  outcome="diabetes",
@@ -151,12 +151,12 @@ random_effects_model <- nma.bugs(slr=rate2.slr,
 
 ```
 
-If you want to review the JAGS code that was created, you can use the command `makebugs$model.str` (see appendix for an example).
+If you want to review the BUGS code that was created, you can use the command `makebugs$model.str` (see appendix for an example).
 
-The next step is to run the NMA model using `nma.analysis()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
+The next step is to run the NMA model using `nma.analysis()` which will analyse the data with the BUGS model through the JAGS software [@JAGS]. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 ```{r, results = "hide"}
 fixed_effects_results <- nma.analysis(fixed_effects_model,
-                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                           monitor = c("d", "dev", "r", "n","totresdev","rhat"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
@@ -235,7 +235,7 @@ kable(sucra.out$s.table)
 ```
 
 ### League Plot
-League tables are another great way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes a 95% confidence bound as well as a significance indicator (**) for each comparison. You can also plot the league table as a heat map using the following code:
+League tables are another great way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes 95% credible intervals. You can also plot the league table as a heat map using the following code:
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- leaguetable(random_effects_results,  central.tdcy="median", layout="long")
@@ -246,13 +246,15 @@ league.heat.plot(league.out,
                  high.colour = "red")
 ```
 
+The symbols (**) are used to highlight credible intervals that do not contain 1, where there is evidence of a statistically significant difference between treatment and their comparators at the 95% confidence level. In this example, a green cell indicates that a treatment performed better than its comparator (estimate smaller than 1), while a red cell indicates that the treatment performed worst than its comparator (estimate greater than 1).
+
 ## Conclusion
 
 A random effects model showed to be adequate in modelling the treatment effects across the evidence network. Both the SUCRA plot and league table suggest that all treatments are effective when compared diuretic, with the exception of Beta Blockers. ARB's seem to be the most effective treatment, followed by ACE inhibitors and Placebo.
 
 ##Appendix
-###Winbugs code for final model
-The following winbugs code is produced by the `nma.analysis()` function.
+###BUGS code for final model
+The following BUGS code is produced by the `nma.analysis()` function.
 ```{r}
 random_effects_results$model
 ```

@@ -3,6 +3,7 @@ title: "NMA for Rate Outcomes"
 author: "Justin Slater"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{NMA for Rate Outcomes}
   %\VignetteEngine{knitr::rmarkdown}
@@ -77,7 +78,7 @@ kable(network.char$comparison)
 ```
 
 ## Main analysis
-`nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+`nma.bugs()` creates BUGS code and that will be put into `nma.analysis()` and analysed through JAGS [@JAGS]. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
 fixed_effects_model <- nma.bugs(slr=rate.slr,
                                  outcome="death",
@@ -99,9 +100,10 @@ random_effects_model <- nma.bugs(slr=rate.slr,
 
 ```
 
-If you want to review the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review the BUGS code, you can review it by outputting `makebugs$model.str`. 
 
-The next step is to run the NMA model using `nma.analysis()`
+The next step is to run the NMA model using `nma.analysis()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
+
 ```{r, results = "hide"}
 fixed_effects_results <- nma.analysis(fixed_effects_model,
                            monitor = c("d", "dev", "r","totresdev","lambda", "theta"),
@@ -184,3 +186,5 @@ league.heat.plot(league.out,
                  mid.colour = "white",
                  high.colour = "red")
 ```
+
+# References

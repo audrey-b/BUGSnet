@@ -3,6 +3,7 @@ title: "NMA for Dichotomous Outcomes"
 author: "Justin Slater"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{NMA for Dichotomous Outcomes}
   %\VignetteEngine{knitr::rmarkdown}
@@ -82,29 +83,29 @@ kable(network.char$intervention)
 kable(network.char$comparison)
 ```
 
-# ```{r}
-# pairwise.dat <- by.comparison(slr=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize")
-# 
-# pairwise.dat.with.c <- pairwise.dat %>% 
-#   filter(grepl("SK", comparison)) %>%
-#   filter((trt.e == "tPA"| trt.c == "tPA"))
-# 
-#  tPA_vs_SK <- pairwise(slr = dich.slr,
-#                           name.trt1 = "SK", 
-#                           name.trt2 = "tPA", 
-#                           outcome = "responders",
-#                           N = "sampleSize")
-# 
-# pairwise.all(slr=dich.slr, 
-#             outcome="responders",
-#             N = "sampleSize",
-#             method.tau="DL",
-#             sm= "RR") 
-# 
-# ```
+<!-- ```{r} -->
+<!--  pairwise.dat <- by.comparison(slr=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize") -->
+
+<!--  pairwise.dat.with.c <- pairwise.dat %>%  -->
+<!--    filter(grepl("SK", comparison)) %>% -->
+<!--    filter((trt.e == "tPA"| trt.c == "tPA")) -->
+
+<!--   tPA_vs_SK <- pairwise(slr = dich.slr, -->
+<!--                            name.trt1 = "SK",  -->
+<!--                            name.trt2 = "tPA",  -->
+<!--                            outcome = "responders", -->
+<!--                            N = "sampleSize") -->
+
+<!--  pairwise.all(slr=dich.slr,  -->
+<!--              outcome="responders", -->
+<!--              N = "sampleSize", -->
+<!--              method.tau="DL", -->
+<!--              sm= "RR")  -->
+
+<!-- ``` -->
 
 ## Main analysis
-`nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+`nma.bugs()` creates BUGS code and that will be put into `nma.analysis()` and analysed through JAGS [@JAGS]. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
 fixed_effects_model <- nma.bugs(slr=dich.slr,
                      outcome="responders",
@@ -123,9 +124,10 @@ random_effects_model <- nma.bugs(slr=dich.slr,
                      effects="random")
 
 ```
-If you want to review the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review the BUGS code, you can review it by outputting `makebugs$model.str`. 
 
-The next step is to run the NMA model using `nma.analysis()`
+The next step is to run the NMA model using `nma.analysis()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
+
 ```{r, results = "hide"}
 fixed_effects_results <- nma.analysis(fixed_effects_model,
                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
@@ -200,23 +202,24 @@ inconsist_model_fit <- assess.model.fit(fe_inconsistency_results)
 inconsistency.plot(fe_model_fit, inconsist_model_fit)
 ```
 
-```{r, fig.height=8, fig.width = 8}
-# inconsistency.PMA(slr = dich.slr, 
-#                   jagsoutput = fixed_effects_results,
-#                   outcome = "responders",
-#                   N = "sampleSize",
-#                   base.trt = "SK",
-#                   effects="fixed", 
-#                   central.tdcy="median", 
-#                   line.size=1,
-#                   x.trans=NULL)
-```
+<!-- ```{r, fig.height=8, fig.width = 8} -->
+<!--  inconsistency.PMA(slr = dich.slr,  -->
+<!--                    jagsoutput = fixed_effects_results, -->
+<!--                    outcome = "responders", -->
+<!--                    N = "sampleSize", -->
+<!--                    base.trt = "SK", -->
+<!--                    effects="fixed",  -->
+<!--                    central.tdcy="median",  -->
+<!--                    line.size=1, -->
+<!--                    x.trans=NULL) -->
+<!-- ``` -->
 
-```{r, fig.width = 8, fig.height=6}
-# pairwise <- pairwise(slr = dich.slr,
-#                          name.trt1 = "SK",
-#                          name.trt2 = "Ret",
-#                          outcome = "responders",
-#                          N = "sampleSize")
-```
-```
+<!-- ```{r, fig.width = 8, fig.height=6} -->
+<!--  pairwise <- pairwise(slr = dich.slr, -->
+<!--                           name.trt1 = "SK", -->
+<!--                           name.trt2 = "Ret", -->
+<!--                           outcome = "responders", -->
+<!--                           N = "sampleSize") -->
+<!-- ``` -->
+
+# References
