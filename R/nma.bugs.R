@@ -16,6 +16,9 @@
 #' "binomial", "normal", "poisson".
 #' @param link The link function for the nma model. Options are "logit", "log", "cloglog", "identity".
 #' @param effects Options are "fixed" or "random".
+#' @param prior.mu 
+#' @param prior.d
+#' @param prior.sigma
 #' @param meta.covariate Optional string indicating the name of the variable in your data set that you would like to
 #' adjust for via meta regression.
 #' 
@@ -24,6 +27,8 @@
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function
 #' examples are "RR", "OR", "SMD", "HR"
 #' @return \code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
+#' 
+#' @details Talk about
 #' 
 #' @examples
 #' #Example 1
@@ -76,8 +81,21 @@ nma.bugs <- function(slr,
                      family,
                      link,
                      effects,
+                     prior.mu = "DEFAULT",
+                     prior.d = "DEFAULT",
+                     prior.sigma = "DEFAULT",
                      meta.covariate = NULL){
-  
+  if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
+    scale <- "OR"
+  }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
+    scale <- "RR"
+  }else if(link== "identity" & family =="normal"){
+    scale <- "SMD"
+  }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
+    scale <- "lograte"
+  }else if(link == "log" & family =="poisson"){
+    scale <- "HR"
+  }
   
   data <- slr$raw.data
   
@@ -255,46 +273,65 @@ nma.bugs <- function(slr,
   ###Priors###
   ############
   
-  #prior.mu.str
+  max.delta <- paste0(compute.prior(slr=slr, outcome=outcome, scale=scale, N=N, sd=sd, time = exposure.time))
   
-  if(link == "log"){
-    prior.mu.str <-  "for(i in 1:ns){
-    mu[i] <- log(p.base[i])           #priors for all trial baselines
-    p.base[i] ~ dunif(0, 1)
-  }"
-  } else if(link=="logit"){
-    prior.mu.str <-  "for(i in 1:ns){
-    mu[i] ~ dnorm(0,(15*2.3)^(-2))          #priors for all trial baselines
-}"
-  } else if(link=="identity"){
-    prior.mu.str <-  "for(i in 1:ns){
-    mu[i] ~ dnorm(0,(15*2.3)^(-2))          #priors for all trial baselines
-}"
-  }else if(link=="cloglog"){
-    prior.mu.str <-  "for(i in 1:ns){
-    mu[i] ~ dnorm(0,(15*2.3)^(-2))          #priors for all trial baselines
-  }"
-  }
+  # BASELINE EFFECTS PRIOR
+  if (prior.mu == "DEFAULT"){
+    prior.mu.str <- sprintf("for(i in 1:ns){
+                               mu[i] ~ dnorm(0,(%s*15)^(-2))
+                               }", max.delta)
+  } else {
+    prior.mu.str <- sprintf("for(i in 1:ns){
+                               mu[i] ~ %s
+  }", prior.mu)
+	}
   
-  #prior.d.str
-  if(is.null(type)){
-    prior.d.str <- "for (k in 2:nt){  
-    d[k] ~ dnorm(0,(15*2.3)^(-2)) # vague priors for treatment effects
-  }"
+  # RELATIVE EFFECTS PRIOR
+  if (prior.d =="DEFAULT"){
+    if(is.null(type)){
+      prior.d.str <- sprintf("for(k in 2:nt){
+                             d[k] ~ dnorm(0,(%s*15)^(-2))
+    }", max.delta)
+
+  } else if(type=="inconsistency"){
+    prior.d.str <- sprintf("for (c in 1:(nt-1)) {
+                           for (k in (c+1):nt)  { 
+                           d[c,k] ~ dnorm(0,(%s*15)^(-2))
+                           } 
+    }", max.delta)
+		}
+  } else {
+    if(is.null(type)){
+      prior.d.str <- sprintf("for(k in 2:nt){
+                             d[k] ~ %s)
+    }", prior.d)
+
   }else if(type=="inconsistency"){
-    prior.d.str <- "for (c in 1:(nt-1)) {  # priors for all mean treatment effects
-    for (k in (c+1):nt)  { 
-    d[c,k] ~ dnorm(0,(15*2.3)^(-2)) # vague priors for treatment effects
-    } 
-    }"
+    prior.d.str <- sprintf("for (c in 1:(nt-1)) {
+                           for (k in (c+1):nt)  { 
+                           d[c,k] ~ %s
+                           } 
+  }", prior.d)
+		} 
   }
   
-  #prior.sigma2.str
+  # RANDOM EFFECTS VARIANCE PRIOR
+  if (prior.sigma == "DEFAULT"){
+    prior.sigma2.str <-  sprintf("sigma ~ dunif(0,%s)
+                                 sigma2 <- sigma^2", max.delta)
+  } else {
+    prior.sigma2.str <-  sprintf("sigma ~ %s
+                                 sigma2 <- sigma^2", prior.sigma)  
+  }
   
-  prior.sigma2.str <-  "sigma ~ dunif(0,3)     # vague prior for between-trial SD
-  sigma2 <- sigma^2"
-  
-  
+  ###hot fix for binomial family with log link.
+   if(scale == "RR"){
+     prior.mu.str <-  "for(i in 1:ns){
+     mu[i] <- log(p.base[i])           #priors for all trial baselines
+     p.base[i] ~ dunif(0, 1)
+   }"
+   }
+
   #meta regression string
   if (!is.null(meta.covariate)){
     prior.meta.reg <- "beta[1]<-0
@@ -309,28 +346,32 @@ nma.bugs <- function(slr,
   #remove covariate from bugsdata2 if unused
   if (is.null(meta.covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
+
   
   if(!is.null(type)){
     if(type=="inconsistency"){     
-      model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=TRUE, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg) %>%
+      model.str <- makeBUGScode(family=family,
+                                link=link,
+                                effects=effects,
+                                inconsistency=TRUE,
+                                prior.mu.str,
+                                prior.d.str,
+                                prior.sigma2.str,
+                                meta.covariate,
+                                prior.meta.reg) %>%
         paste0(add.to.model)
     }
   } else if(is.null(type)){
-    model.str <- makeBUGScode(family=family, link=link, effects=effects, inconsistency=FALSE, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg) %>%
+    model.str <- makeBUGScode(family=family, 
+                              link=link, 
+                              effects=effects, 
+                              inconsistency=FALSE, 
+                              prior.mu.str,
+                              prior.d.str, 
+                              prior.sigma2.str, 
+                              meta.covariate, 
+                              prior.meta.reg) %>%
       paste0(add.to.model)
-  }
-  
-  
-  if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "OR"
-  }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "RR"
-  }else if(link== "identity" & family =="normal"){
-    scale <- "SMD"
-  }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "lograte"
-  }else if(link == "log" & family =="poisson"){
-    scale <- "HR"
   }
   
   return(bugs=list(model.str=model.str,
