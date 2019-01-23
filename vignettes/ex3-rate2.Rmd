@@ -19,8 +19,8 @@ knitr::opts_chunk$set(
 
 
 ```{r, include = FALSE}
-path <- "Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
-sep <- "/"
+path <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
+sep <- "\\"
 source(paste0(path,"misc_code",sep,"load.packages.R"))
 library(devtools)
 library(roxygen2)
