@@ -20,7 +20,13 @@ network.plot <- function(slr,
                          node.scale=5, 
                          edge.scale=2, flag=NULL, 
                          label.offset1=0, label.offset2=1, 
-                         graph.scale=T) {
+                         graph.scale=T,
+                         node.lab.cex = 1,
+                         edge.lab.cex = 1,
+                         node.colour = "#f69c54",
+                         edge.colour = "#4a5b71",
+                         edge.lab.colour = 
+                         ...) {
   
   #source("R\\network.structure.R")
  edgesANDnodes <- network.structure(slr)
@@ -59,24 +65,25 @@ network.plot <- function(slr,
    ecol <- rep("grey70", ecount(net))
    ecol[inc.edges] <- "red"
    vcol <- rep("grey60", vcount(net))
-   vcol[V(net)$trt==flag] <- "lightblue"
+   vcol[V(net)$trt==flag] <- node.colour
    plot(net, 
         vertex.size=node.scale*V(net)$node.weight,
         edge.width=edge.scale*E(net)$edge.weight,
         
-        vertex.color=vcol,
-        vertex.frame.color=vcol,
-        edge.color=ecol,
+        vertex.color=node.colour,
+        vertex.frame.color=node.colour,
+        vertex.label.cex = node.lab.cex,
+        edge.color=edge.colour,
         
         vertex.label=V(net)$trt,
         vertex.label.color="black",
         vertex.label.family="sans",
-        vertex.label.cex=1.5,
+        
         
         layout= layout_in_circle(net),
         edge.label= ifelse(ecol=="red", E(net)$study, NA),
         edge.label.family="sans",
-        edge.label.cex=1.0,
+        edge.label.cex=edge.lab.cex,
         edge.label.color="blue",
         edge.label.dist=0,
         edge.label.deg=0,
@@ -90,10 +97,11 @@ network.plot <- function(slr,
           edge.width=edge.scale,
           vertex.label=V(net)$trt, 
           vertex.label.color="black",
-          vertex.color="#f69c54",
-          vertex.frame.color="#f69c54",
-          vertex.label.cex=1.5,
-          edge.color="#4a5b71",
+          vertex.color=node.colour,
+          vertex.frame.color=node.colour,
+          vertex.label.cex = vlab.cex,
+
+          edge.color=edge.colour,
           
           vertex.label.family="sans",
           
@@ -111,17 +119,18 @@ network.plot <- function(slr,
       vertex.size=node.scale*V(net)$node.weight,
       
       vertex.label.color="black",
-      vertex.color="#f69c54",
-      vertex.frame.color="#f69c54",
-      vertex.label.cex=1.5,
-      edge.color="#4a5b71",
+      vertex.color=node.colour,
+      vertex.frame.color=node.colour,
+      edge.color=edge.colour,
       
       vertex.label.family="sans",
 
       layout= layout_in_circle(net),
       vertex.label.dist=lab.offset,
       vertex.label.degree=lab.locs,
-      rescale = FALSE)
+      rescale = FALSE,
+      
+      vertex.label.cex = node.lab.cex)
   
 }
 
