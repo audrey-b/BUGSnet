@@ -25,7 +25,8 @@ network.plot <- function(slr,
                          edge.lab.cex = 1,
                          node.colour = "#f69c54",
                          edge.colour = "#4a5b71",
-                         edge.lab.colour = 
+                         edge.lab.colour = "blue",
+                         flag.edge.colour = "lightpink",
                          ...) {
   
   #source("R\\network.structure.R")
@@ -62,18 +63,19 @@ network.plot <- function(slr,
     
    inc.edges <- incident(net, V(net)[trt==flag], mode="all")
    
-   ecol <- rep("grey70", ecount(net))
-   ecol[inc.edges] <- "red"
-   vcol <- rep("grey60", vcount(net))
+   ecol <- rep("grey", ecount(net))
+   ecol[inc.edges] <- flag.edge.colour
+   vcol <- rep("grey", vcount(net))
    vcol[V(net)$trt==flag] <- node.colour
+   
    plot(net, 
         vertex.size=node.scale*V(net)$node.weight,
         edge.width=edge.scale*E(net)$edge.weight,
         
-        vertex.color=node.colour,
-        vertex.frame.color=node.colour,
+        vertex.color=vcol,
+        vertex.frame.color=vcol,
         vertex.label.cex = node.lab.cex,
-        edge.color=edge.colour,
+        edge.color=ecol,
         
         vertex.label=V(net)$trt,
         vertex.label.color="black",
@@ -81,10 +83,10 @@ network.plot <- function(slr,
         
         
         layout= layout_in_circle(net),
-        edge.label= ifelse(ecol=="red", E(net)$study, NA),
+        edge.label= ifelse(ecol==flag.edge.colour, E(net)$study, NA),
         edge.label.family="sans",
         edge.label.cex=edge.lab.cex,
-        edge.label.color="blue",
+        edge.label.color=edge.lab.colour,
         edge.label.dist=0,
         edge.label.deg=0,
         
@@ -99,7 +101,7 @@ network.plot <- function(slr,
           vertex.label.color="black",
           vertex.color=node.colour,
           vertex.frame.color=node.colour,
-          vertex.label.cex = vlab.cex,
+          vertex.label.cex = node.lab.cex,
 
           edge.color=edge.colour,
           
@@ -128,7 +130,6 @@ network.plot <- function(slr,
       layout= layout_in_circle(net),
       vertex.label.dist=lab.offset,
       vertex.label.degree=lab.locs,
-      rescale = FALSE,
       
       vertex.label.cex = node.lab.cex)
   
