@@ -77,7 +77,7 @@ patients.plot <- function(patients.data,
   patients.data <- patients.data %>%
     mutate(trt =(!! as.name(treatment.var)), trial =(!! as.name(trial.var)))
   
-  if (by == "treatment"){
+  if (by == "trial"){
   if(is.null(fill.str)) {p <- ggplot(patients.data, aes_string(x=treatment.var, y=var.name))}
   else p <- ggplot(patients.data, aes_string(x=treatment.var, y=var.name, fill=fill.str))
   
@@ -92,7 +92,7 @@ patients.plot <- function(patients.data,
     facet_grid(. ~ trial,  space="free_x", scales="free_x")
   
   }
-  else if (by == "trial"){
+  else if (by == "treatment"){
     
   if(is.null(fill.str)) {p <- ggplot(patients.data, aes_string(x=trial.var, y=var.name))}
   else p <- ggplot(patients.data, aes_string(x=trial.var, y=var.name, fill=fill.str))

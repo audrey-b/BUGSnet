@@ -19,7 +19,8 @@
 network.plot <- function(slr,
                          node.scale=5, 
                          edge.scale=2, flag=NULL, 
-                         label.offset1=0, label.offset2=1) {
+                         label.offset1=0, label.offset2=1, 
+                         graph.scale=T) {
   
   #source("R\\network.structure.R")
  edgesANDnodes <- network.structure(slr)
@@ -83,8 +84,26 @@ network.plot <- function(slr,
         vertex.label.dist=lab.offset,
         vertex.label.degree=lab.locs) 
    }
-   else
- 
+   else if (graph.scale==F) {
+     plot(net, 
+          vertex.size=node.scale,
+          edge.width=edge.scale,
+          vertex.label=V(net)$trt, 
+          vertex.label.color="black",
+          vertex.color="#f69c54",
+          vertex.frame.color="#f69c54",
+          vertex.label.cex=1.5,
+          edge.color="#4a5b71",
+          
+          vertex.label.family="sans",
+          
+          layout= layout_in_circle(net),
+          vertex.label.dist=lab.offset,
+          vertex.label.degree=lab.locs,
+          rescale = FALSE)
+     
+   }
+ else
      
  plot(net, 
       vertex.label=V(net)$trt, 
