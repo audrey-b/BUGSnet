@@ -1,7 +1,7 @@
 #' Run NMA model
-#' @description Takes bugs code from an object produced by \code{nma.bugs} and runs model using \code{rjags}.
+#' @description Takes bugs code from an object produced by \code{nma.model} and runs model using \code{rjags}.
 #' 
-#' @param bugs Object produced by running \code{nma.bugs}.
+#' @param bugs Object produced by running \code{nma.model}.
 #' @param monitor A list of all variables that you would like to monitor. The default is simply the treatment
 #' effect samples ("d"). But you may want to monitor the deviance ("dev") as well.
 #' 
@@ -13,7 +13,7 @@
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
 #' 
 
-nma.analysis <- function(bugs,
+nma.run <- function(bugs,
                          monitor=c("d"),
                          n.adapt, 
                          n.burnin, 

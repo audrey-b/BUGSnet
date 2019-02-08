@@ -2,7 +2,7 @@
 
 #' Pairwise meta-analysis
 #' @description implements pairwise meta-analysis via the package \code{meta}
-#' @param slr An slr data object produced by \code{data.slr()}
+#' @param data.nma A data object produced by \code{data.prep()}
 #' @param name.trt1 A string indicating the name of the comparator treatment (often Placebo)
 #' @param name.trt2 A string indicating the name of the experimental treatment
 #' @param outcome A string indicating the name of your outcome variable
@@ -33,14 +33,14 @@
 #' #Sample pairwise meta-analyis
 #' 
 #' #Dichotomous / binomial outcome example comparing rapid-acting inhaled insulin to placebo.
-#' raii_vs_plbo <- pairwise(slr = diabetes.slr,
+#' raii_vs_plbo <- pairwise(data.nma = diabetes.slr,
 #'                          name.trt1 = "Placebo", 
 #'                          name.trt2 = "raii", 
 #'                          outcome = "n_died",
 #'                          N = "n")
 #'                            
 #' # Continuous outcome example.                           
-#'alben_vs_plbo <- pairwise(slr=weight.slr,
+#'alben_vs_plbo <- pairwise(data.nma=weight.slr,
 #'                          name.trt1 = "plbo",
 #'                          name.trt2 = "alben",
 #'                          outcome="y",
@@ -52,7 +52,7 @@
 #'                          sm = "SMD")
 #'
 #'# A rate outcome example
-#'diet1_vs_ctrl <- pairwise(slr=diet.slr,
+#'diet1_vs_ctrl <- pairwise(data.nma=diet.slr,
 #'                          name.trt1 = "control",
 #'                          name.trt2 = "diet 1",
 #'                          outcome="death",
@@ -63,7 +63,7 @@
 #'                          method.tau="DL",
 #'                          sm = "IRR")
 
-pairwise <- function(slr,
+pma <- function(data.nma,
                      name.trt1, 
                      name.trt2, 
                      outcome,
@@ -75,11 +75,10 @@ pairwise <- function(slr,
                      method.tau="DL",
                      sm="RR"){
   
-  #source('by.comparison.R')
   
   # Check if number of events and participants is integer
-  tmp.check1 <- slr$raw.data %>% select(outcome)
-  tmp.check2 <- slr$raw.data %>% select(N)
+  tmp.check1 <- data.nma$raw.data %>% select(outcome)
+  tmp.check2 <- data.nma$raw.data %>% select(N)
   
   if(type.outcome %in% c("binomial","rate") && all(tmp.check1%%1!=0)) {
     stop('The "outcome" variable (number of events) must be an integer')
@@ -92,13 +91,13 @@ pairwise <- function(slr,
   }
   
   if(type.outcome %in% c("bin","binom","binomial","binary")){ 
-    pairwise.dat <- by.comparison(slr=slr, outcome=outcome, type.outcome=type.outcome, N=N)
+    pairwise.dat <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome=type.outcome, N=N)
     
     pairwise.dat.with.c <- pairwise.dat %>% 
       filter(grepl(name.trt1, comparison)) %>%
       filter((trt.e == name.trt2 | trt.c == name.trt2))
     
-    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
+    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == data.nma$varname.s] <- "study.id"
     
     if(dim(pairwise.dat.with.c)[1]!=0){
       meta1 <- metabin(pairwise.dat.with.c[,paste0(outcome,".e")] %>% t() %>% as.vector,
@@ -127,13 +126,13 @@ pairwise <- function(slr,
     else(return("No direct information for this comparison"))
     
   } else if (type.outcome %in% c("cont", "continuous")){
-    pairwise.dat <- by.comparison(slr=slr, outcome=outcome, type.outcome="continuous", N=N, sd=sd)
+    pairwise.dat <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome="continuous", N=N, sd=sd)
     
     pairwise.dat.with.c <- pairwise.dat %>% 
       filter(grepl(name.trt1, comparison)) %>%
       filter((trt.e == name.trt2 | trt.c == name.trt2))
     
-    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
+    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == data.nma$varname.s] <- "study.id"
     
     if(dim(pairwise.dat.with.c)[1]!=0){
       meta1 <- metacont(pairwise.dat.with.c[,paste0(N,".e")] %>% t() %>% as.vector,
@@ -163,13 +162,13 @@ pairwise <- function(slr,
     else(return("No direct information for this comparison"))
     
   } else if (type.outcome %in% c("rate")){
-    pairwise.dat <- by.comparison(slr=slr, outcome=outcome, type.outcome="rate", N=N, time=time)
+    pairwise.dat <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome="rate", N=N, time=time)
     
     pairwise.dat.with.c <- pairwise.dat %>% 
       filter(grepl(name.trt1, comparison)) %>%
       filter((trt.e == name.trt2 | trt.c == name.trt2))
     
-    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == slr$varname.s] <- "study.id"
+    #names(pairwise.dat.with.c)[names(pairwise.dat.with.c) == data.nma$varname.s] <- "study.id"
     
     if(dim(pairwise.dat.with.c)[1]!=0){
       meta1 <- metainc(event.e = pairwise.dat.with.c[,paste0(outcome,".e")] %>% t() %>% as.vector,
@@ -195,7 +194,6 @@ pairwise <- function(slr,
       
     }
     else(return("No direct information for this comparison"))
-    metabin()
   }
   
 }

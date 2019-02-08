@@ -1,11 +1,11 @@
 ###CURRENT ISSUES
 ####1) comparison.charac() needs overall mean for continuous variables
 
-network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
+network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
 
   # Check if number of events and participants is integer
-  tmp.check1 <- slr$raw.data %>% select(outcome)
-  tmp.check2 <- slr$raw.data %>% select(N)
+  tmp.check1 <- data.nma$raw.data %>% select(outcome)
+  tmp.check2 <- data.nma$raw.data %>% select(N)
   
   if(type.outcome == "binomial" && all(tmp.check1%%1!=0)) {
      stop('The "outcome" variable (number of events) must be an integer')
@@ -17,19 +17,19 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
   outcome2 <- quo(!! as.name(outcome))#this may be redundant now
   N2 <- quo(!! as.name(N))
   
-    n.interventions <- slr$raw.data %>% select(slr$varname.t) %>% unique() %>% nrow()
+    n.interventions <- data.nma$raw.data %>% select(data.nma$varname.t) %>% unique() %>% nrow()
     
-    n.studies <- slr$raw.data %>% select(slr$varname.s) %>% unique() %>% nrow()
+    n.studies <- data.nma$raw.data %>% select(data.nma$varname.s) %>% unique() %>% nrow()
     
-    n.patients <- slr$raw.data %>% select(N) %>% sum() 
+    n.patients <- data.nma$raw.data %>% select(N) %>% sum() 
     
-    tmp1 <- slr$raw.data %>% 
-      select(slr$varname.s, slr$varname.t) %>% 
-      nest(slr$varname.t)
+    tmp1 <- data.nma$raw.data %>% 
+      select(data.nma$varname.s, data.nma$varname.t) %>% 
+      nest(data.nma$varname.t)
     
-    cnt <- slr$raw.data %>% 
-      select(slr$varname.s, slr$varname.t) %>% 
-      count_(slr$varname.s)
+    cnt <- data.nma$raw.data %>% 
+      select(data.nma$varname.s, data.nma$varname.t) %>% 
+      count_(data.nma$varname.s)
     
     tmp1 <- bind_cols(tmp1, cnt) %>%
       filter(n>1)
@@ -40,14 +40,14 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
     
     n.pairwise.direct <- unique(pairs, MARGIN=2) %>% ncol()
     
-    edgesANDnodes <- network.structure(slr)
+    edgesANDnodes <- network.structure(data.nma)
     edges <- edgesANDnodes[[1]]
     nodes <- edgesANDnodes[[2]]
     net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
     
     n.pairwise <- sum(sapply(clusters(net)$csize, function(n) n*(n-1)/2))
     
-    tmp2 <- slr$raw.data %>% select(slr$varname.s) %>% table()
+    tmp2 <- data.nma$raw.data %>% select(data.nma$varname.s) %>% table()
     n.2arm.studies <- sum(tmp2 == 2)
     
     n.multiarm.studies <- sum(tmp2 > 2)
@@ -71,12 +71,12 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
     
     if(type.outcome=="binomial"){
 
-      n.events <- slr$raw.data %>% select(outcome) %>% sum 
+      n.events <- data.nma$raw.data %>% select(outcome) %>% sum 
       
-      tmp3 <- slr$raw.data %>% 
-        select(slr$varname.s, outcome) %>% 
+      tmp3 <- data.nma$raw.data %>% 
+        select(data.nma$varname.s, outcome) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
-        group_by_(slr$varname.s) %>%
+        group_by_(data.nma$varname.s) %>%
         summarise(s=sum(event0), n.arms=sum(one)) %>%
         mutate(no.0=(s==0), some.0=(s!=0), all.0=(s==n.arms))
       
@@ -100,12 +100,12 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
     }
     if(type.outcome %in% c("rate", "rate2")){
       
-      n.events <- slr$raw.data %>% select(outcome) %>% sum 
+      n.events <- data.nma$raw.data %>% select(outcome) %>% sum 
       
-      tmp3 <- slr$raw.data %>% 
-        select(slr$varname.s, outcome) %>% 
+      tmp3 <- data.nma$raw.data %>% 
+        select(data.nma$varname.s, outcome) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
-        group_by_(slr$varname.s) %>%
+        group_by_(data.nma$varname.s) %>%
         summarise(s=sum(event0), n.arms=sum(one)) %>%
         mutate(no.0=(s==0), some.0=(s!=0), all.0=(s==n.arms))
       
@@ -115,7 +115,7 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
       
       n.studies.all.0 <- tmp3$all.0 %>% sum
       
-      mean.person.time.Fup <- slr$raw.data %>% select(time) %>% colMeans %>% round(digits=2)
+      mean.person.time.Fup <- data.nma$raw.data %>% select(time) %>% colMeans %>% round(digits=2)
       
       add.tble <- tibble(Characteristic=c("Total Number of Events in Network",
                                           "Number of Studies With  No Zero Events",
@@ -134,101 +134,101 @@ network.charac <- function(slr, outcome, N, type.outcome, time = NULL){
     if (type.outcome=="continuous"){return(tble)}
 }
  
-intervention.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
+intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   outcome2 <- quo(!! as.name(outcome))
   N2 <- quo(!! as.name(N))
   
-  if ("n" %in% colnames(slr$raw.data)) {
-  n.studies <- slr$raw.data %>% select(-n) %>% count_(slr$varname.t) %>% rename(n.studies = n) 
+  if ("n" %in% colnames(data.nma$raw.data)) {
+  n.studies <- data.nma$raw.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
   }
   
   else {
-    n.studies <- slr$raw.data %>% count_(slr$varname.t) %>% rename(n.studies = n) 
+    n.studies <- data.nma$raw.data %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
   }
   
-  n.patients <- slr$raw.data %>% 
-    group_by_(slr$varname.t) %>% 
+  n.patients <- data.nma$raw.data %>% 
+    group_by_(data.nma$varname.t) %>% 
     summarise(n.patients = as.integer(sum(!! N2)))
   
-  tmp.tbl <- left_join(n.studies, n.patients, by=slr$varname.t)
+  tmp.tbl <- left_join(n.studies, n.patients, by=data.nma$varname.t)
 
   if(type.outcome %in% c("bin","binom","binomial","binary")){  
   
-  n.events <- slr$raw.data %>% 
-    group_by_(slr$varname.t) %>% 
+  n.events <- data.nma$raw.data %>% 
+    group_by_(data.nma$varname.t) %>% 
     summarise(n.events = as.integer(sum(!! outcome2))) 
   
-   tmp.rate <- slr$raw.data %>% 
+   tmp.rate <- data.nma$raw.data %>% 
     mutate(tmp.rate = (!! outcome2) / (!! N2)) %>% 
-    group_by_(slr$varname.t) %>% 
+    group_by_(data.nma$varname.t) %>% 
     summarise(min.outcome = min(tmp.rate), max.outcome = max(tmp.rate))
   
-   tmp.tbl <- left_join(n.studies, n.events, by=slr$varname.t) %>% 
-     left_join(., n.patients, by=slr$varname.t) %>%
-     left_join(., tmp.rate, by=slr$varname.t) %>% 
+   tmp.tbl <- left_join(n.studies, n.events, by=data.nma$varname.t) %>% 
+     left_join(., n.patients, by=data.nma$varname.t) %>%
+     left_join(., tmp.rate, by=data.nma$varname.t) %>% 
      mutate(av.outcome=n.events/n.patients) 
   
   } else if(type.outcome %in% c("cont", "continuous")){
     
-    tmp.outcome <- slr$raw.data %>% 
+    tmp.outcome <- data.nma$raw.data %>% 
      mutate(tmp.outcome = (!! outcome2), w.outcome=(!! outcome2)*(!! N2)) %>% 
-     group_by_(slr$varname.t) %>% 
+     group_by_(data.nma$varname.t) %>% 
      summarise(min.outcome = min(tmp.outcome), max.outcome = max(tmp.outcome), w.outcome=sum(w.outcome))
     
-    tmp.tbl <- left_join(n.studies, n.patients, by=slr$varname.t) %>% 
-     left_join(., tmp.outcome, by=slr$varname.t) %>%
+    tmp.tbl <- left_join(n.studies, n.patients, by=data.nma$varname.t) %>% 
+     left_join(., tmp.outcome, by=data.nma$varname.t) %>%
      mutate(av.outcome=w.outcome/n.patients) %>%
      select(-w.outcome)
     
   } else if (type.outcome =="rate"){
     time2 <- quo(!! as.name(time))
     
-    person.time <- slr$raw.data %>% 
-      group_by_(slr$varname.t) %>% 
+    person.time <- data.nma$raw.data %>% 
+      group_by_(data.nma$varname.t) %>% 
       summarise(person.time.fup = as.integer(sum(!! time2)))
 
-    n.events <- slr$raw.data %>%
-      group_by_(slr$varname.t) %>%
+    n.events <- data.nma$raw.data %>%
+      group_by_(data.nma$varname.t) %>%
       summarise(n.events = as.integer(sum(!! outcome2)))
     
-    tmp.proportion <- slr$raw.data %>% 
+    tmp.proportion <- data.nma$raw.data %>% 
       mutate(tmp.proportion = (!! outcome2) / (!! N2)) %>% 
-      group_by_(slr$varname.t) %>% 
+      group_by_(data.nma$varname.t) %>% 
       summarise(min.proportion = min(tmp.proportion), max.proportion = max(tmp.proportion))
     
-    tmp.rate <- slr$raw.data %>% 
+    tmp.rate <- data.nma$raw.data %>% 
       mutate(tmp.rate = (!! outcome2) / (!! time2)) %>% 
-      group_by_(slr$varname.t) %>% 
+      group_by_(data.nma$varname.t) %>% 
       summarise(min.event.rate = min(tmp.rate), max.event.rate = max(tmp.rate))
     
-    tmp.tbl <- left_join(n.studies, n.events, by=slr$varname.t) %>% 
-      left_join(., n.patients, by=slr$varname.t) %>%
-      #left_join(., tmp.proportion, by=slr$varname.t) %>%
-      left_join(., person.time, by=slr$varname.t) %>% 
-      left_join(., tmp.rate, by=slr$varname.t) %>% 
+    tmp.tbl <- left_join(n.studies, n.events, by=data.nma$varname.t) %>% 
+      left_join(., n.patients, by=data.nma$varname.t) %>%
+      #left_join(., tmp.proportion, by=data.nma$varname.t) %>%
+      left_join(., person.time, by=data.nma$varname.t) %>% 
+      left_join(., tmp.rate, by=data.nma$varname.t) %>% 
       mutate(events.per.person=n.events/n.patients) %>%
       mutate(av.event.rate=n.events/person.time.fup)
   } else if (type.outcome =="rate2"){
       time2 <- quo(!! as.name(time))
       
-      person.time <- slr$raw.data %>% 
-        group_by_(slr$varname.t) %>% 
+      person.time <- data.nma$raw.data %>% 
+        group_by_(data.nma$varname.t) %>% 
         summarise(person.time.fup = as.integer(sum((!! time2)*(!! N2))))
       
-      n.events <- slr$raw.data %>%
-        group_by_(slr$varname.t) %>%
+      n.events <- data.nma$raw.data %>%
+        group_by_(data.nma$varname.t) %>%
         summarise(n.events = as.integer(sum(!! outcome2)))
       
-      tmp.rate <- slr$raw.data %>% 
+      tmp.rate <- data.nma$raw.data %>% 
         mutate(tmp.rate = (!! outcome2) / ((!! time2)*(!! N2))) %>% 
-        group_by_(slr$varname.t) %>% 
+        group_by_(data.nma$varname.t) %>% 
         summarise(min.event.rate = min(tmp.rate), max.event.rate = max(tmp.rate))
       
-      tmp.tbl <- left_join(n.studies, n.events, by=slr$varname.t) %>% 
-        left_join(., n.patients, by=slr$varname.t) %>%
-        #left_join(., tmp.proportion, by=slr$varname.t) %>%
-        left_join(., person.time, by=slr$varname.t) %>% 
-        left_join(., tmp.rate, by=slr$varname.t) %>% 
+      tmp.tbl <- left_join(n.studies, n.events, by=data.nma$varname.t) %>% 
+        left_join(., n.patients, by=data.nma$varname.t) %>%
+        #left_join(., tmp.proportion, by=data.nma$varname.t) %>%
+        left_join(., person.time, by=data.nma$varname.t) %>% 
+        left_join(., tmp.rate, by=data.nma$varname.t) %>% 
         mutate(events.per.person=n.events/n.patients) %>%
         mutate(overall.event.rate=n.events/person.time.fup)
   }
@@ -236,9 +236,9 @@ intervention.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
   return(tmp.tbl)
 }
 
-comparison.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
+comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 
-  tmp1 <- by.comparison(slr=slr, outcome=outcome, type.outcome, N=N, time=time)
+  tmp1 <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome, N=N, time=time)
   
   add.patients <- tmp1 %>% select(paste0(N,".e"), paste0(N,".c")) %>% rowSums()
   add.patients <- cbind.data.frame(tmp1$comparison, add.patients, stringsAsFactors = FALSE)
@@ -294,7 +294,7 @@ comparison.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
 
 #' Generate Network Characteristics
 #' @description Generates tables of network characteristics
-#' @param slr An slr data object produced by \code{data.slr()}
+#' @param data.nma A data object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-years reported), 
@@ -305,13 +305,13 @@ comparison.charac <- function(slr, outcome, N, type.outcome, time=NULL) {
 #' @return \code{intervention} - Summary statistics broken down by treatment
 #' @return \code{comparison} - Summary statistics broken down by treatment comparison
 #' @examples
-#' network.charac(slr = data.slr(my.data), outcome = "n_died", N = "n", type.outcome="binomial", time = NULL)
-#' network.charac(slr = data.slr(my.data), outcome = "y", N = "N", type.outcome="rate", time = "personYears")
+#' network.charac(data.nma = data.prep(my.data), outcome = "n_died", N = "n", type.outcome="binomial", time = NULL)
+#' network.charac(data.nma = data.prep(my.data), outcome = "y", N = "N", type.outcome="rate", time = "personYears")
 
-netmetaxl.tables <- function(slr, outcome, N, type.outcome, time){
-  return(list(network = network.charac(slr, outcome, N, type.outcome,time),
-              intervention = intervention.charac(slr, outcome, N, type.outcome, time),
-              comparison = comparison.charac(slr, outcome, N, type.outcome, time)))
+net.tab <- function(data.nma, outcome, N, type.outcome, time){
+  return(list(network = network.charac(data.nma, outcome, N, type.outcome,time),
+              intervention = intervention.charac(data.nma, outcome, N, type.outcome, time),
+              comparison = comparison.charac(data.nma, outcome, N, type.outcome, time)))
 }
 
 

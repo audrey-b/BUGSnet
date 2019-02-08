@@ -3,6 +3,7 @@ title: "NMA for Dichotomous Outcomes"
 author: "Justin Slater"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{NMA for Dichotomous Outcomes}
   %\VignetteEngine{knitr::rmarkdown}
@@ -33,7 +34,7 @@ load_all(path = paste0(path,"R"))
 ``` {r}
 age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
 
-dich.slr <- data.slr(raw.data = cbind(tbl_df(thrombolytic$data.ab),age),
+dich.slr <- data.prep(raw.data = cbind(tbl_df(thrombolytic$data.ab),age),
                      patient.data = thrombolytic$studies,
                      varname.t = "treatment",
                      varname.s = "study",
@@ -50,14 +51,14 @@ dich.slr$raw.data$study <- as.character(dich.slr$raw.data$study)
 ### Network Plot
 
 
-```{r, network.plot, echo=TRUE, fig.width=6, fig.height=6}
- network.plot(dich.slr, node.scale = 1.5, edge.scale=0.5)
+```{r, net.plot, echo=TRUE, fig.width=6, fig.height=6}
+ net.plot(dich.slr, node.scale = 1.5, edge.scale=0.5)
 ```
 
-### Generate Network Characteristics via `netmetaxl.tables()`
+### Generate Network Characteristics via `net.tab()`
 
 ```{r, results = "hide"}
-network.char <- netmetaxl.tables(slr = dich.slr,
+network.char <- net.tab(data.nma = dich.slr,
                                 outcome = "responders",
                                 N = "sampleSize",
                                 type.outcome = "binomial",
@@ -83,31 +84,54 @@ kable(network.char$intervention)
 kable(network.char$comparison)
 ```
 
+<<<<<<< HEAD
 ```{r}
-# pairwise.dat <- by.comparison(slr=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize")
+# pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize")
 # 
 # pairwise.dat.with.c <- pairwise.dat %>% 
 #   filter(grepl("SK", comparison)) %>%
 #   filter((trt.e == "tPA"| trt.c == "tPA"))
 # 
-#  tPA_vs_SK <- pairwise(slr = dich.slr,
+#  tPA_vs_SK <- pairwise(data.nma = dich.slr,
 #                           name.trt1 = "SK", 
 #                           name.trt2 = "tPA", 
 #                           outcome = "responders",
 #                           N = "sampleSize")
 # 
-# pairwise.all(slr=dich.slr, 
+# pairwise.all(data.nma=dich.slr, 
 #             outcome="responders",
 #             N = "sampleSize",
 #             method.tau="DL",
 #             sm= "RR") 
 # 
 ```
+=======
+<!-- ```{r} -->
+<!--  pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize") -->
+
+<!--  pairwise.dat.with.c <- pairwise.dat %>%  -->
+<!--    filter(grepl("SK", comparison)) %>% -->
+<!--    filter((trt.e == "tPA"| trt.c == "tPA")) -->
+
+<!--   tPA_vs_SK <- pairwise(data.nma = dich.slr, -->
+<!--                            name.trt1 = "SK",  -->
+<!--                            name.trt2 = "tPA",  -->
+<!--                            outcome = "responders", -->
+<!--                            N = "sampleSize") -->
+
+<!--  pairwise.all(data.nma=dich.slr,  -->
+<!--              outcome="responders", -->
+<!--              N = "sampleSize", -->
+<!--              method.tau="DL", -->
+<!--              sm= "RR")  -->
+
+<!-- ``` -->
+>>>>>>> ab891caa32a574a741cb553ffba6be4ce1a8a428
 
 ## Main analysis
-`nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+`nma.bugs()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
-fixed_effects_model <- nma.bugs(slr=dich.slr,
+fixed_effects_model <- nma.bugs(data.nma=dich.slr,
                      outcome="responders",
                      N="sampleSize",
                      baseline.name="SK",
@@ -115,7 +139,7 @@ fixed_effects_model <- nma.bugs(slr=dich.slr,
                      link="log",
                      effects="fixed")
 
-random_effects_model <- nma.bugs(slr=dich.slr,
+random_effects_model <- nma.bugs(data.nma=dich.slr,
                      outcome="responders",
                      N="sampleSize",
                      baseline.name="SK",
@@ -124,17 +148,18 @@ random_effects_model <- nma.bugs(slr=dich.slr,
                      effects="random")
 
 ```
-If you want to review the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review the BUGS code, you can review it by outputting `makebugs$model.str`. 
 
-The next step is to run the NMA model using `nma.analysis()`
+The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
+
 ```{r, results = "hide"}
-fixed_effects_results <- nma.analysis(fixed_effects_model,
+fixed_effects_results <- nma.run(fixed_effects_model,
                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
 
-random_effects_results <- nma.analysis(random_effects_model,
+random_effects_results <- nma.run(random_effects_model,
                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
                            n.adapt=1000,
                            n.burnin=1000,
@@ -155,14 +180,14 @@ assess.model.fit(random_effects_results, main= "Random Effects Model")
 ##results
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
-sucra.out <- sucra(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
 sucra.out$s.plot
 ```
 
 
 ### League Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
-league.out <- leaguetable(fixed_effects_results,  central.tdcy="median", layout="long")
+league.out <- nma.league(fixed_effects_results,  central.tdcy="median", layout="long")
 league.heat.plot(league.out, 
                  sucra.ranks = rev(sucra.out$s.ranks), 
                  low.colour = "springgreen4", 
@@ -172,7 +197,7 @@ league.heat.plot(league.out,
 
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
-fe_inconsistency_model <- nma.bugs(slr=dich.slr,
+fe_inconsistency_model <- nma.bugs(data.nma=dich.slr,
                      outcome="responders",
                      N="sampleSize",
                      baseline.name="SK",
@@ -181,7 +206,7 @@ fe_inconsistency_model <- nma.bugs(slr=dich.slr,
                      type = "inconsistency",
                      effects="fixed")
 
-fe_inconsistency_results <- nma.analysis(fe_inconsistency_model,
+fe_inconsistency_results <- nma.run(fe_inconsistency_model,
                            monitor = c("d", "dev", "r", "n","totresdev","rhat"),
                            n.adapt=1000,
                            n.burnin=1000,
@@ -198,26 +223,27 @@ inconsist_model_fit <- assess.model.fit(fe_inconsistency_results)
 ```
 
 ```{r, fig.height=6, fig.width = 6}
-inconsistency.plot(fe_model_fit, inconsist_model_fit)
+nma.compare(fe_model_fit, inconsist_model_fit)
 ```
 
-```{r, fig.height=8, fig.width = 8}
-# inconsistency.PMA(slr = dich.slr, 
-#                   jagsoutput = fixed_effects_results,
-#                   outcome = "responders",
-#                   N = "sampleSize",
-#                   base.trt = "SK",
-#                   effects="fixed", 
-#                   central.tdcy="median", 
-#                   line.size=1,
-#                   x.trans=NULL)
-```
+<!-- ```{r, fig.height=8, fig.width = 8} -->
+<!--  inconsistency.PMA(data.nma = dich.slr,  -->
+<!--                    jagsoutput = fixed_effects_results, -->
+<!--                    outcome = "responders", -->
+<!--                    N = "sampleSize", -->
+<!--                    base.trt = "SK", -->
+<!--                    effects="fixed",  -->
+<!--                    central.tdcy="median",  -->
+<!--                    line.size=1, -->
+<!--                    x.trans=NULL) -->
+<!-- ``` -->
 
-```{r, fig.width = 8, fig.height=6}
-# pairwise <- pairwise(slr = dich.slr,
-#                          name.trt1 = "SK",
-#                          name.trt2 = "Ret",
-#                          outcome = "responders",
-#                          N = "sampleSize")
-```
-```
+<!-- ```{r, fig.width = 8, fig.height=6} -->
+<!--  pairwise <- pairwise(data.nma = dich.slr, -->
+<!--                           name.trt1 = "SK", -->
+<!--                           name.trt2 = "Ret", -->
+<!--                           outcome = "responders", -->
+<!--                           N = "sampleSize") -->
+<!-- ``` -->
+
+# References

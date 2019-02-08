@@ -26,7 +26,7 @@
 #' @examples
 #' # Example containing a fill.str, an overall average, and no error
 #' 
-#'patients.plot(patients.data = my.slr$patient.data, 
+#'data.plot(patients.data = my.slr$patient.data, 
 #'              treatment.var = "trt",
 #'              trial.var = "studyName",
 #'              var.name = "Age", 
@@ -37,7 +37,7 @@
 #'              
 #'# Example containing no fill.str, no overall average, but contains errorbars
 #'
-#'patients.plot(patients.data = my.slr$patient.data, 
+#'data.plot(patients.data = my.slr$patient.data, 
 #'              treatment.var = "trt",
 #'              trial.var = "studyName",
 #'              var.name = "Age", 
@@ -49,7 +49,7 @@
 #'              caption = "Error bars: Mean +/- sd",
 #'              by = "trial")
 
-patients.plot <- function(patients.data, 
+data.plot <- function(patients.data, 
                           treatment.var,
                           trial.var,
                           var.name, 

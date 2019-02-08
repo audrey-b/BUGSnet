@@ -1,7 +1,7 @@
 #' Network Plot
 #' @description Produces network plot where nodes represent treatments and edges represent direct
 #' evidence (e.g an RCT) comparing treatments.
-#' @param slr An slr data object produced by \code{data.slr()}
+#' @param data.nma A data object produced by \code{data.prep()}
 #' @param node.scale Size of the nodes (default=5)
 #' @param edge.scale Thickness of the edges (default=2)
 #' @param flag Used to highlight direct comparisons to a particular treatment (optional.
@@ -16,7 +16,7 @@
 #' # Highlight all direct comparisons with Placebo. Adjust node and edge size, centre node labels
 #' network.plot(my.slr, node.scale=4, edge.scale=1.5, flag="Placebo", label.offset1=0, label.offset2=0)
 
-network.plot <- function(slr,
+net.plot <- function(data.nma,
                          node.scale=5, 
                          edge.scale=2, flag=NULL, 
                          label.offset1=0, label.offset2=1, 
@@ -29,12 +29,12 @@ network.plot <- function(slr,
                          flag.edge.colour = "lightpink",
                          ...) {
   
-  #source("R\\network.structure.R")
- edgesANDnodes <- network.structure(slr)
+
+ edgesANDnodes <- network.structure(data.nma)
  edges <- edgesANDnodes[[1]]
  nodes <- edgesANDnodes[[2]]
  
- names(nodes)[names(nodes) == slr$varname.t] <- "trt"
+ names(nodes)[names(nodes) == data.nma$varname.t] <- "trt"
  
  net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
  

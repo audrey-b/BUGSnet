@@ -1,13 +1,13 @@
-by.comparison <- function(slr, outcome, type.outcome="binomial", N, sd=NULL, time = NULL){
-  data <- slr$raw.data
-  names(data)[names(data) == slr$varname.t] <- "trt"
-  names(data)[names(data) == slr$varname.s] <- "trial"
+by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL, time = NULL){
+  data <- data.nma$raw.data
+  names(data)[names(data) == data.nma$varname.t] <- "trt"
+  names(data)[names(data) == data.nma$varname.s] <- "trial"
   #names(data)[names(data) == outcome] <- "outcome"
   #names(data)[names(data) == N] <- "N"
   
   if (type.outcome=="continuous"){
 
-    names(data)[names(data) == slr$sd] <- "sd"
+    names(data)[names(data) == data.nma$sd] <- "sd"
     
     data %<>% select(trial, trt, outcome, N, sd)
     data.st <- select(data, trial, trt)
@@ -41,7 +41,7 @@ by.comparison <- function(slr, outcome, type.outcome="binomial", N, sd=NULL, tim
     
   } else if (type.outcome %in% c("rate", "rate2")){
     
-    names(data)[names(data) == slr$time] <- "time"
+    names(data)[names(data) == data.nma$time] <- "time"
     
     data %<>% select(trial, trt, outcome, N, time)
     data.st <- select(data, trial, trt)

@@ -1,11 +1,11 @@
-compute.prior <- function(slr, outcome, scale, N, sd=NULL, time = NULL){
+compute.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   if (scale =="OR" ){type.outcome = "binomial"}
   else if (scale =="RR"){type.outcome = "binomial"}
   else if (scale =="SMD"){type.outcome = "continuous"}
   else if (scale =="HR"){type.outcome = "rate"}
   else if (scale =="lograte"){type.outcome = "rate2"}
   
-  table <- by.comparison(slr, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
+  table <- by.comparison(data.nma, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
   names(table)[names(table) == paste0(outcome,".e")] <- "outcome.e"
   names(table)[names(table) == paste0(outcome,".c")] <- "outcome.c"
   
@@ -70,7 +70,7 @@ compute.prior <- function(slr, outcome, scale, N, sd=NULL, time = NULL){
   return(max(abs(deltas)))
 }
 
-#compute.prior(slr = dich.slr, scale = "RR", outcome = "responders", N = "sampleSize")
+#compute.prior(data.nma = dich.slr, scale = "RR", outcome = "responders", N = "sampleSize")
 
 
 

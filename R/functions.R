@@ -44,14 +44,14 @@ e.uci.round <- function(x) calc.report(x, "quantile", arg=0.975, trans="exp", di
 #' @examples
 #' # Example 1, no patient data
 #' my.data <- read.csv("diabetes_NMAdata.csv")
-#' diabetes.slr <- data.slr(raw.data = my.data, varname.t = "treatment", varname.s = "studyName", N="n_patients")
+#' diabetes.slr <- data.prep(raw.data = my.data, varname.t = "treatment", varname.s = "studyName", N="n_patients")
 #' 
 #' # Example 2, contains patient data
 #' NMA.data <- read.csv("MI_NMAdata.csv")
 #' patient.data <- read.csv("patient_covariates.csv")
-#' myocardInf.slr <- data.slr(raw.data = NMA.data, varname.t = "trt", varname.s = "stud", N="N")
+#' myocardInf.slr <- data.prep(raw.data = NMA.data, varname.t = "trt", varname.s = "stud", N="N")
 
-data.slr <- function(raw.data,
+data.prep <- function(raw.data,
                      patient.data = NULL,
                      varname.t,
                      varname.s,

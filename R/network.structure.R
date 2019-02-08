@@ -1,20 +1,20 @@
-network.structure <- function(slr) {
+network.structure <- function(data.nma) {
 
-  trial <- quo(!! as.name(slr$varname.s))
+  trial <- quo(!! as.name(data.nma$varname.s))
 
-  if ("n" %in% colnames(slr$raw.data)) {
-    nodes <- slr$raw.data %>% select(-n) %>% count_(slr$varname.t) %>% rename(node.weight = n) %>%
-      mutate(id = as.character(1:n())) %>% select(id, slr$varname.t, node.weight)
+  if ("n" %in% colnames(data.nma$raw.data)) {
+    nodes <- data.nma$raw.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(node.weight = n) %>%
+      mutate(id = as.character(1:n())) %>% select(id, data.nma$varname.t, node.weight)
   }
     else {
-    nodes <- slr$raw.data %>% count_(slr$varname.t) %>% rename(node.weight = n) %>%
-    mutate(id = as.character(1:n())) %>% select(id, slr$varname.t, node.weight)
+    nodes <- data.nma$raw.data %>% count_(data.nma$varname.t) %>% rename(node.weight = n) %>%
+    mutate(id = as.character(1:n())) %>% select(id, data.nma$varname.t, node.weight)
   }
   
-  tmp1 <- slr$raw.data %>% 
-    left_join(., nodes, by=slr$varname.t) %>%
+  tmp1 <- data.nma$raw.data %>% 
+    left_join(., nodes, by=data.nma$varname.t) %>%
     mutate(id2 = id) %>%
-    group_by_(slr$varname.s) %>%
+    group_by_(data.nma$varname.s) %>%
     expand(id, id2) %>%
     filter(id != id2) %>% 
     mutate(comparison = ifelse(id < id2,

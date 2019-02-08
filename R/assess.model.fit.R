@@ -1,7 +1,7 @@
 #' Assess Model Fit
 #' @description Computes the Deviance Information Criteria (DIC) and produces a leverage plot (as in the NICE Technical Support Document 2)
 #' for a given model. These can be used to assess and compare the fit of different models (i.e fixed vs random effects, consistency vs
-#' inconsistency). \code{assess.model.fit} also produces a plot comparing the leverage of each data point against their contribution to
+#' inconsistency). \code{nma.fit} also produces a plot comparing the leverage of each data point against their contribution to
 #' the total posterior deviance. Any point lying outside the purple dotted line is considered to be an "outlier";
 #' contributing to the model's poor fit.
 #' 
@@ -22,10 +22,10 @@
 #' #random_effects_results are the outputs of nma.analysis() where the parameter effects="random"
 #' 
 #' par(mfrow=c(1,2))
-#' assess.model.fit(fixed_effects_results, main = "Fixed Effects Model" )
-#' assess.model.fit(random_effects_results, main= "Random Effects Model")
+#' nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+#' nma.fit(random_effects_results, main= "Random Effects Model")
 
-assess.model.fit  <- function(jagsoutput, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
+nma.fit  <- function(jagsoutput, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   jagssamples <- jagsoutput$samples
   
   if (class(jagssamples) != "mcmc.list"){stop('Object jagssamples must be of class mcmc.list')}
@@ -96,20 +96,20 @@ assess.model.fit  <- function(jagsoutput, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres
 #' @description Plots the posterior mean deviance of a consistency model vs an inconsistency model. This plot can help identify loops
 #' where inconsistency is present. Ideally, both models will contribute approximately 1 to the posterior mean deviance.
 #' 
-#' @param consistency.model.fit Results of \code{assess.model.fit()} of an consistency model.
-#' @param inconsistency.model.fit Results of \code{assess.model.fit()} of an inconsistency model.
+#' @param consistency.model.fit Results of \code{nma.fit()} of an consistency model.
+#' @param inconsistency.model.fit Results of \code{nma.fit()} of an inconsistency model.
 #' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}.
 #' 
 #' @examples
-#' # Assess model fit for a both an inconsistency model and consistency model using assess.model.fit()
-#' assess.consistency <- assess.model.fit(consistency_results)
-#' assess.inconsistency <- assess.model.fit(inconsistency_results)
+#' # Assess model fit for a both an inconsistency model and consistency model using nma.fit()
+#' assess.consistency <- nma.fit(consistency_results)
+#' assess.inconsistency <- nma.fit(inconsistency_results)
 #' 
 #' #Plot the results against each other to assess inconsistency
 #' inconsistency.plot(consistency_results, inconsistency_results)
 
 
-inconsistency.plot <- function(consistency.model.fit, inconsistency.model.fit, ...){
+nma.compare <- function(consistency.model.fit, inconsistency.model.fit, ...){
   x=as.numeric(consistency.model.fit$pmdev)
   y=as.numeric(inconsistency.model.fit$pmdev)
   plot(x, y,

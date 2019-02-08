@@ -1,7 +1,7 @@
 #' Make Bugs Model
 #' @description Creates bugs BUGS code which will can be ran through \code{nma.analysis()}.
 #' 
-#' @param slr An slr data object produced by \code{data.slr()}
+#' @param data.prep A data object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param baseline.name This is the drug that all treatments will be compared to in the network. This is often
@@ -28,14 +28,14 @@
 #' examples are "RR", "OR", "SMD", "HR"
 #' @return \code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
 #' 
-#' @details Talk about
+#' @details
 #' 
 #' @examples
 #' #Example 1
 #' #Fixed effects, consistency model.
 #' #Binomial family, log link. This implies that the relative risk (RR) will be the scale.
 #' 
-#'nma.bugs(slr = my.slr,
+#'nma.model(data.nma = my.slr,
 #'        outcome = "n_died", 
 #'        N = "n",
 #'        baseline.name = "plbo",
@@ -47,7 +47,7 @@
 #' #Random Effects, inconsistency model
 #' #Normal family, identity link.        
 #'  
-#'nma.bugs(slr = my.slr,
+#'nma.model(data.nma = my.slr,
 #'         outcome = "weight_change", 
 #'         N = "n",
 #'         baseline.name = "control",
@@ -61,7 +61,7 @@
 #'# Random Effects, consistency model,
 #'# Poisson family, cloglog link.
 #'
-#'nma.bugs(slr = my.slr,
+#'nma.model(data.nma = my.slr,
 #'         outcome = "n_died", 
 #'         N = "n",
 #'         baseline.name = "plbo",
@@ -71,7 +71,7 @@
 #'         effects = "random")
 
 
-nma.bugs <- function(slr,
+nma.model <- function(data.nma,
                      outcome, 
                      N,
                      baseline.name,
@@ -97,11 +97,11 @@ nma.bugs <- function(slr,
     scale <- "HR"
   }
   
-  data <- slr$raw.data
+  data <- data.nma$raw.data
   
   # rename variables as appropriate
-  names(data)[names(data) == slr$varname.t] <- "trt"
-  names(data)[names(data) == slr$varname.s] <- "trial"
+  names(data)[names(data) == data.nma$varname.t] <- "trt"
+  names(data)[names(data) == data.nma$varname.s] <- "trial"
   names(data)[names(data) == outcome] <- "r1"
   names(data)[names(data) == N] <- "N"
   if (family == "normal"){names(data)[names(data) == sd] <- "sd"}
@@ -121,17 +121,17 @@ nma.bugs <- function(slr,
                                       from=trt.map.table$trt.ini,
                                       to=trt.map.table$trt.jags) %>% as.integer)
   
-  nt = slr$treatments %>% nrow()
-  ns = slr$studies %>% nrow()
-  na = slr$n.arms %>% select(n.arms) %>% t() %>% as.vector
+  nt = data.nma$treatments %>% nrow()
+  ns = data.nma$studies %>% nrow()
+  na = data.nma$n.arms %>% select(n.arms) %>% t() %>% as.vector
   
   
   
   sorted.data <- data 
   
   # rename variables as appropriate
-  names(sorted.data)[names(sorted.data) == slr$varname.t] <- "trt"
-  names(sorted.data)[names(sorted.data) == slr$varname.s] <- "trial"
+  names(sorted.data)[names(sorted.data) == data.nma$varname.t] <- "trt"
+  names(sorted.data)[names(sorted.data) == data.nma$varname.s] <- "trial"
   names(sorted.data)[names(sorted.data) == outcome] <- "r1"
   names(sorted.data)[names(sorted.data) == N] <- "N"
   if (family == "normal"){names(sorted.data)[names(sorted.data) == sd] <- "sd"}
@@ -273,7 +273,7 @@ nma.bugs <- function(slr,
   ###Priors###
   ############
   
-  max.delta <- paste0(compute.prior(slr=slr, outcome=outcome, scale=scale, N=N, sd=sd, time = exposure.time))
+  max.delta <- paste0(compute.prior(data.nma=data.nma, outcome=outcome, scale=scale, N=N, sd=sd, time = exposure.time))
   
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){

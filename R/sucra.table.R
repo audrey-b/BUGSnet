@@ -2,7 +2,7 @@
 #' @description Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A Sucra table summarizes the probabilities
 #' that each  treatment is the best, second best...worst treatment in the network.
 #' 
-#' @param jagsoutput Resulting dataset from running \code{nma.analysis()}.
+#' @param jagsoutput Resulting dataset from running \code{nma.run()}.
 #' @param largerbetter A boolean variable indicating whether a larger probability should indicate a more effective treatment (TRUE) or
 #' if a smaller probability should indicate a more effective treatment (FALSE). 
 #' @param line.thickness A number indicating the thickness of the lines in the SUCRA plot.
@@ -17,13 +17,13 @@
 #' @examples
 #' 
 #' #get sucra results
-#' sucra_results <- sucra(jagsoutput = nma_results, largerbetter = TRUE)
+#' sucra_results <- nma.rank(jagsoutput = nma_results, largerbetter = TRUE)
 #' 
 #' #plot sucra results
 #' sucra_results$s.plot
 
 
-sucra <- function(jagsoutput, 
+nma.rank <- function(jagsoutput, 
                   largerbetter, 
                   line.thickness = 1.0,
                   colour.set= "Set1") {

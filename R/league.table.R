@@ -12,7 +12,7 @@
 #'
 #' league_table <- leaguetable(jagsoutput=nma.results, central.tdcy="median", layout = "long")
 
-leaguetable <- function(jagsoutput, 
+nma.league <- function(jagsoutput, 
                         central.tdcy = "median",
                         layout="default") {
   
@@ -114,10 +114,3 @@ return(tmp.df)
 
 
 }
-
-
-
-
-
- 
- 

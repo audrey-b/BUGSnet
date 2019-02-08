@@ -1,4 +1,4 @@
-nma.forestplot <- function(jagsoutput, 
+nma.forest <- function(jagsoutput, 
                            base.trt, 
                            central.tdcy = "median", 
                            line.size=1,

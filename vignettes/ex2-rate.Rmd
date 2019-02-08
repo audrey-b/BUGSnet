@@ -3,6 +3,7 @@ title: "NMA for Rate Outcomes"
 author: "Justin Slater"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{NMA for Rate Outcomes}
   %\VignetteEngine{knitr::rmarkdown}
@@ -31,7 +32,7 @@ fatdiet <- read_excel(paste0(path,"data",sep,"rate_example.xlsx"))
 ```
 
 ``` {r}
-rate.slr <- data.slr(raw.data = fatdiet,
+rate.slr <- data.prep(raw.data = fatdiet,
                      varname.t = "Treatment",
                      varname.s = "Study",
                      N = "n")
@@ -42,15 +43,15 @@ rate.slr <- data.slr(raw.data = fatdiet,
 ### Network Plot
 
 
-```{r, network.plot, echo=TRUE, fig.width=4, fig.height=4}
- network.plot(rate.slr, node.scale = 3, edge.scale=1.2)
+```{r, net.plot, echo=TRUE, fig.width=4, fig.height=4}
+ net.plot(rate.slr, node.scale = 3, edge.scale=1.2)
 ```
 
 
-### Generate Network Characteristics via `netmetaxl.tables()`
+### Generate Network Characteristics via `net.tab()`
 
 ```{r, results = "hide"}
-network.char <- netmetaxl.tables(slr = rate.slr,
+network.char <- net.tab(data.nma = rate.slr,
                                 outcome = "death",
                                 N = "n",
                                 type.outcome = "rate",
@@ -77,9 +78,9 @@ kable(network.char$comparison)
 ```
 
 ## Main analysis
-`nma.bugs()` creates WINBUGS code and that will be put into `nma.analysis()`. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+`nma.bugs()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
-fixed_effects_model <- nma.bugs(slr=rate.slr,
+fixed_effects_model <- nma.bugs(data.nma=rate.slr,
                                  outcome="death",
                                  N="n",
                                  baseline.name="control",
@@ -88,7 +89,7 @@ fixed_effects_model <- nma.bugs(slr=rate.slr,
                                  exposure.time = "py",
                                  effects="fixed")
 
-random_effects_model <- nma.bugs(slr=rate.slr,
+random_effects_model <- nma.bugs(data.nma=rate.slr,
                                  outcome="death",
                                  N="n",
                                  baseline.name="control",
@@ -99,17 +100,18 @@ random_effects_model <- nma.bugs(slr=rate.slr,
 
 ```
 
-If you want to review the WINBUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review the BUGS code, you can review it by outputting `makebugs$model.str`. 
 
-The next step is to run the NMA model using `nma.analysis()`
+The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
+
 ```{r, results = "hide"}
-fixed_effects_results <- nma.analysis(fixed_effects_model,
+fixed_effects_results <- nma.run(fixed_effects_model,
                            monitor = c("d", "dev", "r","totresdev","lambda", "theta"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
 
-random_effects_results <- nma.analysis(random_effects_model,
+random_effects_results <- nma.run(random_effects_model,
                            monitor = c("d", "dev", "r","totresdev","lambda", "theta"),
                            n.adapt=1000,
                            n.burnin=1000,
@@ -121,8 +123,8 @@ random_effects_results <- nma.analysis(random_effects_model,
 Compare fixed vs random effects models by comparing leverage plots and the DIC
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
-assess.model.fit(fixed_effects_results, main = "Fixed Effects Model" )
-assess.model.fit(random_effects_results, main= "Random Effects Model")
+nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+nma.fit(random_effects_results, main= "Random Effects Model")
 ```
 
 The fixed effects model seems to be more appropriate here due to a lower DIC, and similar leverage plots.
@@ -133,7 +135,7 @@ it is likely that there is inconsistency in the network.
 
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
-fe_inconsistency_model <- nma.bugs(slr=rate.slr,
+fe_inconsistency_model <- nma.bugs(data.nma=rate.slr,
                                    outcome="death",
                                    N="n",
                                    baseline.name="control",
@@ -143,7 +145,7 @@ fe_inconsistency_model <- nma.bugs(slr=rate.slr,
                                    type = "inconsistency",
                                    effects="fixed")
 
-fe_inconsistency_results <- nma.analysis(fe_inconsistency_model,
+fe_inconsistency_results <- nma.run(fe_inconsistency_model,
                                          monitor = c("d", "dev", "r","totresdev","lambda", "theta"),
                                          n.adapt=1000,
                                          n.burnin=1000,
@@ -154,15 +156,15 @@ fe_inconsistency_results <- nma.analysis(fe_inconsistency_model,
 Rainbow plots and DIC calculations can highlight outliers and can compare model fits between the two models. 
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
-fe_model_fit <- assess.model.fit(fixed_effects_results, main = "Consistency Model" )
-inconsist_model_fit <- assess.model.fit(fe_inconsistency_results, main= "Inconsistency Model")
+fe_model_fit <- nma.fit(fixed_effects_results, main = "Consistency Model" )
+inconsist_model_fit <- nma.fit(fe_inconsistency_results, main= "Inconsistency Model")
 ```
 The leverage plots and DIC show that the consistency and inconsistency models are very similar, suggesting that
 a consistency model is satisfactory.
 
 A plot of the \code{pmdev} of both models against each other can highlight descrepancies between the two models.
 ```{r, fig.height=6, fig.width = 6}
-inconsistency.plot(fe_model_fit, inconsist_model_fit)
+nma.compare(fe_model_fit, inconsist_model_fit)
 ```
 
 Seeing as that all the points lie close to the $y=x$ line, there is very little evidence of inconsistency.
@@ -171,16 +173,18 @@ Seeing as that all the points lie close to the $y=x$ line, there is very little 
 
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
-sucra.out <- sucra(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
 sucra.out$s.plot
 ```
 
 ### League Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
-league.out <- leaguetable(fixed_effects_results,  central.tdcy="median", layout="long")
+league.out <- nma.league(fixed_effects_results,  central.tdcy="median", layout="long")
 league.heat.plot(league.out, 
                  sucra.ranks = rev(sucra.out$s.ranks), 
                  low.colour = "springgreen4", 
                  mid.colour = "white",
                  high.colour = "red")
 ```
+
+# References

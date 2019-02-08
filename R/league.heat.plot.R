@@ -9,7 +9,7 @@
 #' 
 #' @examples
 #' #Make league table, be sure to set layout="long".
-#' lt <- leaguetable(jagsoutput=nma.results, central.tdcy="median", layout = "long")
+#' lt <- nma.league(jagsoutput=nma.results, central.tdcy="median", layout = "long")
 #' 
 #' #make plot using default colours
 #' league.heat.plot(leaguetable=lt)
