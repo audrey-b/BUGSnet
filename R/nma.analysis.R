@@ -22,7 +22,7 @@ nma.run <- function(bugs,
                          n.chains=3){
   
   
-  jagsmodel <- jags.model(textConnection(bugs$model.str),
+  jagsmodel <- jags.model(textConnection(bugs$model),
                           bugs$bugsdata2,
                           n.chains=n.chains,
                           n.adapt=n.adapt)

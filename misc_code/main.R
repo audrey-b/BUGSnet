@@ -61,7 +61,7 @@ random_effects_model <- nma.model(data.nma=dich.slr,
                                   effects="random")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
-cat(fixed_effects_model$model.str)
+cat(fixed_effects_model$model)
 sink()
 
 # Network Plots -----------------------------------------------------------

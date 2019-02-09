@@ -115,6 +115,6 @@ nma.compare <- function(consistency.model.fit, inconsistency.model.fit, ...){
   plot(x, y,
        xlim=c(0, max(0, max(x,y) + 0.5)),
        ylim=c(0, max(0, max(x,y) + 0.5)),
-       ylab="inconsistency model", xlab="consistency model", pch=16, ...)
+       ylab="Inconsistency model", xlab="Consistency model", pch=16, ...)
   lines(-1:100,-1:100, lty = 2 )
 }

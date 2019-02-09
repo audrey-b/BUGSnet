@@ -111,7 +111,7 @@ kable(network.char$comparison)
 ## Main analysis
 `nma.model()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
-fixed_effects_model <- nma.model(data.nma=dich.slr,
+fixed_effects_model <- nma.model(data=dich.slr,
                      outcome="responders",
                      N="sampleSize",
                      reference="SK",
@@ -119,7 +119,7 @@ fixed_effects_model <- nma.model(data.nma=dich.slr,
                      link="log",
                      effects="fixed")
 
-random_effects_model <- nma.model(data.nma=dich.slr,
+random_effects_model <- nma.model(data=dich.slr,
                      outcome="responders",
                      N="sampleSize",
                      reference="SK",
@@ -128,7 +128,7 @@ random_effects_model <- nma.model(data.nma=dich.slr,
                      effects="random")
 
 ```
-If you want to review or modify the BUGS code, you can review it by outputting `fixed_effects_model$model.str` and `random_effects_model$model.str`. 
+If you want to review or modify the BUGS code, you can review it by outputting `fixed_effects_model$model.str` and `random_effects_model$model`. 
 
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
@@ -177,7 +177,7 @@ league.heat.plot(league.out,
 
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
-fe_inconsistency_model <- nma.model(data.nma=dich.slr,
+fe_inconsistency_model <- nma.model(data=dich.slr,
                      outcome="responders",
                      N="sampleSize",
                      reference="SK",

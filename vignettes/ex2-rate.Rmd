@@ -84,27 +84,27 @@ kable(network.char$comparison)
 ## Main analysis
 `nma.model()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
-fixed_effects_model <- nma.model(data.nma=rate.slr,
+fixed_effects_model <- nma.model(data=rate.slr,
                                  outcome="death",
                                  N="n",
                                  reference="control",
                                  family="poisson",
                                  link="log",
-                                 exposure.time = "py",
+                                 time = "py",
                                  effects="fixed")
 
-random_effects_model <- nma.model(data.nma=rate.slr,
+random_effects_model <- nma.model(data=rate.slr,
                                  outcome="death",
                                  N="n",
                                  reference="control",
                                  family="poisson",
                                  link="log",
-                                 exposure.time = "py",
+                                 time = "py",
                                  effects= "random")
 
 ```
 
-If you want to review the BUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review the BUGS code, you can review it by outputting `makebugs$model`. 
 
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
@@ -139,12 +139,12 @@ it is likely that there is inconsistency in the network.
 
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
-fe_inconsistency_model <- nma.model(data.nma=rate.slr,
+fe_inconsistency_model <- nma.model(data=rate.slr,
                                    outcome="death",
                                    N="n",
                                    reference="control",
                                    family="poisson",
-                                   exposure.time = "py",
+                                   time = "py",
                                    link="log",
                                    type = "inconsistency",
                                    effects="fixed")

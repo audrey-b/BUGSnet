@@ -2,18 +2,18 @@ Package: BUGSnet
 Title: All-in-one package for Network Meta-Analysis
 Version: 0.0.0.9000
 Authors@R: c(
-  person("Audrey", "Beliveau", email = "abeliveau@lighthouseoutcomes.com", role = c("aut" )),
+  person("Audrey", "Beliveau", email = "audrey.beliveau@uwaterloo.ca", role = c("aut","rth")),
   person("Justin", "Slater", email = "jslater@lighthouseoutcomes.com", role = c("aut", "cre")),
   person("Devon", "Boyne", email = "dboyne@lighthouseoutcomes.com", role = c("aut")),
-  person("Paul", "Arora", email = "parora@lighthouseoutcomes.com", role = c("drt")),
-  person("Darren", "Brenner", email = "dbrenner@lighthouseoutcomes.com", role = c("drt"))
+  person("Paul", "Arora", email = "parora@lighthouseoutcomes.com", role = c("sad")),
+  person("Darren", "Brenner", email = "dbrenner@lighthouseoutcomes.com", role = c("sad"))
   )
 Description: What the package does (one paragraph).
 Depends: R (>= 3.5.1)
 License:
 Encoding: UTF-8
 LazyData: True
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Imports:
     tidyr,
     plyr,
