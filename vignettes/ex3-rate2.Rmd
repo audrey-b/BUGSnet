@@ -19,8 +19,12 @@ knitr::opts_chunk$set(
 
 
 ```{r, include = FALSE}
-path <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
-sep <- "\\"
+pathA <-"Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
+sepA <- "/"
+pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
+sepJ <- "\\"
+path <- pathA
+sep <- sepA
 source(paste0(path,"misc_code",sep,"load.packages.R"))
 library(devtools)
 library(roxygen2)
@@ -129,12 +133,12 @@ $$cloglog(p_{ik})=log(f_i) +\mu_i +\delta_{i,bk}I_{(k \neq I)} $$
 where $\delta_{i, bk} \sim N(d_{bk}, \sigma^2_{bk})$. When we assume that $\sigma^2_{bk} = 0$, this is known as a **fixed effects model**. Otherwise, we are dealing with a **random effects model** where we attempt to model $\sigma^2_{ik}$. We will run both of these models and compare their fit statistics using BUGSnet. Note that both of these models assume a constant hazard ratio for the duration of follow up.
 
 
-`nma.model()` builds a model using BUGS code based on the user's specifications. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, we have set the referent treatment to "Diuretic" to be consistent with the TSD and literature. 
+`nma.model()` builds a model using BUGS code based on the user's specifications. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, we have set the referent treatment to "Diuretic" to be consistent with the TSD and literature. 
 ```{r}
 fixed_effects_model <- nma.model(data.nma=rate2.slr,
                                  outcome="diabetes",
                                  N="n",
-                                 baseline.name="Diuretic",
+                                 reference="Diuretic",
                                  family="binomial",
                                  link="cloglog",
                                  exposure.time = "followup",
@@ -143,7 +147,7 @@ fixed_effects_model <- nma.model(data.nma=rate2.slr,
 random_effects_model <- nma.model(data.nma=rate2.slr,
                                  outcome="diabetes",
                                  N="n",
-                                 baseline.name="Diuretic",
+                                 reference="Diuretic",
                                  family="binomial",
                                  link="cloglog",
                                  exposure.time = "followup",
@@ -186,7 +190,7 @@ Next, we will assess consistency in the network by fitting a random effects inco
 re_inconsistency_model <- nma.model(data.nma=rate2.slr,
                                    outcome="diabetes",
                                    N="n",
-                                   baseline.name="Diuretic",
+                                   reference="Diuretic",
                                    family="binomial",
                                    exposure.time = "followup",
                                    link="cloglog",

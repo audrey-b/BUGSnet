@@ -20,8 +20,12 @@ knitr::opts_chunk$set(
 ### Data Preparation
 
 ```{r, include = FALSE}
-path <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
-sep <- "\\"
+pathA <-"Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
+sepA <- "/"
+pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
+sepJ <- "\\"
+path <- pathA
+sep <- sepA
 source(paste0(path,"misc_code",sep,"load.packages.R"))
 library(devtools)
 library(roxygen2)
@@ -84,71 +88,47 @@ kable(network.char$intervention)
 kable(network.char$comparison)
 ```
 
-<<<<<<< HEAD
-```{r}
-# pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize")
-# 
-# pairwise.dat.with.c <- pairwise.dat %>% 
+```{r, echo=FALSE}
+#pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize")
+ 
+#pairwise.dat.with.c <- pairwise.dat %>% 
 #   filter(grepl("SK", comparison)) %>%
 #   filter((trt.e == "tPA"| trt.c == "tPA"))
-# 
+ 
 #  tPA_vs_SK <- pairwise(data.nma = dich.slr,
 #                           name.trt1 = "SK", 
 #                           name.trt2 = "tPA", 
 #                           outcome = "responders",
 #                           N = "sampleSize")
-# 
+ 
 # pairwise.all(data.nma=dich.slr, 
 #             outcome="responders",
 #             N = "sampleSize",
 #             method.tau="DL",
 #             sm= "RR") 
-# 
 ```
-=======
-<!-- ```{r} -->
-<!--  pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize") -->
-
-<!--  pairwise.dat.with.c <- pairwise.dat %>%  -->
-<!--    filter(grepl("SK", comparison)) %>% -->
-<!--    filter((trt.e == "tPA"| trt.c == "tPA")) -->
-
-<!--   tPA_vs_SK <- pairwise(data.nma = dich.slr, -->
-<!--                            name.trt1 = "SK",  -->
-<!--                            name.trt2 = "tPA",  -->
-<!--                            outcome = "responders", -->
-<!--                            N = "sampleSize") -->
-
-<!--  pairwise.all(data.nma=dich.slr,  -->
-<!--              outcome="responders", -->
-<!--              N = "sampleSize", -->
-<!--              method.tau="DL", -->
-<!--              sm= "RR")  -->
-
-<!-- ``` -->
->>>>>>> ab891caa32a574a741cb553ffba6be4ce1a8a428
 
 ## Main analysis
-`nma.bugs()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+`nma.model()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
-fixed_effects_model <- nma.bugs(data.nma=dich.slr,
+fixed_effects_model <- nma.model(data.nma=dich.slr,
                      outcome="responders",
                      N="sampleSize",
-                     baseline.name="SK",
+                     reference="SK",
                      family="binomial",
                      link="log",
                      effects="fixed")
 
-random_effects_model <- nma.bugs(data.nma=dich.slr,
+random_effects_model <- nma.model(data.nma=dich.slr,
                      outcome="responders",
                      N="sampleSize",
-                     baseline.name="SK",
+                     reference="SK",
                      family="binomial",
                      link="log",
                      effects="random")
 
 ```
-If you want to review the BUGS code, you can review it by outputting `makebugs$model.str`. 
+If you want to review or modify the BUGS code, you can review it by outputting `fixed_effects_model$model.str` and `random_effects_model$model.str`. 
 
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
@@ -170,14 +150,14 @@ random_effects_results <- nma.run(random_effects_model,
 #Assess model fit
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
-assess.model.fit(fixed_effects_results, main = "Fixed Effects Model" )
-assess.model.fit(random_effects_results, main= "Random Effects Model")
+nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+nma.fit(random_effects_results, main= "Random Effects Model")
 
 ```
 
 
 
-##results
+##Results
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
@@ -197,10 +177,10 @@ league.heat.plot(league.out,
 
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
-fe_inconsistency_model <- nma.bugs(data.nma=dich.slr,
+fe_inconsistency_model <- nma.model(data.nma=dich.slr,
                      outcome="responders",
                      N="sampleSize",
-                     baseline.name="SK",
+                     reference="SK",
                      family="binomial",
                      link="log",
                      type = "inconsistency",
@@ -218,8 +198,8 @@ nma.trace(fe_inconsistency_results, n=5)
 
 ```{r, fig.height=4, fig.width=8}
 par(mfrow = c(1,2))
-fe_model_fit <- assess.model.fit(fixed_effects_results)
-inconsist_model_fit <- assess.model.fit(fe_inconsistency_results)
+fe_model_fit <- nma.fit(fixed_effects_results)
+inconsist_model_fit <- nma.fit(fe_inconsistency_results)
 ```
 
 ```{r, fig.height=6, fig.width = 6}

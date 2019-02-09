@@ -4,8 +4,8 @@
 #' @param data.prep A data object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
-#' @param baseline.name This is the drug that all treatments will be compared to in the network. This is often
-#' a placebo or control drug of some kind.
+#' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
+#' a placebo or control drug of some kind.  
 #' @param sd A string (only required for continuous outcomes) indicating variable name
 #' of the standard deviation of the outcome
 #' @param type If type="inconsistency", an inconsistency model will be built. Otherwise a consistency model
@@ -15,10 +15,10 @@
 #' @param family A string indicating the family of the distribution of the outcome. Options are:
 #' "binomial", "normal", "poisson".
 #' @param link The link function for the nma model. Options are "logit", "log", "cloglog", "identity".
-#' @param effects Options are "fixed" or "random".
-#' @param prior.mu 
-#' @param prior.d
-#' @param prior.sigma
+#' @param effects A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".
+#' @param prior.mu A string of BUGS code to define priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials (as suggested by ).
+#' @param prior.d A string of BUGS code to define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials (as suggested by ).
+#' @param prior.sigma A string of BUGS code for the priors on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials (as suggested by ).
 #' @param meta.covariate Optional string indicating the name of the variable in your data set that you would like to
 #' adjust for via meta regression.
 #' 
@@ -38,7 +38,7 @@
 #'nma.model(data.nma = my.slr,
 #'        outcome = "n_died", 
 #'        N = "n",
-#'        baseline.name = "plbo",
+#'        reference = "plbo",
 #'        family = "binomial",
 #'        link = "log",
 #'        effects = "fixed")
@@ -50,7 +50,7 @@
 #'nma.model(data.nma = my.slr,
 #'         outcome = "weight_change", 
 #'         N = "n",
-#'         baseline.name = "control",
+#'         reference = "control",
 #'         type = "inconsistency",
 #'         sd = "std_dev",
 #'         family = "normal",
@@ -64,17 +64,16 @@
 #'nma.model(data.nma = my.slr,
 #'         outcome = "n_died", 
 #'         N = "n",
-#'         baseline.name = "plbo",
+#'         reference = "plbo",
 #'         exposure.time="personyears",
 #'         family = "poisson",
 #'         link = "cloglog",
 #'         effects = "random")
 
-
 nma.model <- function(data.nma,
                      outcome, 
                      N,
-                     baseline.name,
+                     reference,
                      type=NULL,
                      sd=NULL,
                      exposure.time=NULL,
@@ -113,8 +112,8 @@ nma.model <- function(data.nma,
     unique %>% 
     sort  %>%
     tibble(trt.ini=.) %>%
-    filter(trt.ini!=baseline.name) %>%
-    add_row(trt.ini=baseline.name, .before=1) %>%
+    filter(trt.ini!=reference) %>%
+    add_row(trt.ini=reference, .before=1) %>%
     mutate(trt.jags = 1:dim(.)[1])
   
   data %<>% mutate(trt.jags=mapvalues(trt,

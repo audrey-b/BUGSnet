@@ -19,8 +19,12 @@ knitr::opts_chunk$set(
 
 
 ```{r, include = FALSE}
-path <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
-sep <- "\\"
+pathA <-"Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
+sepA <- "/"
+pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
+sepJ <- "\\"
+path <- pathA
+sep <- sepA
 source(paste0(path,"misc_code",sep,"load.packages.R"))
 library(devtools)
 library(roxygen2)
@@ -78,21 +82,21 @@ kable(network.char$comparison)
 ```
 
 ## Main analysis
-`nma.bugs()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `baseline.name` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+`nma.model()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
-fixed_effects_model <- nma.bugs(data.nma=rate.slr,
+fixed_effects_model <- nma.model(data.nma=rate.slr,
                                  outcome="death",
                                  N="n",
-                                 baseline.name="control",
+                                 reference="control",
                                  family="poisson",
                                  link="log",
                                  exposure.time = "py",
                                  effects="fixed")
 
-random_effects_model <- nma.bugs(data.nma=rate.slr,
+random_effects_model <- nma.model(data.nma=rate.slr,
                                  outcome="death",
                                  N="n",
-                                 baseline.name="control",
+                                 reference="control",
                                  family="poisson",
                                  link="log",
                                  exposure.time = "py",
@@ -135,10 +139,10 @@ it is likely that there is inconsistency in the network.
 
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
-fe_inconsistency_model <- nma.bugs(data.nma=rate.slr,
+fe_inconsistency_model <- nma.model(data.nma=rate.slr,
                                    outcome="death",
                                    N="n",
-                                   baseline.name="control",
+                                   reference="control",
                                    family="poisson",
                                    exposure.time = "py",
                                    link="log",
