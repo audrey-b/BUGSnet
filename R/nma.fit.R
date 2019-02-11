@@ -79,11 +79,11 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   c1=eq(x, c=rep(1, 6001))
   
   plot(w, leverage, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
-       ylim=c(0, 4.5), xlim=c(-3,3), ...)
-  lines(x, c1,   lty=1, col="firebrick3",    lwd =2)
-  lines(x, c1+1, lty=2, col="chartreuse4",   lwd =2)
-  lines(x, c1+2, lty=3, col="mediumpurple3", lwd =2)
-  lines(x, c1+3, lty=4, col="deepskyblue3",  lwd =2)
+       ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
+  points(x, ifelse(c1 < 0, NA, c1),   lty=1, col="firebrick3",    type="l")
+  points(x, ifelse(c1 < -1, NA, c1)+1, lty=2, col="chartreuse4",   type="l")
+  points(x, ifelse(c1 < -2, NA, c1)+2, lty=3, col="mediumpurple3", type="l")
+  points(x, ifelse(c1 < -3, NA, c1)+3, lty=4, col="deepskyblue3",  type="l")
   if (plot.pD ==TRUE){text(2, 4.3, paste("pD=", round(pD, 2)), cex = 0.8)}
   if (plot.Dres == TRUE){text(2, 3.9, paste("Dres=", round(totresdev,2)), cex = 0.8)}
   if (plot.DIC==TRUE){text(2, 3.5, paste("DIC=", round(DIC,2)), cex = 0.8)}
