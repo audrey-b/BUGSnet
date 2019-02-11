@@ -19,20 +19,15 @@ knitr::opts_chunk$set(
 
 
 ```{r, include = FALSE}
-pathA <-"Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
-sepA <- "/"
-pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
-sepJ <- "\\"
-path <- pathA
-sep <- sepA
-source(paste0(path,"misc_code",sep,"load.packages.R"))
+path <- paste0(dirname(getwd()),"/")
+source(paste0(path,"misc_code","\\","load.packages.R"))
 library(devtools)
 library(roxygen2)
 library(gemtc)
 library(knitr)
 library(readxl)
 load_all(path = paste0(path,"R"))
-diabetes <- read_excel(paste0(path,"data",sep,"rate2_example.xlsx"))
+diabetes <- read_excel(paste0(path,"data","\\","rate2_example.xlsx"))
 ```
 The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2 [@TSD2], page 66. The results of our package are concordant with those reported in the TSD.
 
@@ -239,14 +234,14 @@ SUCRA plots provide a simulaneous comparison of every treatment based on the res
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
 sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$s.plot
+sucra.out$plot
 ```
 
 From this plot, we can see that there is a $\sim$ 77% chance that ARB's are the best treatments, and a $\sim$ 80% chance that diuretics are the worst treatment.
 
-If you want the exact percentages, these results are also available in tabular form via `sucra.out$s.table`.
+If you want the exact percentages, these results are also available in tabular form via `sucra.out$table`.
 ```{r, echo = FALSE}
-kable(sucra.out$s.table)
+kable(sucra.out$table)
 ```
 
 ### League Plot
@@ -255,7 +250,7 @@ League tables are another great way to summarize the results of an NMA. League t
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- nma.league(random_effects_results,  central.tdcy="median", layout="long")
 league.heat.plot(league.out, 
-                 sucra.ranks = rev(sucra.out$s.ranks), #order treatments for heatmap
+                 sucra.ranks = rev(sucra.out$ranks), #order treatments for heatmap
                  low.colour = "springgreen4", 
                  mid.colour = "white",
                  high.colour = "red")
@@ -276,7 +271,7 @@ random_effects_results$model
 
 ###Assessment of convergence of final model
 
-After a model is fit to the evidence, check the trace plots of the model using `nma.trace()`. Look for spikes or general irregularities in the posterior distributions of the d's. Irregularities in these distributions suggest that the model never converged, and will likely require you to run more have a longer burn-in period, or have more iterations in general. Here, the model shows strong signs of convergence.
+After a model is fit to the evidence, check the trace plots of the model using `nma.trace()`. Look for spikes or general irregularities in the posterior distributions of the $d$'s. Irregularities in these distributions suggest that the model never converged, and will likely require you to run more have a longer burn-in period, or have more iterations in general. Here, the model shows strong signs of convergence.
 ```{r, fig.height = 15, fig.width=8}
 nma.trace(random_effects_results)
 ```

@@ -4,8 +4,8 @@
 \alias{league.heat.plot}
 \title{League Heat Plot}
 \usage{
-league.heat.plot(leaguetable, low.colour = "red", mid.colour = "white",
-  high.colour = "springgreen4", midpoint = 0)
+league.heat.plot(leaguetable, sucra.ranks = NULL, low.colour = "red",
+  mid.colour = "white", high.colour = "springgreen4", midpoint = 0)
 }
 \arguments{
 \item{leaguetable}{Results from \code{leaguetable()}. Be sure to set layout="long" from \code{leaguetable()} (see example).}
@@ -24,7 +24,7 @@ a negative relative treatment effect, a null relative treatment effect, and a la
 }
 \examples{
 #Make league table, be sure to set layout="long".
-lt <- leaguetable(jagsoutput=nma.results, central.tdcy="median", layout = "long")
+lt <- nma.league(jagsoutput=nma.results, central.tdcy="median", layout = "long")
 
 #make plot using default colours
 league.heat.plot(leaguetable=lt)

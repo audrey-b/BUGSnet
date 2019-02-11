@@ -272,7 +272,7 @@ nma.model <- function(data,
   ###Priors###
   ############
   
-  max.delta <- paste0(compute.prior(data, outcome=outcome, scale=scale, N=N, sd=sd, time = time))
+  max.delta <- paste0(nma.prior(data, outcome=outcome, scale=scale, N=N, sd=sd, time = time))
   
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){

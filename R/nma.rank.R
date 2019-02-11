@@ -2,40 +2,40 @@
 #' @description Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A Sucra table summarizes the probabilities
 #' that each  treatment is the best, second best...worst treatment in the network.
 #' 
-#' @param jagsoutput Resulting dataset from running \code{nma.run()}.
+#' @param nma Resulting dataset from running \code{nma.run()}.
 #' @param largerbetter A boolean variable indicating whether a larger probability should indicate a more effective treatment (TRUE) or
 #' if a smaller probability should indicate a more effective treatment (FALSE). 
-#' @param line.thickness A number indicating the thickness of the lines in the SUCRA plot.
-#' @param colour.set A string indicating the colour set from RcolorBrewer. "set1" is great, but may need a different colour set if 
+#' @param lwd A number indicating the thickness of the lines in the SUCRA plot.
+#' @param colour.set A string indicating the colour set from RcolorBrewer. "set1" is great, but you may need a different colour set if 
 #' there are many treatments in your network.
 #' 
-#' @return \code{s.table} - A dataset containing a SUCRA table.
-#' @return \code{s.plot} - A plot showing the probability of each treatment being the nth best treatment.
-#' @return \code{s.ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
+#' @return \code{table} - A dataset containing a SUCRA table.
+#' @return \code{sucra.plot} - A plot showing the probability of each treatment being the nth best treatment.
+#' @return \code{ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
 #' is useful when creating the league heat plot.
 #' 
 #' @examples
 #' 
 #' #get sucra results
-#' sucra_results <- nma.rank(jagsoutput = nma_results, largerbetter = TRUE)
+#' sucra_results <- nma.rank(nma = nma_results, largerbetter = TRUE)
 #' 
 #' #plot sucra results
-#' sucra_results$s.plot
+#' sucra_results$sucra.plot
 
 
-nma.rank <- function(jagsoutput, 
+nma.rank <- function(nma, 
                   largerbetter, 
-                  line.thickness = 1.0,
+                  lwd = 1.0,
                   colour.set= "Set1") {
   
-  x <- do.call(rbind, jagsoutput$samples) %>% data.frame() %>% select(starts_with("d."))
+  x <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
   
   tmp.var <- vector(mode="character", length=ncol(x) - 1)
   for(i in 1:ncol(x)) {
     tmp.var[i] <- i
   }
   
-colnames(x) <- jagsoutput$trt.key
+colnames(x) <- nma$trt.key
   
   
 x2 <- x
@@ -68,9 +68,9 @@ s.table <- x3 %>%
 x4 <- s.table %>% gather(trt, prob, -rank)
 
 s.plot <- ggplot(data=x4, aes(x=factor(rank), y=prob, group=trt)) +
-  geom_line(aes(color=trt), size=line.thickness) +
+  geom_line(aes(color=trt), size=lwd) +
   geom_point(aes(color=trt)) +
-  scale_color_manual(values = brewer.pal(n = length(jagsoutput$trt.key), name = colour.set))+
+  scale_color_manual(values = brewer.pal(n = length(nma$trt.key), name = colour.set))+
   theme_bw()
 
 
@@ -100,7 +100,7 @@ colnames(sucra.ranks) <- c("total", "treatment")
 sucra.ranks <- sucra.ranks %>% arrange(total) %>% select(treatment)
 
 x5 <- (list(s.table, s.plot, sucra.ranks[,1]))
-names(x5) <- c("s.table", "s.plot", "s.ranks")
+names(x5) <- c("table", "plot", "ranks")
 return(x5)
 }
 

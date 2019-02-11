@@ -1,4 +1,4 @@
-compute.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
+nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   if (scale =="OR" ){type.outcome = "binomial"}
   else if (scale =="RR"){type.outcome = "binomial"}
   else if (scale =="SMD"){type.outcome = "continuous"}
@@ -70,7 +70,7 @@ compute.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   return(max(abs(deltas)))
 }
 
-#compute.prior(data.nma = dich.slr, scale = "RR", outcome = "responders", N = "sampleSize")
+#nma.prior(data.nma = dich.slr, scale = "RR", outcome = "responders", N = "sampleSize")
 
 
 

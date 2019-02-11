@@ -20,13 +20,8 @@ knitr::opts_chunk$set(
 ### Data Preparation
 
 ```{r, include = FALSE}
-pathA <-"Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
-sepA <- "/"
-pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
-sepJ <- "\\"
-path <- pathA
-sep <- sepA
-source(paste0(path,"misc_code",sep,"load.packages.R"))
+path <- paste0(dirname(getwd()),"/")
+source(paste0(path,"misc_code","\\","load.packages.R"))
 library(devtools)
 library(roxygen2)
 library(gemtc)
@@ -161,7 +156,7 @@ nma.fit(random_effects_results, main= "Random Effects Model")
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$s.plot
+sucra.out$plot
 ```
 
 
@@ -169,7 +164,7 @@ sucra.out$s.plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  central.tdcy="median", layout="long")
 league.heat.plot(league.out, 
-                 sucra.ranks = rev(sucra.out$s.ranks), 
+                 sucra.ranks = rev(sucra.out$ranks), 
                  low.colour = "springgreen4", 
                  mid.colour = "white",
                  high.colour = "red")

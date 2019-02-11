@@ -19,20 +19,15 @@ knitr::opts_chunk$set(
 
 
 ```{r, include = FALSE}
-pathA <-"Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
-sepA <- "/"
-pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
-sepJ <- "\\"
-path <- pathA
-sep <- sepA
-source(paste0(path,"misc_code",sep,"load.packages.R"))
+path <- paste0(dirname(getwd()),"/")
+source(paste0(path,"misc_code","\\","load.packages.R"))
 library(devtools)
 library(roxygen2)
 library(gemtc)
 library(knitr)
 library(readxl)
 load_all(path = paste0(path,"R"))
-fatdiet <- read_excel(paste0(path,"data",sep,"rate_example.xlsx"))
+fatdiet <- read_excel(paste0(path,"data","\\","rate_example.xlsx"))
 ```
 
 ``` {r}
@@ -178,14 +173,14 @@ Seeing as that all the points lie close to the $y=x$ line, there is very little 
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$s.plot
+sucra.out$plot
 ```
 
 ### League Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  central.tdcy="median", layout="long")
 league.heat.plot(league.out, 
-                 sucra.ranks = rev(sucra.out$s.ranks), 
+                 sucra.ranks = rev(sucra.out$ranks), 
                  low.colour = "springgreen4", 
                  mid.colour = "white",
                  high.colour = "red")

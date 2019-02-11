@@ -1,6 +1,6 @@
 #source("misc_code/load.packages.R")
 #source("R/functions.R")
-pathA <-"Z:/ResearchDocuments/Research/BUGSnet/BUGSnet/"
+pathA <-"C:/Users/audre/Documents/Compile BUGSnet/BUGSnet/"
 sepA <- "/"
 pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
 sepJ <- "\\"
@@ -75,6 +75,9 @@ fixed_effects_fit <- nma.fit(fixed_effects_results, main = "Fixed Effects Model"
 fixed_effects_fit$DIC
 fixed_effects_fit$pD
 fixed_effects_fit$pmdev
+
+sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out$sucra.plot
 
 
 # Network Plots -----------------------------------------------------------
