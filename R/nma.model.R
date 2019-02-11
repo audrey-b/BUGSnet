@@ -26,7 +26,7 @@
 #' @return \code{bugsdata2} - Data accompanying BUGS code.
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function
 #' examples are "RR", "OR", "SMD", "HR"
-#' @return \code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
+#' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 #' 
 #' @details
 #' 
@@ -108,7 +108,7 @@ nma.model <- function(data,
   if (!is.null(covariate)){names(data1)[names(data1) == covariate] <- "covariate"}
   
   #Trt mapping
-  trt.map.table <- data1$trt %>%
+  trt.key <- data1$trt %>%
     unique %>% 
     sort  %>%
     tibble(trt.ini=.) %>%
@@ -117,8 +117,8 @@ nma.model <- function(data,
     mutate(trt.jags = 1:dim(.)[1])
   
   data1 %<>% mutate(trt.jags=mapvalues(trt,
-                                      from=trt.map.table$trt.ini,
-                                      to=trt.map.table$trt.jags) %>% as.integer)
+                                      from=trt.key$trt.ini,
+                                      to=trt.key$trt.jags) %>% as.integer)
   
   nt = data$treatments %>% nrow()
   ns = data$studies %>% nrow()
@@ -261,7 +261,7 @@ nma.model <- function(data,
                       na=na,
                       x=x) 
   } 
-  add.to.model <- trt.map.table %>% 
+  add.to.model <- trt.key %>% 
     transmute(Treatments = paste0("# ", trt.jags, ": ", trt.ini, "\n")) %>% 
     t() %>% 
     paste0() %>% 
@@ -375,7 +375,7 @@ nma.model <- function(data,
   return(bugs=list(model=model,
                    bugsdata2=bugsdata2, 
                    scale=scale, 
-                   trt.map.table=trt.map.table, 
+                   trt.key=trt.key, 
                    family=family, 
                    link=link))
 }

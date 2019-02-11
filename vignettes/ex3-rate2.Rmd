@@ -203,7 +203,7 @@ re_inconsistency_model <- nma.model(data=rate2.slr,
                                    effects="random")
 
 re_inconsistency_results <- nma.run(re_inconsistency_model,
-                                         monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                                         monitor = c("d", "dev", "r", "n","totresdev","rhat","sigma"),
                                          n.adapt=1000,
                                          n.burnin=1000,
                                          n.iter=10000)
@@ -281,7 +281,7 @@ random_effects_results$model
 
 ###Assessment of convergence of final model
 
-After a model is fit to the evidence, check the trace plots of the model using `nma.trace()`. Look for spikes or general irregularities in the posterior distributions of the $d$'s. Irregularities in these distributions suggest that the model never converged, and will likely require you to run more have a longer burn-in period, or have more iterations in general. Here, the model shows strong signs of convergence.
+After a model is fit to the evidence, check the trace plots of the model using `nma.trace()`. Look for spikes or general irregularities in the posterior distributions of the $d$'s. Irregularities in these distributions suggest that the model never converged, and will likely require you to run more have a longer burn-in period, or have more iterations in general. If you wish to know which treatments are causing irregularities, you can use the command `random_effects_model$trt.key` to see which treatment correspond to which integer number on the traceplot. Here, the model shows strong signs of convergence.
 ```{r, fig.height = 15, fig.width=8}
 nma.trace(random_effects_results)
 ```

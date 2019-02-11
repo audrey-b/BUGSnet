@@ -8,7 +8,7 @@
 #' @return \code{model} - A long character string containing the model that was run in \code{rjags}.
 #' @return \code{bugsdata2}
 #' @return \code{scale}
-#' @return \code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
+#' @return \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 #' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
 #' 
@@ -43,6 +43,6 @@ nma.run <- function(bugs,
               scale=bugs$scale,
               family=bugs$family,
               link =bugs$link,
-              trt.key=as.character(t(bugs$trt.map.table[1]))))
+              "trt.key"=as.character(t(bugs$trt.key[1]))))
   
 }
