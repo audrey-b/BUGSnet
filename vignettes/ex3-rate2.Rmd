@@ -38,7 +38,7 @@ kable(diabetes)
 
 Before any analysis is done, we need to put our data in a form that BUGSnet can easily handle. This is done by simple running the `data.prep()` function and specifying the name of the treatment, study, and sample size variables:
 ``` {r}
-rate2.slr <- data.prep(raw.data = diabetes,
+rate2.slr <- data.prep(arm.data = diabetes,
                      varname.t = "Treatment",
                      varname.s = "Study",
                      N = "n")
@@ -100,7 +100,7 @@ kable(network.char$comparison)
 **Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `patient.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies, which BUGSnet automatically highlights in red.
 
 ```{r, fig.width=8, fig.height = 5, fig.align="centre"}
-data.plot(patients.data = rate2.slr$raw.data, 
+data.plot(patients.data = rate2.slr$arm.data, 
               treatment.var = "Treatment",
               trial.var = "Study",
               var.name = "age", 
@@ -250,7 +250,7 @@ League tables are another great way to summarize the results of an NMA. League t
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- nma.league(random_effects_results,  
                          central.tdcy="median",                 
-                         sucra.ranks = rev(sucra.out$ranks), #order treatments for heatmap
+                         order = rev(sucra.out$ranks), #order treatments for heatmap
                          mid.colour = "white",
                          high.colour = "red")
 league.out$plot

@@ -4,7 +4,7 @@ pairwise.all <- function(slr,
                           method.tau="DL",
                           sm) {
   
-  data <- slr$raw.data
+  data <- slr$arm.data
 
   names(data)[names(data) == slr$varname.t] <- "trt"
   names(data)[names(data) == slr$varname.s] <- "trial"

@@ -4,13 +4,13 @@
 \alias{data.prep}
 \title{Data preparation}
 \usage{
-data.prep(raw.data, patient.data = NULL, varname.t, varname.s, N)
+data.prep(arm.data, patient.data = NULL, varname.t, varname.s, N)
 }
 \arguments{
-\item{raw.data}{Data with 1 row for each study arm.}
+\item{arm.data}{Data with 1 row for each study arm.}
 
 \item{patient.data}{An optional separate data object containing patient characteristics (e.g comorbidities).
-Data should be in same format as \code{raw.data} (1 row for each arm). Patient characteristic data should 
+Data should be in same format as \code{arm.data} (1 row for each arm). Patient characteristic data should 
 be plotted and compared when assessing the feasibility of an NMA.}
 
 \item{varname.t}{A string indicating the name of the treatment variable.}
@@ -20,7 +20,7 @@ be plotted and compared when assessing the feasibility of an NMA.}
 \item{N}{A string indicating the name of the variable containing the number of participants in each arm}
 }
 \value{
-\code{raw.data} - A tibble containing the arm level study data
+\code{arm.data} - A tibble containing the arm level study data
 
 \code{patient.data} - A tibble containing the arm level patient characteristics (if applicable)
 
@@ -40,10 +40,10 @@ Puts data into appropriate form for subsequent analysis using BUGSnet.
 \examples{
 # Example 1, no patient data
 my.data <- read.csv("diabetes_NMAdata.csv")
-diabetes.slr <- data.prep(raw.data = my.data, varname.t = "treatment", varname.s = "studyName", N="n_patients")
+diabetes.slr <- data.prep(arm.data = my.data, varname.t = "treatment", varname.s = "studyName", N="n_patients")
 
 # Example 2, contains patient data
 NMA.data <- read.csv("MI_NMAdata.csv")
 patient.data <- read.csv("patient_covariates.csv")
-myocardInf.slr <- data.prep(raw.data = NMA.data, varname.t = "trt", varname.s = "stud", N="N")
+myocardInf.slr <- data.prep(arm.data = NMA.data, varname.t = "trt", varname.s = "stud", N="N")
 }

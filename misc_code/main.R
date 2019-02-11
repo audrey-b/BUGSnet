@@ -18,15 +18,15 @@ load_all(path = paste0(path,"R"))
 # Import data --------------------------------------------------------
 age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
 
-dich.slr <- data.prep(raw.data = cbind(tbl_df(thrombolytic$data.ab),age),
+dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
                       patient.data = thrombolytic$studies,
                       varname.t = "treatment",
                       varname.s = "study",
                       N = "sampleSize")
 
 #ensure that treatment and study variables are both of class character
-dich.slr$raw.data$treatment <- as.character(dich.slr$raw.data$treatment)
-dich.slr$raw.data$study <- as.character(dich.slr$raw.data$study)
+dich.slr$arm.data$treatment <- as.character(dich.slr$arm.data$treatment)
+dich.slr$arm.data$study <- as.character(dich.slr$arm.data$study)
 
 # Network Characteristics -------------------------------------------------
 
@@ -111,7 +111,7 @@ sucra.out$sucra.plot
 # Pairwise Comparisons ----------------------------------------------------
 
 # NOTE: specify correct treatment: slr$treatments
-# NOTE: specify correct oucome: colnames(slr$raw.data)
+# NOTE: specify correct oucome: colnames(slr$arm.data)
 # 
 # source("pairwise.R")
 # png("output/pairwise.plot.png", height=720, width=1920, res=200)

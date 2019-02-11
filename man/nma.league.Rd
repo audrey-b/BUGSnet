@@ -4,7 +4,7 @@
 \alias{nma.league}
 \title{League Table and Heat Plot}
 \usage{
-nma.league(jagsoutput, central.tdcy = "median", sucra.ranks = NULL,
+nma.league(jagsoutput, central.tdcy = "median", order = NULL,
   low.colour = "red", mid.colour = "white",
   high.colour = "springgreen4", midpoint = 0)
 }
@@ -13,9 +13,9 @@ nma.league(jagsoutput, central.tdcy = "median", sucra.ranks = NULL,
 
 \item{central.tdcy}{The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".}
 
-\item{sucra.ranks}{A string of the ordered treatments for the heatmap.}
+\item{order}{A vector of strings representing the order of treatments in the heatmap.}
 
-\item{low.colour}{A string indicating the colour of negative relative treatment effects for the heat plot (e.g relative risk of 0.5).}
+\item{low.colour}{A string indicating the colour of low relative treatment effects for the heat plot (e.g relative risk of 0.5).}
 
 \item{mid.colour}{A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0).}
 

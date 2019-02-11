@@ -31,7 +31,7 @@ fatdiet <- read_excel(paste0(path,"data","\\","rate_example.xlsx"))
 ```
 
 ``` {r}
-rate.slr <- data.prep(raw.data = fatdiet,
+rate.slr <- data.prep(arm.data = fatdiet,
                      varname.t = "Treatment",
                      varname.s = "Study",
                      N = "n")
@@ -180,7 +180,7 @@ sucra.out$plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  
                          central.tdcy="median",
-                         sucra.ranks = rev(sucra.out$ranks),
+                         order = rev(sucra.out$ranks),
                          low.colour = "springgreen4",
                          mid.colour = "white",
                          high.colour = "red")

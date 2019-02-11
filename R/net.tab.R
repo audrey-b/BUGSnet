@@ -4,8 +4,8 @@
 network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
 
   # Check if number of events and participants is integer
-  tmp.check1 <- data.nma$raw.data %>% select(outcome)
-  tmp.check2 <- data.nma$raw.data %>% select(N)
+  tmp.check1 <- data.nma$arm.data %>% select(outcome)
+  tmp.check2 <- data.nma$arm.data %>% select(N)
   
   if(type.outcome == "binomial" && all(tmp.check1%%1!=0)) {
      stop('The "outcome" variable (number of events) must be an integer')
@@ -17,17 +17,17 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
   outcome2 <- quo(!! as.name(outcome))#this may be redundant now
   N2 <- quo(!! as.name(N))
   
-    n.interventions <- data.nma$raw.data %>% select(data.nma$varname.t) %>% unique() %>% nrow()
+    n.interventions <- data.nma$arm.data %>% select(data.nma$varname.t) %>% unique() %>% nrow()
     
-    n.studies <- data.nma$raw.data %>% select(data.nma$varname.s) %>% unique() %>% nrow()
+    n.studies <- data.nma$arm.data %>% select(data.nma$varname.s) %>% unique() %>% nrow()
     
-    n.patients <- data.nma$raw.data %>% select(N) %>% sum() 
+    n.patients <- data.nma$arm.data %>% select(N) %>% sum() 
     
-    tmp1 <- data.nma$raw.data %>% 
+    tmp1 <- data.nma$arm.data %>% 
       select(data.nma$varname.s, data.nma$varname.t) %>% 
       nest(data.nma$varname.t)
     
-    cnt <- data.nma$raw.data %>% 
+    cnt <- data.nma$arm.data %>% 
       select(data.nma$varname.s, data.nma$varname.t) %>% 
       count_(data.nma$varname.s)
     
@@ -47,7 +47,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
     
     n.pairwise <- sum(sapply(clusters(net)$csize, function(n) n*(n-1)/2))
     
-    tmp2 <- data.nma$raw.data %>% select(data.nma$varname.s) %>% table()
+    tmp2 <- data.nma$arm.data %>% select(data.nma$varname.s) %>% table()
     n.2arm.studies <- sum(tmp2 == 2)
     
     n.multiarm.studies <- sum(tmp2 > 2)
@@ -71,9 +71,9 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
     
     if(type.outcome=="binomial"){
 
-      n.events <- data.nma$raw.data %>% select(outcome) %>% sum 
+      n.events <- data.nma$arm.data %>% select(outcome) %>% sum 
       
-      tmp3 <- data.nma$raw.data %>% 
+      tmp3 <- data.nma$arm.data %>% 
         select(data.nma$varname.s, outcome) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
         group_by_(data.nma$varname.s) %>%
@@ -100,9 +100,9 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
     }
     if(type.outcome %in% c("rate", "rate2")){
       
-      n.events <- data.nma$raw.data %>% select(outcome) %>% sum 
+      n.events <- data.nma$arm.data %>% select(outcome) %>% sum 
       
-      tmp3 <- data.nma$raw.data %>% 
+      tmp3 <- data.nma$arm.data %>% 
         select(data.nma$varname.s, outcome) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
         group_by_(data.nma$varname.s) %>%
@@ -115,7 +115,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
       
       n.studies.all.0 <- tmp3$all.0 %>% sum
       
-      mean.person.time.Fup <- data.nma$raw.data %>% select(time) %>% colMeans %>% round(digits=2)
+      mean.person.time.Fup <- data.nma$arm.data %>% select(time) %>% colMeans %>% round(digits=2)
       
       add.tble <- tibble(Characteristic=c("Total Number of Events in Network",
                                           "Number of Studies With  No Zero Events",
@@ -138,15 +138,15 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   outcome2 <- quo(!! as.name(outcome))
   N2 <- quo(!! as.name(N))
   
-  if ("n" %in% colnames(data.nma$raw.data)) {
-  n.studies <- data.nma$raw.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
+  if ("n" %in% colnames(data.nma$arm.data)) {
+  n.studies <- data.nma$arm.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
   }
   
   else {
-    n.studies <- data.nma$raw.data %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
+    n.studies <- data.nma$arm.data %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
   }
   
-  n.patients <- data.nma$raw.data %>% 
+  n.patients <- data.nma$arm.data %>% 
     group_by_(data.nma$varname.t) %>% 
     summarise(n.patients = as.integer(sum(!! N2)))
   
@@ -154,11 +154,11 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 
   if(type.outcome %in% c("bin","binom","binomial","binary")){  
   
-  n.events <- data.nma$raw.data %>% 
+  n.events <- data.nma$arm.data %>% 
     group_by_(data.nma$varname.t) %>% 
     summarise(n.events = as.integer(sum(!! outcome2))) 
   
-   tmp.rate <- data.nma$raw.data %>% 
+   tmp.rate <- data.nma$arm.data %>% 
     mutate(tmp.rate = (!! outcome2) / (!! N2)) %>% 
     group_by_(data.nma$varname.t) %>% 
     summarise(min.outcome = min(tmp.rate), max.outcome = max(tmp.rate))
@@ -170,7 +170,7 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   
   } else if(type.outcome %in% c("cont", "continuous")){
     
-    tmp.outcome <- data.nma$raw.data %>% 
+    tmp.outcome <- data.nma$arm.data %>% 
      mutate(tmp.outcome = (!! outcome2), w.outcome=(!! outcome2)*(!! N2)) %>% 
      group_by_(data.nma$varname.t) %>% 
      summarise(min.outcome = min(tmp.outcome), max.outcome = max(tmp.outcome), w.outcome=sum(w.outcome))
@@ -183,20 +183,20 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   } else if (type.outcome =="rate"){
     time2 <- quo(!! as.name(time))
     
-    person.time <- data.nma$raw.data %>% 
+    person.time <- data.nma$arm.data %>% 
       group_by_(data.nma$varname.t) %>% 
       summarise(person.time.fup = as.integer(sum(!! time2)))
 
-    n.events <- data.nma$raw.data %>%
+    n.events <- data.nma$arm.data %>%
       group_by_(data.nma$varname.t) %>%
       summarise(n.events = as.integer(sum(!! outcome2)))
     
-    tmp.proportion <- data.nma$raw.data %>% 
+    tmp.proportion <- data.nma$arm.data %>% 
       mutate(tmp.proportion = (!! outcome2) / (!! N2)) %>% 
       group_by_(data.nma$varname.t) %>% 
       summarise(min.proportion = min(tmp.proportion), max.proportion = max(tmp.proportion))
     
-    tmp.rate <- data.nma$raw.data %>% 
+    tmp.rate <- data.nma$arm.data %>% 
       mutate(tmp.rate = (!! outcome2) / (!! time2)) %>% 
       group_by_(data.nma$varname.t) %>% 
       summarise(min.event.rate = min(tmp.rate), max.event.rate = max(tmp.rate))
@@ -211,15 +211,15 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   } else if (type.outcome =="rate2"){
       time2 <- quo(!! as.name(time))
       
-      person.time <- data.nma$raw.data %>% 
+      person.time <- data.nma$arm.data %>% 
         group_by_(data.nma$varname.t) %>% 
         summarise(person.time.fup = as.integer(sum((!! time2)*(!! N2))))
       
-      n.events <- data.nma$raw.data %>%
+      n.events <- data.nma$arm.data %>%
         group_by_(data.nma$varname.t) %>%
         summarise(n.events = as.integer(sum(!! outcome2)))
       
-      tmp.rate <- data.nma$raw.data %>% 
+      tmp.rate <- data.nma$arm.data %>% 
         mutate(tmp.rate = (!! outcome2) / ((!! time2)*(!! N2))) %>% 
         group_by_(data.nma$varname.t) %>% 
         summarise(min.event.rate = min(tmp.rate), max.event.rate = max(tmp.rate))

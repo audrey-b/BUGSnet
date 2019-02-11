@@ -33,15 +33,15 @@ load_all(path = paste0(path,"R"))
 ``` {r}
 age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
 
-dich.slr <- data.prep(raw.data = cbind(tbl_df(thrombolytic$data.ab),age),
+dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
                      patient.data = thrombolytic$studies,
                      varname.t = "treatment",
                      varname.s = "study",
                      N = "sampleSize")
 
 #ensure that treatment and study variables are both of class character
-dich.slr$raw.data$treatment <- as.character(dich.slr$raw.data$treatment)
-dich.slr$raw.data$study <- as.character(dich.slr$raw.data$study)
+dich.slr$arm.data$treatment <- as.character(dich.slr$arm.data$treatment)
+dich.slr$arm.data$study <- as.character(dich.slr$arm.data$study)
 
 ```
 
@@ -164,7 +164,7 @@ sucra.out$plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  
                          central.tdcy="median",
-                         sucra.ranks = rev(sucra.out$ranks),
+                         order = rev(sucra.out$ranks),
                          low.colour = "springgreen4", 
                          mid.colour = "white",
                          high.colour = "red")

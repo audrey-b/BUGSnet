@@ -1,5 +1,5 @@
 by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL, time = NULL){
-  data <- data.nma$raw.data
+  data <- data.nma$arm.data
   names(data)[names(data) == data.nma$varname.t] <- "trt"
   names(data)[names(data) == data.nma$varname.s] <- "trial"
   #names(data)[names(data) == outcome] <- "outcome"

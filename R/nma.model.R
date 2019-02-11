@@ -96,7 +96,7 @@ nma.model <- function(data,
     scale <- "HR"
   }
   
-  data1 <- data$raw.data
+  data1 <- data$arm.data
   
   # rename variables as appropriate
   names(data1)[names(data1) == data$varname.t] <- "trt"

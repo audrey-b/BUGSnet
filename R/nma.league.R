@@ -1,6 +1,6 @@
 
 league.heat.plot <- function(leaguetable,
-                             sucra.ranks = NULL,
+                             order = NULL,
                              low.colour = "red", 
                              mid.colour = "white",
                              high.colour = "springgreen4",
@@ -24,8 +24,8 @@ league.heat.plot <- function(leaguetable,
           legend.position="none", panel.border=element_blank(),
           axis.ticks.x=element_blank(),
           axis.ticks.y=element_blank())+
-    scale_x_discrete(limits = sucra.ranks, expand = c(0, 0)) +
-    scale_y_discrete(limits = sucra.ranks, expand = c(0, 0))
+    scale_x_discrete(limits = order, expand = c(0, 0)) +
+    scale_y_discrete(limits = order, expand = c(0, 0))
 }
 
 
@@ -35,9 +35,9 @@ league.heat.plot <- function(leaguetable,
 #' uncertainty for all possible pairs of treatments.
 #' @param jagsoutput Results from running \code{nma.analysis()}.
 #' @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
-#' @param sucra.ranks A string of the ordered treatments for the heatmap.
+#' @param order A vector of strings representing the order of treatments in the heatmap.
 #' @param midpoint Value indicating a null treatment effect for the heat plot. THIS NEEDS TO BE UPDATED. CURRENTLY ONLY WORKS FOR BINOMIAL VARIABLES.
-#' @param low.colour A string indicating the colour of negative relative treatment effects for the heat plot (e.g relative risk of 0.5).
+#' @param low.colour A string indicating the colour of low relative treatment effects for the heat plot (e.g relative risk of 0.5).
 #' @param mid.colour A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0). 
 #' @param high.colour A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).
 #' 
@@ -50,7 +50,7 @@ league.heat.plot <- function(leaguetable,
 
 nma.league <- function(jagsoutput, 
                        central.tdcy = "median",
-                       sucra.ranks = NULL,
+                       order = NULL,
                        low.colour = "red", 
                        mid.colour = "white",
                        high.colour = "springgreen4",
@@ -152,7 +152,7 @@ longtable <- tmp2.list %>%
 
 
 return(list("table"=default, "longtable"=longtable, "plot"=league.heat.plot(longtable,
-                                                                            sucra.ranks = sucra.ranks,
+                                                                            order = order,
                                                                             low.colour = low.colour, 
                                                                             mid.colour = mid.colour,
                                                                             high.colour = high.colour,

@@ -77,8 +77,8 @@ pma <- function(data.nma,
   
   
   # Check if number of events and participants is integer
-  tmp.check1 <- data.nma$raw.data %>% select(outcome)
-  tmp.check2 <- data.nma$raw.data %>% select(N)
+  tmp.check1 <- data.nma$arm.data %>% select(outcome)
+  tmp.check2 <- data.nma$arm.data %>% select(N)
   
   if(type.outcome %in% c("binomial","rate") && all(tmp.check1%%1!=0)) {
     stop('The "outcome" variable (number of events) must be an integer')

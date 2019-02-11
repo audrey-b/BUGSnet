@@ -2,16 +2,16 @@ network.structure <- function(data.nma) {
 
   trial <- quo(!! as.name(data.nma$varname.s))
 
-  if ("n" %in% colnames(data.nma$raw.data)) {
-    nodes <- data.nma$raw.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(node.weight = n) %>%
+  if ("n" %in% colnames(data.nma$arm.data)) {
+    nodes <- data.nma$arm.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(node.weight = n) %>%
       mutate(id = as.character(1:n())) %>% select(id, data.nma$varname.t, node.weight)
   }
     else {
-    nodes <- data.nma$raw.data %>% count_(data.nma$varname.t) %>% rename(node.weight = n) %>%
+    nodes <- data.nma$arm.data %>% count_(data.nma$varname.t) %>% rename(node.weight = n) %>%
     mutate(id = as.character(1:n())) %>% select(id, data.nma$varname.t, node.weight)
   }
   
-  tmp1 <- data.nma$raw.data %>% 
+  tmp1 <- data.nma$arm.data %>% 
     left_join(., nodes, by=data.nma$varname.t) %>%
     mutate(id2 = id) %>%
     group_by_(data.nma$varname.s) %>%
