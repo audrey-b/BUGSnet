@@ -2,27 +2,37 @@
 % Please edit documentation in R/nma.league.R
 \name{nma.league}
 \alias{nma.league}
-\title{League Table}
+\title{League Table and Heat Plot}
 \usage{
-nma.league(jagsoutput, central.tdcy = "median", layout = "default")
+nma.league(jagsoutput, central.tdcy = "median", sucra.ranks = NULL,
+  low.colour = "red", mid.colour = "white",
+  high.colour = "springgreen4", midpoint = 0)
 }
 \arguments{
 \item{jagsoutput}{Results from running \code{nma.analysis()}.}
 
 \item{central.tdcy}{The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".}
 
-\item{layout}{Indicates the form of the results. The options are "default" and "long". Use "default" if you want an nxn matrix
-comparing all n treatments. Use "long" if you want 1 line per treatment comparison. Note that if you want to use the function 
-\code{league.heat.plot}, set this parameter to "long".}
+\item{sucra.ranks}{A string of the ordered treatments for the heatmap.}
+
+\item{low.colour}{A string indicating the colour of negative relative treatment effects for the heat plot (e.g relative risk of 0.5).}
+
+\item{mid.colour}{A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0).}
+
+\item{high.colour}{A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).}
+
+\item{midpoint}{Value indicating a null treatment effect for the heat plot. THIS NEEDS TO BE UPDATED. CURRENTLY ONLY WORKS FOR BINOMIAL VARIABLES.}
+}
+\value{
+\code{table} - League table.
+
+\code{plot} - League table heatplot, where a color scale is used to represent relative treatment effects.
 }
 \description{
-Produces league table that contains all information about relative effectiveness and their 
+Produces a league table and a league heat plot that contain all information about relative effectiveness and their 
 uncertainty for all possible pairs of treatments.
 }
 \examples{
 
-league_table <- leaguetable(jagsoutput=nma.results, central.tdcy="median", layout = "long")
-}
-\seealso{
-\code{league.heat.plot()}
+league_table <- leaguetable(jagsoutput=nma.results, central.tdcy="median")
 }

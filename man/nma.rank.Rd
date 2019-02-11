@@ -20,7 +20,7 @@ there are many treatments in your network.}
 \value{
 \code{table} - A dataset containing a SUCRA table.
 
-\code{sucra.plot} - A plot showing the probability of each treatment being the nth best treatment.
+\code{plot} - A plot showing the probability of each treatment being the nth best treatment.
 
 \code{ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
 is useful when creating the league heat plot.
