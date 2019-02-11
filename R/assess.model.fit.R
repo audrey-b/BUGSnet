@@ -5,16 +5,21 @@
 #' the total posterior deviance. Any point lying outside the purple dotted line is considered to be an "outlier";
 #' contributing to the model's poor fit.
 #' 
-#' @param jagsoutput Resulting dataset from running \code{nma.analysis()}. 
+#' @param nma Resulting output from running \code{nma.analysis()}. 
 #' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}. These arguments will only effect the
 #' leverage plot.
 #' 
-#' @return \code{DIC} - A number indicating the Deviance Information Criteria. A larger DIC is indicative of a worse model fit.
-#' @return \code{leverage} - A vector indicating the leverage of each data point (study arm). Leverage is defined as the posterior mean of the
-#' residual deviance minus the deviance at the posterior mean of the fitted values.
-#' @return \code{w} - A vector with 1 value per study arm. The magnitude of \code{w} represents the data point's contribution to the
-#' posterior mean deviance of the model. The sign indicates whether the data is being over or under estimated by the model.
-#' @return \code{pmdev} - 
+#' @return \code{DIC} - A number indicating the Deviance Information Criteria. The DIC is calculated as the sum of \code{Dres} and \code{pD}. 
+#' A larger DIC is indicative of a worse model fit.
+#' @return \code{leverage} - A vector with one value per study arm indicating the leverage of each data point (study arm). Leverage is defined as \code{pmdev} minus the 
+#' deviance at the posterior mean of the fitted values.
+#' @return \code{w} - A vector with one value per study arm. The magnitude of \code{w} represents the data point's contribution to the posterior mean deviance of the 
+#' model and is simply the square root of \code{pmdev}. The sign indicates whether the data point is being over (negative sign) or under (positive sign) estimated by 
+#' the model and is calculated as the sign of the difference of the observed outcome minus the predicted outcome.
+#' @return \code{pmdev} - A vector with one value per study arm representing the posterior mean residual deviance for each data point (study arm).
+#' @return \code{Dres} - The posterior mean of the residual deviance.
+#' @return \code{pD} - The effective number of parameters, calculated as the sum of the leverages.
+
 #' 
 #' @examples
 #' #Compare fixed vs random effects via leverage plots and DIC
@@ -25,8 +30,8 @@
 #' nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
 #' nma.fit(random_effects_results, main= "Random Effects Model")
 
-nma.fit  <- function(jagsoutput, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
-  jagssamples <- jagsoutput$samples
+nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
+  jagssamples <- nma$samples
   
   if (class(jagssamples) != "mcmc.list"){stop('Object jagssamples must be of class mcmc.list')}
   
@@ -39,7 +44,7 @@ nma.fit  <- function(jagsoutput, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ..
   totresdev <- samples$totresdev %>% mean()
   pmdev <- colMeans(dev)
 
-  if (jagsoutput$family == "binomial") {
+  if (nma$family == "binomial") {
     rhat <- samples %>% select(., starts_with("rhat"))
     rtilde <- rhat %>%
       colMeans() %>%
@@ -49,7 +54,7 @@ nma.fit  <- function(jagsoutput, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ..
     
     pmdev_fitted <- 2*(r*log(r/rtilde)+(n-r)*log((n-r)/(n-rtilde)))[1,]
     
-  } else if (jagsoutput$family == "poisson"){
+  } else if (nma$family == "poisson"){
     rhat <- samples %>% select(., starts_with("theta"))
     thetatilde <- rhat %>%
       colMeans() %>%

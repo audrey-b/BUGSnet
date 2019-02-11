@@ -44,7 +44,7 @@ network.char$comparison
 
 #NMA
 
-fixed_effects_model <- nma.model(data.nma=dich.slr,
+fixed_effects_model <- nma.model(data=dich.slr,
                                  outcome="responders",
                                  N="sampleSize",
                                  reference="SK",
@@ -52,7 +52,7 @@ fixed_effects_model <- nma.model(data.nma=dich.slr,
                                  link="log",
                                  effects="fixed")
 
-random_effects_model <- nma.model(data.nma=dich.slr,
+random_effects_model <- nma.model(data=dich.slr,
                                   outcome="responders",
                                   N="sampleSize",
                                   reference="SK",
@@ -63,6 +63,19 @@ random_effects_model <- nma.model(data.nma=dich.slr,
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
 cat(fixed_effects_model$model)
 sink()
+
+
+fixed_effects_results <- nma.run(fixed_effects_model,
+                                 monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                                 n.adapt=1000,
+                                 n.burnin=1000,
+                                 n.iter=10000)
+
+fixed_effects_fit <- nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+fixed_effects_fit$DIC
+fixed_effects_fit$pD
+fixed_effects_fit$pmdev
+
 
 # Network Plots -----------------------------------------------------------
 
