@@ -71,10 +71,10 @@ In addition to a plot of the network, BUGSnet can summarize network, interventio
 
 ```{r, results = "hide"}
 network.char <- net.tab(data = rate2.slr,
-                                outcome = "diabetes",
-                                N = "n",
-                                type.outcome = "rate2",
-                                time = "followup")
+                        outcome = "diabetes",
+                        N = "n",
+                        type.outcome = "rate2",
+                        time = "followup")
 ```
 
 #### Network Characteristics
@@ -171,7 +171,7 @@ fixed_effects_results <- nma.run(fixed_effects_model,
                            n.iter=10000)
 
 random_effects_results <- nma.run(random_effects_model,
-                           monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                           monitor = c("d", "dev", "r", "n","totresdev","rhat", "sigma"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
@@ -257,6 +257,16 @@ league.out$plot
 ```
 
 The symbols (**) are used to highlight credible intervals that do not contain 1, where there is evidence of a statistically significant difference between treatment and their comparators at the 95% confidence level. In this example, a green cell indicates that a treatment performed better than its comparator (estimate smaller than 1), while a red cell indicates that the treatment performed worst than its comparator (estimate greater than 1).
+
+
+<!-- ### Forest Plot -->
+<!-- Forest plots are another great way to summarize the results of an NMA with respect to a particular comparator. -->
+
+<!-- ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"} -->
+<!-- nma.forest(random_effects_results,  -->
+<!--            central.tdcy="median", -->
+<!--            comparator = "Placebo") -->
+<!-- ``` -->
 
 ## Conclusion
 

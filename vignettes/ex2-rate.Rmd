@@ -50,11 +50,11 @@ rate.slr <- data.prep(arm.data = fatdiet,
 ### Generate Network Characteristics via `net.tab()`
 
 ```{r, results = "hide"}
-network.char <- net.tab(data.nma = rate.slr,
-                                outcome = "death",
-                                N = "n",
-                                type.outcome = "rate",
-                                time = "py")
+network.char <- net.tab(data = rate.slr,
+                        outcome = "death",
+                        N = "n",
+                        type.outcome = "rate",
+                        time = "py")
 ```
 
 #### Network Characteristics

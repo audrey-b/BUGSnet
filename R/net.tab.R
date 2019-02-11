@@ -116,12 +116,13 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
       n.studies.all.0 <- tmp3$all.0 %>% sum
       
       mean.person.time.Fup <- data.nma$arm.data %>% select(time) %>% colMeans %>% round(digits=2)
+      str.mean.person.time.Fup <- ifelse(type.outcome=="rate", "Mean person-time of studies", "Mean patient follow up time")
       
       add.tble <- tibble(Characteristic=c("Total Number of Events in Network",
                                           "Number of Studies With  No Zero Events",
                                           "Number of Studies With At Least One Zero Event",
                                           "Number of Studies with All Zero Events",
-                                          "Mean patient follow up"),
+                                          str.mean.person.time.Fup),
                          Value= c(n.events %>% as.character,
                                   n.studies.no.0,
                                   n.studies.some.0,
@@ -294,10 +295,10 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 
 #' Generate Network Characteristics
 #' @description Generates tables of network characteristics
-#' @param data.nma A data object produced by \code{data.prep()}
-#' @param outcome A string indicating the name of your outcome variable
+#' @param data A data object produced by \code{data.prep()}
+#' @param outcome A string indicating the name of the outcome variable
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
-#' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-years reported), 
+#' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-time reported), 
 #' "rate2" (e.g # events and followup time reported)
 #' @param time A string required when type.outcome = "rate" or "rate2". Name of variable 
 #'   indicating person-time followup (e.g person years) or study followup time
@@ -305,13 +306,13 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 #' @return \code{intervention} - Summary statistics broken down by treatment
 #' @return \code{comparison} - Summary statistics broken down by treatment comparison
 #' @examples
-#' network.charac(data.nma = data.prep(my.data), outcome = "n_died", N = "n", type.outcome="binomial", time = NULL)
-#' network.charac(data.nma = data.prep(my.data), outcome = "y", N = "N", type.outcome="rate", time = "personYears")
+#' network.charac(data = data.prep(my.data), outcome = "n_died", N = "n", type.outcome="binomial", time = NULL)
+#' network.charac(data = data.prep(my.data), outcome = "y", N = "N", type.outcome="rate", time = "personYears")
 
-net.tab <- function(data.nma, outcome, N, type.outcome, time){
-  return(list(network = network.charac(data.nma, outcome, N, type.outcome,time),
-              intervention = intervention.charac(data.nma, outcome, N, type.outcome, time),
-              comparison = comparison.charac(data.nma, outcome, N, type.outcome, time)))
+net.tab <- function(data, outcome, N, type.outcome, time){
+  return(list(network = network.charac(data, outcome, N, type.outcome,time),
+              intervention = intervention.charac(data, outcome, N, type.outcome, time),
+              comparison = comparison.charac(data, outcome, N, type.outcome, time)))
 }
 
 

@@ -57,11 +57,11 @@ dich.slr$arm.data$study <- as.character(dich.slr$arm.data$study)
 ### Generate Network Characteristics via `net.tab()`
 
 ```{r, results = "hide"}
-network.char <- net.tab(data.nma = dich.slr,
-                                outcome = "responders",
-                                N = "sampleSize",
-                                type.outcome = "binomial",
-                                time = NULL)
+network.char <- net.tab(data = dich.slr,
+                        outcome = "responders",
+                        N = "sampleSize", 
+                        type.outcome = "binomial",
+                        time = NULL)
 ```
 
 #### Network Characteristics

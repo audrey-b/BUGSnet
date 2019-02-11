@@ -231,7 +231,7 @@ sucra.out$sucra.plot
 # 
 # source("nma.forestplot.R")
 # 
-# forest.out <- nma.forestplot(jagsoutput, base.trt="Placebo")
+forest.out <- nma.forest(fixed_effects_results, comparator="SK")
 # 
 # nma.forestplot(jagsoutput, central.tdcy="median", base.trt="Placebo")
 # 

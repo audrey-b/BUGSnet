@@ -1,5 +1,13 @@
+# Forest plot
+# @description Produces traceplots of the MCMC chains obtained from \code{nma.run()}
+# @param jagsoutput An output produced by \code{nma.run()}
+# @param comparator The treatment to use as a comparator
+# @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
+# @param line.size 
+# @param x.trans A string indicating a transformation to apply to the x axis. 
+
 nma.forest <- function(jagsoutput, 
-                           base.trt, 
+                           comparator, 
                            central.tdcy = "median", 
                            line.size=1,
                            x.trans=NULL) {
@@ -9,14 +17,14 @@ nma.forest <- function(jagsoutput,
   colnames(x2) <- trt.names
   
   x3 <- x2
-  new.vars <- paste0(colnames(x2), "-", base.trt)
+  new.vars <- paste0(colnames(x2), "-", comparator)
   for(i in 1:ncol(x2)) {
-    x3[[new.vars[i]]] <- x2[, i] - x2[,base.trt]
+    x3[[new.vars[i]]] <- x2[, i] - x2[,comparator]
   }
   
   x3 %<>% select(new.vars)
   colnames(x3) <- trt.names
-  x3 %<>% select(base.trt)
+  x3 %<>% select(comparator)
 
   tmp.mean <- x3 %>%  
     summarise_all(funs(mean = e.mean)) %>% gather() %>%
@@ -41,11 +49,11 @@ f.plot <- ggplot(tmp1, aes(x=trt, y=mean, ymin=lci, ymax=uci)) +
      geom_hline(yintercept=1,lty=2) +
      scale_x_discrete(limits = sort(tmp1$trt, decreasing=TRUE)) +
      xlab("Treatment") +
-     ylab(paste0(jagsoutput$scale, " relative to ",base.trt,
+     ylab(paste0(jagsoutput$scale, " relative to ",comparator,
                  "\n(showing posterior ", central.tdcy," with 95% CrI)")) +
      coord_flip() +
      theme_classic() #+
-     #labs(caption = paste("note: each treatment compared to", base.trt))
+     #labs(caption = paste("note: each treatment compared to", comparator))
 
 if(is.null(x.trans)){
 f.plot <- f.plot +
