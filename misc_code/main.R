@@ -65,8 +65,8 @@ cat(fixed_effects_model$model)
 sink()
 
 
-fixed_effects_results <- nma.run(fixed_effects_model,
-                                 monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+random_effects_results <- nma.run(random_effects_model,
+                                 monitor = c("d", "dev", "r", "n","totresdev","rhat","sigma"),
                                  n.adapt=1000,
                                  n.burnin=1000,
                                  n.iter=10000)

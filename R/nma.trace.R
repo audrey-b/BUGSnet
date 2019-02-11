@@ -4,7 +4,17 @@
 #' @param n 
 
 nma.trace <- function(jagsoutput, n="all"){
-  samples <- do.call(rbind, jagsoutput$samples) %>% data.frame() %>% select(starts_with("d."))
+  samples <- do.call(rbind, jagsoutput$samples) %>% data.frame()
+  
+  # samples.vars <- colnames(samples)
+  # scalars <- vars[which(vars %in% samples.vars)]
+  # samples.matr <- setdiff(samples.vars, scalars)
+  # 
+  # samples %<>% select(starts_with("d."), scalars)
+  
+  
+  if("sigma" %in% colnames(samples)) {samples %<>% select(starts_with("d."), "sigma")
+    } else {samples %<>% select(starts_with("d."))}
   
   if (n=="all"){
     num_plots = ncol(samples)
