@@ -156,7 +156,7 @@ nma.fit(random_effects_results, main= "Random Effects Model")
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$plot
+sucra.out$sucra
 ```
 
 
@@ -221,5 +221,6 @@ nma.compare(fe_model_fit, inconsist_model_fit)
 <!--                           outcome = "responders", -->
 <!--                           N = "sampleSize") -->
 <!-- ``` -->
+
 
 # References

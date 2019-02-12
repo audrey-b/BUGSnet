@@ -234,10 +234,16 @@ SUCRA plots provide a simulaneous comparison of every treatment based on the res
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
 sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$plot
+sucra.out$sucra
 ```
 
 From this plot, we can see that there is a $\sim$ 77% chance that ARB's are the best treatments, and a $\sim$ 80% chance that diuretics are the worst treatment.
+
+The same data can be displayed in the form of a rankogram.
+
+```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
+sucra.out$rankogram
+```
 
 If you want the exact percentages, these results are also available in tabular form via `sucra.out$table`.
 ```{r, echo = FALSE}

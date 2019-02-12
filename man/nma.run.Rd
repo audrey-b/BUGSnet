@@ -20,7 +20,7 @@ effect samples ("d"). But you may want to monitor the deviance ("dev") as well.}
 
 \code{scale}
 
-\code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
+\code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 
 \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
 

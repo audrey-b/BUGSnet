@@ -9,10 +9,11 @@
 #' @param colour.set A string indicating the colour set from RcolorBrewer. "set1" is great, but you may need a different colour set if 
 #' there are many treatments in your network.
 #' 
-#' @return \code{table} - A dataset containing a SUCRA table.
-#' @return \code{plot} - A plot showing the probability of each treatment being the nth best treatment.
+#' @return \code{table} - A rank table as a dataset object.
+#' @return \code{sucra} - A SUCRA plot showing the probability of each treatment being the nth best treatment.
+#' @return \code{rankogram} - A rankogram plot showing the probability of each treatment being the nth best treatment.
 #' @return \code{ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
-#' is useful when creating the league heat plot.
+#' is useful when creating the league heat plot with \code{nma.league()}.
 #' 
 #' @examples
 #' 
@@ -20,7 +21,7 @@
 #' sucra_results <- nma.rank(nma = nma_results, largerbetter = TRUE)
 #' 
 #' #plot sucra results
-#' sucra_results$sucra.plot
+#' sucra_results$sucra
 
 
 nma.rank <- function(nma, 
@@ -73,6 +74,10 @@ s.plot <- ggplot(data=x4, aes(x=factor(rank), y=prob, group=trt)) +
   scale_color_manual(values = brewer.pal(n = length(nma$trt.key), name = colour.set))+
   theme_bw()
 
+rankogram <- ggplot(data=x4, aes(y=prob, x=trt, fill=factor(rank)))+ 
+  geom_bar(stat = "identity", width = 0.5) +
+  scale_fill_brewer(palette="Blues")
+
 
 if(largerbetter==TRUE){
   s.plot <- s.plot +
@@ -80,6 +85,10 @@ if(largerbetter==TRUE){
                   "\n(Higher ranks associated with larger outcome values)"), 
          y="Probability (%)",
          color="Treatment")
+  rankogram <- rankogram + labs(x=paste0("Treatment",
+                                         "\n(Higher ranks associated with larger outcome values)"), 
+                                y="Probability (%)",
+                                fill="Rank")
     
 }else if(largerbetter==FALSE){
   s.plot <- s.plot +
@@ -87,6 +96,10 @@ if(largerbetter==TRUE){
                   "\n(Higher ranks associated with smaller outcome values)"), 
          y="Probability (%)",
          color="Treatment")
+  rankogram <- rankogram + labs(x=paste0("Treatment",
+                                         "\n(Higher ranks associated with smaller outcome values)"), 
+                                y="Probability (%)",
+                                fill="Rank")
 }
 
 #output sucra ranks to input into league table
@@ -99,8 +112,8 @@ colnames(sucra.ranks) <- c("total", "treatment")
 
 sucra.ranks <- sucra.ranks %>% arrange(total) %>% select(treatment)
 
-x5 <- (list(s.table, s.plot, sucra.ranks[,1]))
-names(x5) <- c("table", "plot", "ranks")
+x5 <- (list(s.table, sucra.ranks[,1], s.plot, rankogram))
+names(x5) <- c("table", "ranks", "sucra", "rankogram")
 return(x5)
 }
 

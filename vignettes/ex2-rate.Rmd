@@ -173,7 +173,7 @@ Seeing as that all the points lie close to the $y=x$ line, there is very little 
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$plot
+sucra.out$sucra
 ```
 
 ### League Plot

@@ -51,7 +51,7 @@ adjust for via meta regression. By default, covariate=NULL and no covariate adju
 \code{scale} - The scale of the outcome, based on the chosen family and link function
 examples are "RR", "OR", "SMD", "HR"
 
-\code{trt.map.table} - Treatments mapped to integer numbers, used to run BUGS code.
+\code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 }
 \description{
 Creates BUGS code which can be ran through \code{nma.run()}.

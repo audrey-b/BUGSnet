@@ -18,12 +18,14 @@ if a smaller probability should indicate a more effective treatment (FALSE).}
 there are many treatments in your network.}
 }
 \value{
-\code{table} - A dataset containing a SUCRA table.
+\code{table} - A rank table as a dataset object.
 
-\code{plot} - A plot showing the probability of each treatment being the nth best treatment.
+\code{sucra} - A SUCRA plot showing the probability of each treatment being the nth best treatment.
+
+\code{rankogram} - A rankogram plot showing the probability of each treatment being the nth best treatment.
 
 \code{ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
-is useful when creating the league heat plot.
+is useful when creating the league heat plot with \code{nma.league()}.
 }
 \description{
 Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A Sucra table summarizes the probabilities
@@ -35,5 +37,5 @@ that each  treatment is the best, second best...worst treatment in the network.
 sucra_results <- nma.rank(nma = nma_results, largerbetter = TRUE)
 
 #plot sucra results
-sucra_results$sucra.plot
+sucra_results$sucra
 }
