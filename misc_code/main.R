@@ -50,7 +50,9 @@ fixed_effects_model <- nma.model(data=dich.slr,
                                  reference="SK",
                                  family="binomial",
                                  link="log",
-                                 effects="fixed")
+                                 effects="fixed",
+                                 covariate="age",
+                                 prior.beta = "EQUAL")
 
 random_effects_model <- nma.model(data=dich.slr,
                                   outcome="responders",
@@ -58,10 +60,12 @@ random_effects_model <- nma.model(data=dich.slr,
                                   reference="SK",
                                   family="binomial",
                                   link="log",
-                                  effects="random")
+                                  effects="random",
+                                  covariate="age",
+                                  prior.beta = "EXCHANGEABLE")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
-cat(fixed_effects_model$model)
+cat(random_effects_model$model)
 sink()
 
 
@@ -78,6 +82,8 @@ fixed_effects_fit$pmdev
 
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
 sucra.out$sucra.plot
+
+nma.forest(random_effects_results, comparator="SK")
 
 
 # Network Plots -----------------------------------------------------------

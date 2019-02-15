@@ -9,7 +9,7 @@ nma.trace(jagsoutput, n = "all")
 \arguments{
 \item{jagsoutput}{An output produced by \code{nma.run()}}
 
-\item{n}{}
+\item{n}{Limits the number of printed variables to the first \code{n}}
 }
 \description{
 Produces traceplots of the MCMC chains obtained from \code{nma.run()}

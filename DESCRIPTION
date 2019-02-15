@@ -26,8 +26,11 @@ Imports:
     meta,
     purrr,
     scales,
-    RColorBrewer
+    RColorBrewer,
+    Rdpack
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+RdMacros: Rdpack
+

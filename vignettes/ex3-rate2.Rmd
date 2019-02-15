@@ -230,7 +230,7 @@ With the exception of 1 or 2 points, the data lies on or near the $y=x$ line, in
 ##Results
 
 ### SUCRA Plot
-SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,...worst rank. In BUGSnet, simply input the results of your model into the `sucra()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
+SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,...,worst rank. In BUGSnet, simply input the results of your model into the `sucra()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
 sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
@@ -250,8 +250,8 @@ If you want the exact percentages, these results are also available in tabular f
 kable(sucra.out$table)
 ```
 
-### League Plot
-League tables are another great way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes 95% credible intervals. You can also plot the league table as a heat map using the following code:
+### League Table and Heatplot
+League tables are another great way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes 95% credible intervals. You can also plot the league table as a heatplot using the following code:
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- nma.league(random_effects_results,  
@@ -265,14 +265,14 @@ league.out$plot
 The symbols (**) are used to highlight credible intervals that do not contain 1, where there is evidence of a statistically significant difference between treatment and their comparators at the 95% confidence level. In this example, a green cell indicates that a treatment performed better than its comparator (estimate smaller than 1), while a red cell indicates that the treatment performed worst than its comparator (estimate greater than 1).
 
 
-<!-- ### Forest Plot -->
-<!-- Forest plots are another great way to summarize the results of an NMA with respect to a particular comparator. -->
+### Forest Plot
+Forest plots are another great way to summarize the results of an NMA with respect to a particular comparator.
 
-<!-- ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"} -->
-<!-- nma.forest(random_effects_results,  -->
-<!--            central.tdcy="median", -->
-<!--            comparator = "Placebo") -->
-<!-- ``` -->
+```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
+nma.forest(random_effects_results,
+           central.tdcy="median",
+           comparator = "Placebo")
+```
 
 ## Conclusion
 

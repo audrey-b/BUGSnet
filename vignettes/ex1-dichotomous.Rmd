@@ -160,7 +160,7 @@ sucra.out$sucra
 ```
 
 
-### League Plot
+### League Heat Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  
                          central.tdcy="median",
@@ -170,6 +170,15 @@ league.out <- nma.league(fixed_effects_results,
                          high.colour = "red")
 league.out$plot
 ```
+
+
+### Forest Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4}
+nma.forest(fixed_effects_results,
+           central.tdcy="median",
+           comparator = "SK")
+```
+
 
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}

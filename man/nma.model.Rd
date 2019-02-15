@@ -2,11 +2,12 @@
 % Please edit documentation in R/nma.model.R
 \name{nma.model}
 \alias{nma.model}
-\title{Make Bugs Model}
+\title{Create Bugs Model}
 \usage{
 nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
   time = NULL, family, link, effects, prior.mu = "DEFAULT",
-  prior.d = "DEFAULT", prior.sigma = "DEFAULT", covariate = NULL)
+  prior.d = "DEFAULT", prior.sigma = "DEFAULT", prior.beta = "",
+  covariate = NULL)
 }
 \arguments{
 \item{data}{A data object produced by \code{data.prep()}}
@@ -34,11 +35,13 @@ indicating person-time followup (e.g person years) or study followup time.}
 
 \item{effects}{A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".}
 
-\item{prior.mu}{A string of BUGS code that defines priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials (as suggested by ).}
+\item{prior.mu}{A string of BUGS code that defines priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
-\item{prior.d}{A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials (as suggested by ).}
+\item{prior.d}{A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
-\item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials (as suggested by ).}
+\item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
+
+\item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@see @TSD3}{BUGSnet} or a string of BUGS code.}
 
 \item{covariate}{Optional string indicating the name of the variable in your data set that you would like to
 adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied.}
@@ -98,4 +101,11 @@ nma.model(data = my.slr,
         family = "poisson",
         link = "cloglog",
         effects = "random")
+        
+
+}
+\references{
+\insertRef{gemtc}{BUGSnet}
+
+\insertRef{TSD3}{BUGSnet}
 }

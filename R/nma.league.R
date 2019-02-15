@@ -1,10 +1,10 @@
 
 league.heat.plot <- function(leaguetable,
                              order = NULL,
+                             midpoint,
                              low.colour = "red", 
                              mid.colour = "white",
-                             high.colour = "springgreen4",
-                             midpoint = 0){
+                             high.colour = "springgreen4"){
   
   if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
   

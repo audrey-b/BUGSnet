@@ -24,7 +24,7 @@ nma.forest <- function(jagsoutput,
   
   x3 %<>% select(new.vars)
   colnames(x3) <- trt.names
-  x3 %<>% select(comparator)
+  x3 %<>% select(-comparator)
 
   tmp.mean <- x3 %>%  
     summarise_all(funs(mean = e.mean)) %>% gather() %>%
@@ -58,9 +58,7 @@ f.plot <- ggplot(tmp1, aes(x=trt, y=mean, ymin=lci, ymax=uci)) +
 if(is.null(x.trans)){
 f.plot <- f.plot +
   scale_y_continuous(breaks = scales::pretty_breaks(c(tmp1$lci,tmp1$uci), n = 10))
-}
-else{
-
+}else{
   f.plot <- f.plot +
     scale_y_continuous(trans=x.trans,
                        breaks = scales::pretty_breaks(c(min(tmp1$lci),max(tmp1$uci)), n = 10))

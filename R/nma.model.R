@@ -1,4 +1,4 @@
-#' Make Bugs Model
+#' Create Bugs Model
 #' @description Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
 #' @param data A data object produced by \code{data.prep()}
@@ -14,9 +14,10 @@
 #' @param time A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable 
 #'   indicating person-time followup (e.g person years) or study followup time.
 #' @param effects A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".
-#' @param prior.mu A string of BUGS code that defines priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials (as suggested by ).
-#' @param prior.d A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials (as suggested by ).
-#' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials (as suggested by ).
+#' @param prior.mu A string of BUGS code that defines priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
+#' @param prior.d A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
+#' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
+#' @param prior.beta Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@see @TSD3}{BUGSnet} or a string of BUGS code.
 #' @param covariate Optional string indicating the name of the variable in your data set that you would like to
 #' adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied.
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
@@ -69,6 +70,15 @@
 #'         family = "poisson",
 #'         link = "cloglog",
 #'         effects = "random")
+#'         
+#'
+#' @references
+#' \insertRef{gemtc}{BUGSnet}
+#' 
+#' \insertRef{TSD3}{BUGSnet}
+#' 
+#' 
+#' @importFrom Rdpack reprompt 
 
 nma.model <- function(data,
                      outcome, 
@@ -83,6 +93,7 @@ nma.model <- function(data,
                      prior.mu = "DEFAULT",
                      prior.d = "DEFAULT",
                      prior.sigma = "DEFAULT",
+                     prior.beta = NULL,
                      covariate = NULL){
   if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
     scale <- "OR"
@@ -333,15 +344,29 @@ nma.model <- function(data,
 
   #meta regression string
   if (!is.null(covariate)){
-    prior.meta.reg <- "beta[1]<-0
+    
+    if (prior.beta=="UNRELATED"){
+      prior.meta.reg <- sprintf("beta[1]<-0
+    for (k in 2:nt){
+      beta[k] ~ dnorm(0, (%s*15)^(-2))
+    }", max.delta)
+      }else if(prior.beta=="EXCHANGEABLE"){
+    prior.meta.reg <- sprintf("beta[1]<-0
+    for (k in 2:nt){
+      beta[k] ~ dnorm(b, gamma)
+    }
+    b~dnorm(0, (%s*15)^(-2))
+    gamma~dunif(0, %s)", max.delta, max.delta)
+    }else if(prior.beta=="EQUAL"){
+    prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
       beta[k] <- B
     }
-    B~dnorm(0, .0001)"
-  } else {
-    prior.meta.reg <- ""
+    B~dnorm(0, (%s*15)^(-2))", max.delta)
+  }else {
+    prior.meta.reg <- prior.beta
   }
-  
+  }else prior.meta.reg <- ""
   #remove covariate from bugsdata2 if unused
   if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
