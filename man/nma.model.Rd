@@ -6,7 +6,7 @@
 \usage{
 nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
   time = NULL, family, link, effects, prior.mu = "DEFAULT",
-  prior.d = "DEFAULT", prior.sigma = "DEFAULT", prior.beta = "",
+  prior.d = "DEFAULT", prior.sigma = "DEFAULT", prior.beta = NULL,
   covariate = NULL)
 }
 \arguments{

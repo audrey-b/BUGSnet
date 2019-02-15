@@ -1,18 +1,4 @@
-#' League Heat Plot
-#' @description Creates and plots a heatmap for a league table produced by \code{leaguetable()}. The user inputs a colour indicating
-#' a negative relative treatment effect, a null relative treatment effect, and a large relative treatment effect.
-#' @param leaguetable Results from \code{leaguetable()}. Be sure to set layout="long" from \code{leaguetable()} (see example). 
-#' @param low.colour A string indicating the colour of negative relative treatment effects (e.g relative risk of 0.5).
-#' @param mid.colour A string indicating the colour of null relative treatment effects (e.g relative risk of ~1.0). 
-#' @param high.colour A string indicating the colour of high relative treatment effects (e.g relative risk of ~2.0).
-#' @param midpoint Point indicating a null treatment effect. THIS NEEDS TO BE UPDATED. CURRENTLY ONLY WORKS FOR BINOMIAL VARIABLES.
-#' 
-#' @examples
-#' #Make league table, be sure to set layout="long".
-#' lt <- nma.league(jagsoutput=nma.results, central.tdcy="median", layout = "long")
-#' 
-#' #make plot using default colours
-#' league.heat.plot(leaguetable=lt)
+
 
 league.heat.plot <- function(leaguetable,
                              sucra.ranks = NULL,

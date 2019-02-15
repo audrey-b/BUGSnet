@@ -4,7 +4,7 @@
 # @param comparator The treatment to use as a comparator
 # @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
 # @param line.size 
-# @param x.trans A string indicating a transformation to apply to the x axis. 
+# @param x.trans Optional. A string indicating a transformation to apply to the x-axis. Setting this parameter to "log" is useful when there are extreme values. It also allows an easier interpretation of odds ratios and relative ratios because if e.g. treatment B is twice as far from the line y=1 then treatment A then it's OR/RR is twice the one of treatment A. 
 
 nma.forest <- function(jagsoutput, 
                            comparator, 

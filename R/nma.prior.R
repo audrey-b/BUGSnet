@@ -3,7 +3,7 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   else if (scale =="RR"){type.outcome = "binomial"}
   else if (scale =="SMD"){type.outcome = "continuous"}
   else if (scale =="HR"){type.outcome = "rate"}
-  else if (scale =="lograte"){type.outcome = "rate2"}
+  else if (scale =="Rate Ratio"){type.outcome = "rate2"}
   
   table <- by.comparison(data.nma, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
   names(table)[names(table) == paste0(outcome,".e")] <- "outcome.e"
@@ -39,7 +39,7 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
       mutate(delta = outcome.e-outcome.c) %>%
       select(delta)
     
-  } else if (scale == "lograte"){
+  } else if (scale == "Rate Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
     names(table)[names(table) == paste0(N,".c")] <- "N.c"
     names(table)[names(table) == paste0(time,".e")] <- "time.e"

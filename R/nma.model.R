@@ -102,7 +102,7 @@ nma.model <- function(data,
   }else if(link== "identity" & family =="normal"){
     scale <- "SMD"
   }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "lograte"
+    scale <- "Rate Ratio"
   }else if(link == "log" & family =="poisson"){
     scale <- "HR"
   }

@@ -10,7 +10,7 @@ Authors@R: c(
   )
 Description: What the package does (one paragraph).
 Depends: R (>= 3.5.1)
-License:
+License: TBD
 Encoding: UTF-8
 LazyData: True
 RoxygenNote: 6.1.1
