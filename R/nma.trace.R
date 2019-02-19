@@ -1,10 +1,10 @@
 #' Traceplot of MCMC chains
 #' @description Produces traceplots of the MCMC chains obtained from \code{nma.run()}
-#' @param jagsoutput An output produced by \code{nma.run()}
+#' @param nma An output produced by \code{nma.run()}
 #' @param n Limits the number of printed variables to the first \code{n}
 
-nma.trace <- function(jagsoutput, n="all"){
-  samples <- do.call(rbind, jagsoutput$samples) %>% data.frame()
+nma.trace <- function(nma, n="all"){
+  samples <- do.call(rbind, nma$samples) %>% data.frame()
   
   # samples.vars <- colnames(samples)
   # scalars <- vars[which(vars %in% samples.vars)]

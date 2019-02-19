@@ -53,14 +53,14 @@ To generate a network plot, simply input the `data.prep` object into the `net.pl
 
 ```{r, net.plot, echo=TRUE, fig.width=6, fig.height=5, fig.align="centre"}
 par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
-net.plot(rate2.slr, node.scale = 3, edge.scale=1.5)
+net.plot(rate2.slr, outcome = "diabetes", node.scale = 3, edge.scale=1.5)
 ```
 
 Our network has 6 treatments and a high degree of connectedness. If a user wants to highlight a specific node and its direct evidence, this can be done using the `flag` option.
 
 ```{r, echo=TRUE, fig.width=6, fig.height=5, fig.align="centre"}
 par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
-net.plot(rate2.slr, node.scale = 3, edge.scale=1.5, flag = "ARB")
+net.plot(rate2.slr, outcome = "diabetes", node.scale = 3, edge.scale=1.5, flag = "ARB")
 ```
 
 This gives us the names of the 5 trials connecting the ARB node to 4 treatments.
@@ -223,8 +223,8 @@ With the exception of 1 or 2 points, the data lies on or near the $y=x$ line, in
 
 ##Results
 
-### SUCRA Plot
-SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,..., worst rank. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
+### Treatment Rankings
+Simulaneous comparison of every treatment based on the results of the NMA analysis can be achieved by comparing the posterior probabilities of being the best, second best,..., worst treatment. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and `FALSE` otherwise.
 
 The ranking probabilities can be displayed in the form of a rankogram.
 
