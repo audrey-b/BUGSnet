@@ -4,16 +4,16 @@
 \alias{nma.league}
 \title{League Table and Heat Plot}
 \usage{
-nma.league(jagsoutput, central.tdcy = "median", log.scale = FALSE,
+nma.league(nma, central.tdcy = "median", log.scale = FALSE,
   order = NULL, low.colour = "red", mid.colour = "white",
   high.colour = "springgreen4")
 }
 \arguments{
-\item{jagsoutput}{Results from running \code{nma.analysis()}.}
+\item{nma}{Results from running \code{nma.analysis()}.}
 
 \item{central.tdcy}{The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".}
 
-\item{log.scale}{If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale.}
+\item{log.scale}{If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.}
 
 \item{order}{A vector of strings representing the order of treatments in the heatmap.}
 
@@ -26,13 +26,15 @@ nma.league(jagsoutput, central.tdcy = "median", log.scale = FALSE,
 \value{
 \code{table} - League table.
 
-\code{plot} - League table heatplot, where a color scale is used to represent relative treatment effects.
+\code{longtable} - League table in the long format.
+
+\code{heatplot} - League heat plot, where a color scale is used to represent relative treatment effects and ** are used to highlight statistically significant differences.
 }
 \description{
-Produces a league table and a league heat plot that contain all information about relative effectiveness and their 
-uncertainty for all possible pairs of treatments.
+Produces a league table and a league heat plot that contain point estimates of relative effectiveness 
+for all possible pairs of treatments point estimates along with 95% credible intervals obtained with the quantile method.
 }
 \examples{
 
-league_table <- leaguetable(jagsoutput=nma.results, central.tdcy="median")
+league_table <- leaguetable(nma=nma.results, central.tdcy="median")
 }

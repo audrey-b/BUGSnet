@@ -16,9 +16,9 @@ effect samples ("d"). But you may want to monitor the deviance ("dev") as well.}
 \value{
 \code{model} - A long character string containing the model that was run in \code{rjags}.
 
-\code{bugsdata2}
+\code{data} - The data used in the BUGS code.
 
-\code{scale}
+\code{scale} - The scale of the outcome, based on the chosen family and link function.
 
 \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 

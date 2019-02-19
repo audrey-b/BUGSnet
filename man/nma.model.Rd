@@ -17,7 +17,7 @@ nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
 \item{N}{A string indicating the name of the variable containing the number of participants in each arm}
 
 \item{sd}{A string (only required for continuous outcomes) indicating variable name
-of the standard deviation of the outcome}
+of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the sample size prior to using this function.}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 a placebo or control drug of some kind.}
@@ -44,15 +44,15 @@ indicating person-time followup (e.g person years) or study followup time.}
 \item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.}
 
 \item{covariate}{Optional string indicating the name of the variable in your data set that you would like to
-adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied.}
+adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. The covariate will be centered for the analysis.}
 }
 \value{
-\code{model} - A long character string containing BUGS code that will be run in \code{rjags}.
+\code{model} - A long character string containing BUGS code that will be run in \code{jags}.
 
-\code{bugsdata2} - Data accompanying BUGS code.
+\code{data} - The data used in the BUGS code.
 
 \code{scale} - The scale of the outcome, based on the chosen family and link function
-examples are "RR", "OR", "SMD", "HR"
+examples are "RR" (relative risk), "OR" (odds ratio), "MD" (mean difference), "HR" (hazard ratio)
 
 \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 }

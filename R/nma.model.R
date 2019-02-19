@@ -5,7 +5,7 @@
 #' @param outcome A string indicating the name of your outcome variable.
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param sd A string (only required for continuous outcomes) indicating variable name
-#' of the standard deviation of the outcome
+#' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the sample size prior to using this function.
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
 #' @param family A string indicating the family of the distribution of the outcome. Options are:
@@ -19,14 +19,14 @@
 #' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param prior.beta Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.
 #' @param covariate Optional string indicating the name of the variable in your data set that you would like to
-#' adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied.
+#' adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. The covariate will be centered for the analysis.
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
 #' 
-#' @return \code{model} - A long character string containing BUGS code that will be run in \code{rjags}.
-#' @return \code{bugsdata2} - Data accompanying BUGS code.
+#' @return \code{model} - A long character string containing BUGS code that will be run in \code{jags}.
+#' @return \code{data} - The data used in the BUGS code.
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function
-#' examples are "RR", "OR", "SMD", "HR"
+#' examples are "RR" (relative risk), "OR" (odds ratio), "MD" (mean difference), "HR" (hazard ratio)
 #' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 #' 
 #' @details 
@@ -108,7 +108,7 @@ nma.model <- function(data,
   }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
     scale <- "RR"
   }else if(link== "identity" & family =="normal"){
-    scale <- "SMD"
+    scale <- "MD"
   }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
     scale <- "Rate Ratio"
   }else if(link == "log" & family =="poisson"){
@@ -406,7 +406,7 @@ nma.model <- function(data,
   }
   
   return(bugs=list(model=model,
-                   bugsdata2=bugsdata2, 
+                   data=bugsdata2, 
                    scale=scale, 
                    trt.key=trt.key, 
                    family=family, 

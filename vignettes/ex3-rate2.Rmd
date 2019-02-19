@@ -237,7 +237,11 @@ sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "S
 sucra.out$sucra
 ```
 
-From this plot, we can see that there is a $\sim$ 77% chance that ARB's are the best treatments, and a $\sim$ 80% chance that diuretics are the worst treatment.
+From this plot, we can see that there is a $\sim$ 77% chance that ARB's are the best treatments, and a $\sim$ 80% chance that diuretics are the worst treatment. Since this plot was produced using ggplot2, one can easily customize the plot using ggplot2 commands, for instance:
+
+```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
+sucra.out$sucra + theme_gray()
+```
 
 The same data can be displayed in the form of a rankogram.
 

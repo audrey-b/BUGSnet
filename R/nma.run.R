@@ -6,8 +6,8 @@
 #' effect samples ("d"). But you may want to monitor the deviance ("dev") as well.
 #' 
 #' @return \code{model} - A long character string containing the model that was run in \code{rjags}.
-#' @return \code{bugsdata2}
-#' @return \code{scale}
+#' @return \code{data} - The data used in the BUGS code.
+#' @return \code{scale} - The scale of the outcome, based on the chosen family and link function.
 #' @return \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 #' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
@@ -23,7 +23,7 @@ nma.run <- function(bugs,
   
   
   jagsmodel <- jags.model(textConnection(bugs$model),
-                          bugs$bugsdata2,
+                          bugs$data,
                           n.chains=n.chains,
                           n.adapt=n.adapt)
   

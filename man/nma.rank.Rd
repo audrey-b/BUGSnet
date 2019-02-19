@@ -12,7 +12,7 @@ nma.rank(nma, largerbetter, lwd = 1, colour.set = "Set1")
 \item{largerbetter}{A boolean variable indicating whether a larger probability should indicate a more effective treatment (TRUE) or
 if a smaller probability should indicate a more effective treatment (FALSE).}
 
-\item{lwd}{A number indicating the thickness of the lines in the SUCRA plot.}
+\item{lwd}{Line width relative to the default (default=1) in the SUCRA plot.}
 
 \item{colour.set}{A string indicating the colour set from RcolorBrewer. "set1" is great, but you may need a different colour set if 
 there are many treatments in your network.}

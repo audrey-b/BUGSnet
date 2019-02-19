@@ -17,7 +17,7 @@
 #' error bar (see Example 2).
 #' @param errorbar.max Mandatory if errorbar=TRUE. A string indicating how to calculate the maximum of the 
 #' error bar (see Example 2).
-#' @param overall.average If true, adds overall average line to plot.
+#' @param overall.avg If true, adds overall average line to plot.
 #' @param y.lab y-label of the plot.
 #' @param caption Caption of plot.
 #' @param by If by="trial" then data from arms will be grouped by study/trial. If by="treatment" then
@@ -44,7 +44,7 @@
 #'              errorbar = TRUE,
 #'              errorbar.min = "Age - Age_sd", 
 #'              errorbar.max = "Age + Age_sd",
-#'              overall.average=FALSE,
+#'              overall.avg=FALSE,
 #'              y.lab = "Age (Years)", 
 #'              caption = "Error bars: Mean +/- sd",
 #'              by = "trial")
@@ -56,7 +56,7 @@ data.plot <- function(patients.data,
                           errorbar = FALSE,
                           errorbar.min = NULL, 
                           errorbar.max = NULL,
-                          overall.average=TRUE,
+                          overall.avg=TRUE,
                           fill.str=NULL,
                           y.lab, 
                           caption,
@@ -69,7 +69,7 @@ data.plot <- function(patients.data,
   if (errorbar){eb = geom_errorbar(aes_string(ymin=errorbar.min, ymax=errorbar.max))}
   else {eb = NULL}
   
-  if (overall.average){
+  if (overall.avg){
     overall.mean <- patients.data %>% select(var.name)%>%colMeans( na.rm=TRUE) %>% as.numeric()
     om <- geom_hline(yintercept = overall.mean, color = "red", linetype=2)}
   else{om=NULL}

@@ -1,7 +1,7 @@
 nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   if (scale =="OR" ){type.outcome = "binomial"}
   else if (scale =="RR"){type.outcome = "binomial"}
-  else if (scale =="SMD"){type.outcome = "continuous"}
+  else if (scale =="MD"){type.outcome = "continuous"}
   else if (scale =="HR"){type.outcome = "rate"}
   else if (scale =="Rate Ratio"){type.outcome = "rate2"}
   
@@ -33,7 +33,7 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
     
-  } else if (scale == "SMD"){
+  } else if (scale == "MD"){
     
     deltas <- table %>% 
       mutate(delta = outcome.e-outcome.c) %>%
