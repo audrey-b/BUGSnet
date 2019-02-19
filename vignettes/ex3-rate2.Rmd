@@ -100,18 +100,12 @@ kable(network.char$comparison)
 **Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `patient.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies, which BUGSnet automatically highlights in red.
 
 ```{r, fig.width=8, fig.height = 5, fig.align="centre"}
-data.plot(patients.data = rate2.slr$arm.data, 
-              treatment.var = "Treatment",
-              trial.var = "Study",
-              var.name = "age", 
-              errorbar = TRUE, # do you want error bars?
-              errorbar.min = "age - age_SD", #formula to calculate error bar minimum
-              errorbar.max = "age + age_SD",
-              fill.str = "age_type", #variable indicating which value is reported (e.g mean/median)
-              overall.average=TRUE, #add overall average line?
-              y.lab = "Age (Years)",
-              caption = "Error bars: Mean +/- sd",
-              by = "treatment")
+data.plot(data = rate2.slr,
+              covariate = "age", 
+              half.length = "age_SD",
+              by = "treatment",
+              fill.str = "age_type", #which value is reported (e.g mean/median)
+              avg.hline=TRUE) #add overall average line?
 ```
 
 If there are any imbalances in effect modifiers between trials, subgroup analysis or meta-regression can be employed. For this example, we will assume that there is no significant imbalance in effect modifiers.
