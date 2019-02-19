@@ -2,7 +2,7 @@
 
 #' Pairwise meta-analysis
 #' @description implements pairwise meta-analysis via the package \code{meta}
-#' @param data.nma A data object produced by \code{data.prep()}
+#' @param data An object produced by \code{data.prep()}
 #' @param name.trt1 A string indicating the name of the comparator treatment (often Placebo)
 #' @param name.trt2 A string indicating the name of the experimental treatment
 #' @param outcome A string indicating the name of your outcome variable
@@ -33,14 +33,14 @@
 #' #Sample pairwise meta-analyis
 #' 
 #' #Dichotomous / binomial outcome example comparing rapid-acting inhaled insulin to placebo.
-#' raii_vs_plbo <- pairwise(data.nma = diabetes.slr,
+#' raii_vs_plbo <- pairwise(data = diabetes.slr,
 #'                          name.trt1 = "Placebo", 
 #'                          name.trt2 = "raii", 
 #'                          outcome = "n_died",
 #'                          N = "n")
 #'                            
 #' # Continuous outcome example.                           
-#'alben_vs_plbo <- pairwise(data.nma=weight.slr,
+#'alben_vs_plbo <- pairwise(data=weight.slr,
 #'                          name.trt1 = "plbo",
 #'                          name.trt2 = "alben",
 #'                          outcome="y",
@@ -52,7 +52,7 @@
 #'                          sm = "SMD")
 #'
 #'# A rate outcome example
-#'diet1_vs_ctrl <- pairwise(data.nma=diet.slr,
+#'diet1_vs_ctrl <- pairwise(data=diet.slr,
 #'                          name.trt1 = "control",
 #'                          name.trt2 = "diet 1",
 #'                          outcome="death",
@@ -63,7 +63,7 @@
 #'                          method.tau="DL",
 #'                          sm = "IRR")
 
-pma <- function(data.nma,
+pma <- function(data,
                      name.trt1, 
                      name.trt2, 
                      outcome,
@@ -75,6 +75,7 @@ pma <- function(data.nma,
                      method.tau="DL",
                      sm="RR"){
   
+  data.nma <- data
   
   # Check if number of events and participants is integer
   tmp.check1 <- data.nma$arm.data %>% select(outcome)

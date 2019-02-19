@@ -28,6 +28,13 @@ dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
 dich.slr$arm.data$treatment <- as.character(dich.slr$arm.data$treatment)
 dich.slr$arm.data$study <- as.character(dich.slr$arm.data$study)
 
+pma(data = dich.slr,
+    name.trt1 = "SK", 
+    name.trt2 = "Ret",
+    outcome = "responders",
+    N = "sampleSize")
+
+
 # Network Characteristics -------------------------------------------------
 
 net.plot(dich.slr,  flag="SK", node.scale = 1.5, edge.scale=0.5, label.offset1 = 4, label.offset2 = 4)

@@ -2,24 +2,18 @@
 #' @description Plots a particular patient characteristic by study or by treatment. Useful for assessing
 #' differences in potential effect modifiers.
 #' 
-#' @param data A dataset containing patient level data. \code{patients.data = my.slr$patient.data} is a
-#' convenient way to input this parameter
+#' @param data A data object produced by \code{data.prep()}
 #' @param covariate A string indicating the name of the patient characteristic to be plotted
-#' @param fill.str An optional string indicating the variable to categorize measurements. For instance,
-#' some studies report the mean treatment effect and others may report the median treatment effect. If there 
-#' is a variable in \code{patients.data} called "type.measure" indicating whether the mean or median is 
-#' reported, setting fill.str="type.measure" would colour all studies reporting the mean as red, and all
-#' the studies reporting the median as turquoise.
-#' @param errorbar If TRUE, will add error bars to your plot.
-#' @param errorbar.min Mandatory if errorbar=TRUE. A string indicating how to calculate the minimum of the 
-#' error bar (see Example 2).
-#' @param errorbar.max Mandatory if errorbar=TRUE. A string indicating how to calculate the maximum of the 
-#' error bar (see Example 2).
-#' @param avg.hline If true, adds overall average line to plot.
-#' @param y.lab y-label of the plot.
-#' @param caption Caption of plot.
+#' @param half-length A string indicating how to calculate the half-length of error bars (optional)
 #' @param by If by="trial" then data from arms will be grouped by study/trial. If by="treatment" then
 #' bar graph is grouped by treatment.
+#' @param fill.str An optional string indicating the variable to categorize measurements. For instance,
+#' some studies report the mean treatment effect and others may report the median treatment effect. If there 
+#' is a variable in \code{data} called "type.measure" indicating whether the mean or median is 
+#' reported, setting fill.str="type.measure" would colour all studies reporting the mean as red, and all
+#' the studies reporting the median as turquoise.
+#' @param avg.hline If true, adds overall average line to plot.
+
 #' 
 #' @examples
 #' # Example containing a fill.str, an overall average, and no error
