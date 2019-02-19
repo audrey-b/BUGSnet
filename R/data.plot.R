@@ -27,20 +27,14 @@
 #'data.plot(data = my.slr,
 #'              covariate = "Age", 
 #'              fill.str="type_measure",
-#'              y.lab = "Age (Years)", 
-#'              caption = "Johnson study did not report age",
 #'              by = "trial")
 #'              
 #'# Example containing no fill.str, no overall average, but contains errorbars
 #'
 #'data.plot(data = my.slr,
 #'              covariate = "Age", 
-#'              errorbar = TRUE,
-#'              errorbar.min = "Age - Age_sd", 
-#'              errorbar.max = "Age + Age_sd",
+#'              half.length = "Age_sd",
 #'              avg.hline=FALSE,
-#'              y.lab = "Age (Years)", 
-#'              caption = "Error bars: Mean +/- sd",
 #'              by = "trial")
 
 data.plot <- function(data,

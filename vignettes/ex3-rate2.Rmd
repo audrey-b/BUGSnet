@@ -97,7 +97,7 @@ kable(network.char$comparison)
 ```
 
 ##Patient Characteristics
-**Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `patient.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies, which BUGSnet automatically highlights in red.
+**Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `data.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies, which BUGSnet automatically highlights in red.
 
 ```{r, fig.width=8, fig.height = 5, fig.align="centre"}
 data.plot(data = rate2.slr,
@@ -224,7 +224,7 @@ With the exception of 1 or 2 points, the data lies on or near the $y=x$ line, in
 ##Results
 
 ### SUCRA Plot
-SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,...,worst rank. In BUGSnet, simply input the results of your model into the `sucra()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
+SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,...,worst rank. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
 sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
