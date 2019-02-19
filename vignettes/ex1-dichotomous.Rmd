@@ -34,7 +34,6 @@ load_all(path = paste0(path,"R"))
 age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
 
 dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
-                     patient.data = thrombolytic$studies,
                      varname.t = "treatment",
                      varname.s = "study",
                      N = "sampleSize")
