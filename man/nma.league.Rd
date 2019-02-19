@@ -4,14 +4,16 @@
 \alias{nma.league}
 \title{League Table and Heat Plot}
 \usage{
-nma.league(jagsoutput, central.tdcy = "median", order = NULL,
-  low.colour = "red", mid.colour = "white",
-  high.colour = "springgreen4", midpoint = 0)
+nma.league(jagsoutput, central.tdcy = "median", log.scale = FALSE,
+  order = NULL, low.colour = "red", mid.colour = "white",
+  high.colour = "springgreen4")
 }
 \arguments{
 \item{jagsoutput}{Results from running \code{nma.analysis()}.}
 
 \item{central.tdcy}{The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".}
+
+\item{log.scale}{If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale.}
 
 \item{order}{A vector of strings representing the order of treatments in the heatmap.}
 
@@ -20,8 +22,6 @@ nma.league(jagsoutput, central.tdcy = "median", order = NULL,
 \item{mid.colour}{A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0).}
 
 \item{high.colour}{A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).}
-
-\item{midpoint}{Value indicating a null treatment effect for the heat plot. THIS NEEDS TO BE UPDATED. CURRENTLY ONLY WORKS FOR BINOMIAL VARIABLES.}
 }
 \value{
 \code{table} - League table.

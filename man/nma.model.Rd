@@ -41,7 +41,7 @@ indicating person-time followup (e.g person years) or study followup time.}
 
 \item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
-\item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@see @TSD3}{BUGSnet} or a string of BUGS code.}
+\item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.}
 
 \item{covariate}{Optional string indicating the name of the variable in your data set that you would like to
 adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied.}
@@ -60,7 +60,13 @@ examples are "RR", "OR", "SMD", "HR"
 Creates BUGS code which can be ran through \code{nma.run()}.
 }
 \details{
-
+For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
+\describe{
+  \item{Unrelated:}{\deqn{iid N(0, (15u)^2)}}
+  \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ N(0, (15u)^2), \gamma ~ U(0,u)}}
+  \item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ N(0, (15u)^2)}}
+}
+where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 }
 \examples{
 #Example 1

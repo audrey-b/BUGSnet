@@ -180,16 +180,8 @@ sucra.out$sucra
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  
                          central.tdcy="median",
-                         order = rev(sucra.out$ranks),
-                         low.colour = "springgreen4",
-                         mid.colour = "white",
-                         high.colour = "red")
-league.out$plot
-#league.heat.plot(league.out, 
-#                 sucra.ranks = rev(sucra.out$ranks), 
-#                 low.colour = "springgreen4", 
-#                 mid.colour = "white",
-#                 high.colour = "red")
+                         order = rev(sucra.out$ranks))
+league.out$heatplot
 ```
 
 ### Forest Plot

@@ -1,32 +1,4 @@
 
-league.heat.plot <- function(leaguetable,
-                             order = NULL,
-                             midpoint,
-                             low.colour = "red", 
-                             mid.colour = "white",
-                             high.colour = "springgreen4"){
-  
-  if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
-  
-  league.tmp <- leaguetable%>%filter(Treatment != Comparator)
-  
-  ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=log(median))) + 
-    geom_tile()+
-    coord_flip()+
-    geom_text(aes(label = 
-                    ifelse(((1<lci & 1< uci) | (1>lci & 1> uci)),
-                           ifelse(Treatment!=Comparator, paste0("**", median, "**", "\n", "(",lci, ", ", uci,")"), " "),
-                           ifelse(Treatment!=Comparator, paste0(median, "\n", "(",lci, ", ", uci,")"), " "))),
-              size=3)+
-    scale_fill_gradient2(low = low.colour, high = high.colour, mid = mid.colour, midpoint = midpoint)+
-    theme_dark()+
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          legend.position="none", panel.border=element_blank(),
-          axis.ticks.x=element_blank(),
-          axis.ticks.y=element_blank())+
-    scale_x_discrete(limits = order, expand = c(0, 0)) +
-    scale_y_discrete(limits = order, expand = c(0, 0))
-}
 
 
 
@@ -35,8 +7,8 @@ league.heat.plot <- function(leaguetable,
 #' uncertainty for all possible pairs of treatments.
 #' @param jagsoutput Results from running \code{nma.analysis()}.
 #' @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
+#' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale.
 #' @param order A vector of strings representing the order of treatments in the heatmap.
-#' @param midpoint Value indicating a null treatment effect for the heat plot. THIS NEEDS TO BE UPDATED. CURRENTLY ONLY WORKS FOR BINOMIAL VARIABLES.
 #' @param low.colour A string indicating the colour of low relative treatment effects for the heat plot (e.g relative risk of 0.5).
 #' @param mid.colour A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0). 
 #' @param high.colour A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).
@@ -50,11 +22,11 @@ league.heat.plot <- function(leaguetable,
 
 nma.league <- function(jagsoutput, 
                        central.tdcy = "median",
+                       log.scale = FALSE,
                        order = NULL,
                        low.colour = "red", 
                        mid.colour = "white",
-                       high.colour = "springgreen4",
-                       midpoint = 0) {
+                       high.colour = "springgreen4") {
   
   x <- do.call(rbind, jagsoutput$samples) %>% data.frame() %>% select(starts_with("d."))
 trt.names <- jagsoutput$trt.key
@@ -72,27 +44,53 @@ colvals <- function(x, b.col=1, paste=TRUE) {
   x2 %<>% select(new.vars)
   colnames(x2) <- trt.names
   
-  if(central.tdcy=="mean"){
+  if(central.tdcy=="mean" & log.scale==FALSE & jagsoutput$link!="identity"){
     tmp.estimate <- x2 %>%  
-      summarise_all(funs(estimate = e.mean.round)) %>% gather() %>%
+      summarise_all(list(estimate = exp.mean.round)) %>% gather() %>%
       rename(trt = key, estimate = value) %>%
       mutate(trt = sub("_estimate", "", trt))
-  }else if(central.tdcy=="median"){
+  } else if(central.tdcy=="mean"){
     tmp.estimate <- x2 %>%  
-      summarise_all(funs(estimate = e.median.round)) %>% gather() %>%
+      summarise_all(list(estimate = mean.round)) %>% gather() %>%
+      rename(trt = key, estimate = value) %>%
+      mutate(trt = sub("_estimate", "", trt))}
+  if(central.tdcy=="median" & log.scale==FALSE  & jagsoutput$link!="identity"){
+    tmp.estimate <- x2 %>%  
+      summarise_all(list(estimate = exp.median.round)) %>% gather() %>%
+      rename(trt = key, estimate = value) %>%
+      mutate(trt = sub("_estimate", "", trt))
+  } else if(central.tdcy=="median"){
+    tmp.estimate <- x2 %>%  
+      summarise_all(list(estimate = median.round)) %>% gather() %>%
       rename(trt = key, estimate = value) %>%
       mutate(trt = sub("_estimate", "", trt))
   }
   
+  if(log.scale==FALSE & jagsoutput$link!="identity"){
   tmp.lci <- x2 %>%  
-    summarise_all(funs(lci = e.lci.round)) %>% gather() %>%
+    summarise_all(funs(lci = exp.lci.round)) %>% gather() %>%
     rename(trt = key, lci = value) %>%
     mutate(trt = sub("_lci", "", trt))
   
   tmp.uci <- x2 %>%  
-    summarise_all(funs(uci = e.uci.round)) %>% gather() %>%
+    summarise_all(funs(uci = exp.uci.round)) %>% gather() %>%
     rename(trt = key, uci = value) %>%
     mutate(trt = sub("_uci", "", trt))
+  
+  null.value <- 1
+  } else{
+    tmp.lci <- x2 %>%  
+      summarise_all(funs(lci = lci.round)) %>% gather() %>%
+      rename(trt = key, lci = value) %>%
+      mutate(trt = sub("_lci", "", trt))
+    
+    tmp.uci <- x2 %>%  
+      summarise_all(funs(uci = uci.round)) %>% gather() %>%
+      rename(trt = key, uci = value) %>%
+      mutate(trt = sub("_uci", "", trt))
+    
+    null.value <- 0
+  }
   
   if(paste){
     tmp1 <- left_join(tmp.estimate, tmp.lci, by = "trt") %>%
@@ -105,7 +103,7 @@ colvals <- function(x, b.col=1, paste=TRUE) {
                             ")", sep="")) %>%
       select(trt, result)
     
-    colnames(tmp1)[2] <- as.character(tmp.estimate %>% filter(estimate==1) %>% select(trt))
+    colnames(tmp1)[2] <- as.character(tmp.estimate %>% filter(estimate==null.value) %>% select(trt))
   } else{
     tmp1 <- left_join(tmp.estimate, tmp.lci, by = "trt") %>%
       left_join(., tmp.uci, by = "trt")
@@ -150,12 +148,67 @@ longtable <- tmp2.list %>%
          Comparator = rep(trt.names, each=length(trt.names))) %>%
   select(Treatment, Comparator, everything(), -trt)
 
+if(log.scale==FALSE & jagsoutput$link!="identity"){
+  null.value <- 1
+} else{
+  null.value <- 0
+}
 
-return(list("table"=default, "longtable"=longtable, "plot"=league.heat.plot(longtable,
+return(list("table"=default, "longtable"=longtable, "heatplot"=league.heat.plot(leaguetable=longtable,
+                                                                                  central.tdcy=central.tdcy,
                                                                             order = order,
                                                                             low.colour = low.colour, 
                                                                             mid.colour = mid.colour,
                                                                             high.colour = high.colour,
-                                                                            midpoint = 0)))
-
+                                                                            midpoint = null.value)))
 }
+
+
+
+
+
+league.heat.plot <- function(leaguetable,
+                             central.tdcy,
+                             order = NULL,
+                             low.colour = "red", 
+                             mid.colour = "white",
+                             high.colour = "springgreen4",
+                             midpoint){
+  
+  if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
+  
+  league.tmp <- leaguetable%>%filter(Treatment != Comparator)
+  
+  if(central.tdcy=="mean"){
+    heatplot <- ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=mean)) + 
+      geom_tile()+
+      coord_flip()+
+      geom_text(aes(label = 
+                      ifelse(((midpoint<lci & midpoint< uci) | (midpoint>lci & midpoint> uci)),
+                             ifelse(Treatment!=Comparator, paste0("**", mean, "**", "\n", "(",lci, ", ", uci,")"), " "),
+                             ifelse(Treatment!=Comparator, paste0(mean, "\n", "(",lci, ", ", uci,")"), " "))),
+                size=3)
+  } else if(central.tdcy=="median"){
+    heatplot <- ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=median)) + 
+      geom_tile()+
+      coord_flip()+
+      geom_text(aes(label = 
+                      ifelse(((midpoint<lci & midpoint< uci) | (midpoint>lci & midpoint> uci)),
+                             ifelse(Treatment!=Comparator, paste0("**", median, "**", "\n", "(",lci, ", ", uci,")"), " "),
+                             ifelse(Treatment!=Comparator, paste0(median, "\n", "(",lci, ", ", uci,")"), " "))),
+                size=3)
+  }
+  
+  heatplot <- heatplot +
+    scale_fill_gradient2(low = low.colour, high = high.colour, mid = mid.colour, midpoint = midpoint)+
+    theme_dark()+
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          legend.position="none", panel.border=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.ticks.y=element_blank())+
+    scale_x_discrete(limits = order, expand = c(0, 0)) +
+    scale_y_discrete(limits = order, expand = c(0, 0)) 
+  
+  return(heatplot)
+}
+

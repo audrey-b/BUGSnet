@@ -75,16 +75,16 @@ random_effects_results <- nma.run(random_effects_model,
                                  n.burnin=1000,
                                  n.iter=10000)
 
-fixed_effects_fit <- nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
-fixed_effects_fit$DIC
-fixed_effects_fit$pD
-fixed_effects_fit$pmdev
+random_effects_fit <- nma.fit(random_effects_results, main = "Random Effects Model" )
+random_effects_fit$DIC
+random_effects_fit$pD
+random_effects_fit$pmdev
 
-sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
-sucra.out$sucra.plot
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out$sucra
 
-nma.forest(random_effects_results, comparator="SK")
-
+nma.forest(random_effects_results, comparator="SK", x.trans="log")
+nma.league(random_effects_results, midpoint=1, central.tdcy = "median", order = rev(sucra.out$ranks))
 
 # Network Plots -----------------------------------------------------------
 

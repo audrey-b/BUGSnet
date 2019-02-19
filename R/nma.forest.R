@@ -27,17 +27,17 @@ nma.forest <- function(jagsoutput,
   x3 %<>% select(-comparator)
 
   tmp.mean <- x3 %>%  
-    summarise_all(funs(mean = e.mean)) %>% gather() %>%
+    summarise_all(funs(mean = exp.mean)) %>% gather() %>%
     rename(trt = key, mean = value) %>%
     mutate(trt = sub("_mean", "", trt))
   
   tmp.lci <- x3 %>%  
-    summarise_all(funs(lci = e.lci)) %>% gather() %>%
+    summarise_all(funs(lci = exp.lci)) %>% gather() %>%
     rename(trt = key, lci = value) %>%
     mutate(trt = sub("_lci", "", trt))
   
   tmp.uci <- x3 %>%  
-    summarise_all(funs(uci = e.uci)) %>% gather() %>%
+    summarise_all(funs(uci = exp.uci)) %>% gather() %>%
     rename(trt = key, uci = value) %>%
     mutate(trt = sub("_uci", "", trt))
   

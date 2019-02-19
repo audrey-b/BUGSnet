@@ -255,11 +255,12 @@ League tables are another great way to summarize the results of an NMA. League t
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- nma.league(random_effects_results,  
-                         central.tdcy="median",                 
-                         order = rev(sucra.out$ranks), #order treatments for heatmap
+                         central.tdcy="median",
+                         order = rev(sucra.out$ranks),
+                         low.colour = "red",
                          mid.colour = "white",
                          high.colour = "red")
-league.out$plot
+league.out$heatplot
 ```
 
 The symbols (**) are used to highlight credible intervals that do not contain 1, where there is evidence of a statistically significant difference between treatment and their comparators at the 95% confidence level. In this example, a green cell indicates that a treatment performed better than its comparator (estimate smaller than 1), while a red cell indicates that the treatment performed worst than its comparator (estimate greater than 1).
