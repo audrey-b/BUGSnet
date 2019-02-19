@@ -188,7 +188,8 @@ league.out$heatplot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 nma.forest(fixed_effects_results,
            central.tdcy="median",
-           comparator = "control")
+           comparator = "control",
+           x.trans="log")
 ```
 
 # References

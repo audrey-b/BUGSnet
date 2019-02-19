@@ -22,6 +22,12 @@ exp.sd.round <- function(x) calc.report(x, "sd", trans="exp", digits=2)
 exp.lci.round <- function(x) calc.report(x, "quantile", arg=0.025, trans="exp", digits=2)
 exp.uci.round <- function(x) calc.report(x, "quantile", arg=0.975, trans="exp", digits=2)
 
+id.mean <- function(x) calc.report(x, "mean", trans="identity")
+id.median <- function(x) calc.report(x, "median", trans="identity")
+id.sd <- function(x) calc.report(x, "sd", trans="identity")
+id.lci <- function(x) calc.report(x, "quantile", arg=0.025, trans="identity")
+id.uci <- function(x) calc.report(x, "quantile", arg=0.975, trans="identity")
+
 mean.round <- function(x) calc.report(x, "mean", trans="identity", digits=2)
 median.round <- function(x) calc.report(x, "median", trans="identity", digits=2)
 sd.round <- function(x) calc.report(x, "sd", trans="identity", digits=2)

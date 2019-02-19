@@ -3,24 +3,25 @@
 
 
 #' League Table and Heat Plot
-#' @description Produces a league table and a league heat plot that contain all information about relative effectiveness and their 
-#' uncertainty for all possible pairs of treatments.
-#' @param jagsoutput Results from running \code{nma.analysis()}.
+#' @description Produces a league table and a league heat plot that contain point estimates of relative effectiveness 
+#' for all possible pairs of treatments point estimates along with 95% credible intervals obtained with the quantile method.
+#' @param nma Results from running \code{nma.analysis()}.
 #' @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
-#' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale.
+#' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.
 #' @param order A vector of strings representing the order of treatments in the heatmap.
 #' @param low.colour A string indicating the colour of low relative treatment effects for the heat plot (e.g relative risk of 0.5).
 #' @param mid.colour A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0). 
 #' @param high.colour A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).
 #' 
 #' @return \code{table} - League table.
-#' @return \code{plot} - League table heatplot, where a color scale is used to represent relative treatment effects.
+#' @return \code{longtable} - League table in the long format.
+#' @return \code{heatplot} - League heat plot, where a color scale is used to represent relative treatment effects and ** are used to highlight statistically significant differences.
 #' 
 #' @examples
 #'
-#' league_table <- leaguetable(jagsoutput=nma.results, central.tdcy="median")
+#' league_table <- leaguetable(nma=nma.results, central.tdcy="median")
 
-nma.league <- function(jagsoutput, 
+nma.league <- function(nma, 
                        central.tdcy = "median",
                        log.scale = FALSE,
                        order = NULL,
@@ -28,8 +29,8 @@ nma.league <- function(jagsoutput,
                        mid.colour = "white",
                        high.colour = "springgreen4") {
   
-  x <- do.call(rbind, jagsoutput$samples) %>% data.frame() %>% select(starts_with("d."))
-trt.names <- jagsoutput$trt.key
+  x <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
+trt.names <- nma$trt.key
 colnames(x) <- trt.names
 
 colvals <- function(x, b.col=1, paste=TRUE) {
@@ -44,7 +45,7 @@ colvals <- function(x, b.col=1, paste=TRUE) {
   x2 %<>% select(new.vars)
   colnames(x2) <- trt.names
   
-  if(central.tdcy=="mean" & log.scale==FALSE & jagsoutput$link!="identity"){
+  if(central.tdcy=="mean" & log.scale==FALSE & nma$link!="identity"){
     tmp.estimate <- x2 %>%  
       summarise_all(list(estimate = exp.mean.round)) %>% gather() %>%
       rename(trt = key, estimate = value) %>%
@@ -54,7 +55,7 @@ colvals <- function(x, b.col=1, paste=TRUE) {
       summarise_all(list(estimate = mean.round)) %>% gather() %>%
       rename(trt = key, estimate = value) %>%
       mutate(trt = sub("_estimate", "", trt))}
-  if(central.tdcy=="median" & log.scale==FALSE  & jagsoutput$link!="identity"){
+  if(central.tdcy=="median" & log.scale==FALSE  & nma$link!="identity"){
     tmp.estimate <- x2 %>%  
       summarise_all(list(estimate = exp.median.round)) %>% gather() %>%
       rename(trt = key, estimate = value) %>%
@@ -66,7 +67,7 @@ colvals <- function(x, b.col=1, paste=TRUE) {
       mutate(trt = sub("_estimate", "", trt))
   }
   
-  if(log.scale==FALSE & jagsoutput$link!="identity"){
+  if(log.scale==FALSE & nma$link!="identity"){
   tmp.lci <- x2 %>%  
     summarise_all(funs(lci = exp.lci.round)) %>% gather() %>%
     rename(trt = key, lci = value) %>%
@@ -148,7 +149,7 @@ longtable <- tmp2.list %>%
          Comparator = rep(trt.names, each=length(trt.names))) %>%
   select(Treatment, Comparator, everything(), -trt)
 
-if(log.scale==FALSE & jagsoutput$link!="identity"){
+if(log.scale==FALSE & nma$link!="identity"){
   null.value <- 1
 } else{
   null.value <- 0
