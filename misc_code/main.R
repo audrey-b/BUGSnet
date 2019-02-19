@@ -15,11 +15,17 @@ library(readxl)
 load_all(path = paste0(path,"R"))
 
 
+diabetes <- read_excel(paste0(path,"data","\\","rate2_example.xlsx"))
+dich.slr <- data.prep(arm.data = diabetes,
+                      varname.t = "Treatment",
+                      varname.s = "Study",
+                      N = "n")
+
+
 # Import data --------------------------------------------------------
 age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
 
 dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
-                      patient.data = thrombolytic$studies,
                       varname.t = "treatment",
                       varname.s = "study",
                       N = "sampleSize")
@@ -52,24 +58,22 @@ network.char$comparison
 #NMA
 
 fixed_effects_model <- nma.model(data=dich.slr,
-                                 outcome="responders",
-                                 N="sampleSize",
-                                 reference="SK",
+                                 outcome="diabetes",
+                                 N="n",
+                                 reference="Diuretic",
                                  family="binomial",
-                                 link="log",
-                                 effects="fixed",
-                                 covariate="age",
-                                 prior.beta = "EQUAL")
+                                 link="cloglog",
+                                 time = "followup",
+                                 effects="fixed")
 
 random_effects_model <- nma.model(data=dich.slr,
-                                  outcome="responders",
-                                  N="sampleSize",
-                                  reference="SK",
+                                  outcome="diabetes",
+                                  N="n",
+                                  reference="Diuretic",
                                   family="binomial",
-                                  link="log",
-                                  effects="random",
-                                  covariate="age",
-                                  prior.beta = "EXCHANGEABLE")
+                                  link="cloglog",
+                                  time = "followup",
+                                  effects="random")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
 cat(random_effects_model$model)
@@ -87,7 +91,7 @@ random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev
 
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
 sucra.out$sucra
 
 nma.forest(random_effects_results, comparator="SK", x.trans="log")

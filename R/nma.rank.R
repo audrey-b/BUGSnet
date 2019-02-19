@@ -1,18 +1,18 @@
-#' SUCRA Table and Plot
+#' Table and Plots of Treatment Rankings
 #' @description Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A Sucra table summarizes the probabilities
-#' that each  treatment is the best, second best...worst treatment in the network.
+#' that each treatment is the best, second best...worst treatment in the network.
 #' 
-#' @param nma Resulting dataset from running \code{nma.run()}.
+#' @param nma Resulting output from running \code{nma.run()}.
 #' @param largerbetter A boolean variable indicating whether a larger probability should indicate a more effective treatment (TRUE) or
 #' if a smaller probability should indicate a more effective treatment (FALSE). 
-#' @param lwd Line width relative to the default (default=1) in the SUCRA plot.
-#' @param colour.set A string indicating the colour set from RcolorBrewer. "set1" is great, but you may need a different colour set if 
+#' @param sucra.lwd Line width relative to the default (default=1) in the SUCRA plot.
+#' @param sucra.palette A string indicating the colour set from RcolorBrewer for the SUCRA plot. "set1" is great, but you may need a different colour set if 
 #' there are many treatments in your network.
 #' 
-#' @return \code{table} - A rank table as a dataset object.
-#' @return \code{sucra} - A SUCRA plot showing the probability of each treatment being the nth best treatment.
-#' @return \code{rankogram} - A rankogram plot showing the probability of each treatment being the nth best treatment.
-#' @return \code{ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
+#' @return \code{ranktable} - A rank table showing the probability of each treatment being the nth best treatment.
+#' @return \code{rankplot} - A rank plot showing the probability of each treatment being the nth best treatment.
+#' @return \code{rankogram} - A rankogram showing the probability of each treatment being the nth best treatment.
+#' @return \code{ranks} - A vector containing the order of efficacy of treatments (from best to worst) based on their average rank weighted by the ranking probabilities. This value 
 #' is useful when creating the league heat plot with \code{nma.league()}.
 #' 
 #' @examples
@@ -26,8 +26,8 @@
 
 nma.rank <- function(nma, 
                   largerbetter, 
-                  lwd = 1.0,
-                  colour.set= "Set1") {
+                  sucra.lwd = 1.0,
+                  sucra.palette= "Set1") {
   
   x <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
   
@@ -63,15 +63,15 @@ s.table <- x3 %>%
   count(trt) %>%
   mutate(percent = round(n / nrow(x)*100, 2)) %>%
   select(-n) %>%
-  spread(trt, -rank) %>%
-  mutate_all(funs(replace(., is.na(.), 0)))
+  spread(trt, -rank) %>%  
+  replace(., is.na(.), 0)
 
 x4 <- s.table %>% gather(trt, prob, -rank)
 
 s.plot <- ggplot(data=x4, aes(x=factor(rank), y=prob, group=trt)) +
-  geom_line(aes(color=trt), size=lwd) +
+  geom_line(aes(color=trt), size=sucra.lwd) +
   geom_point(aes(color=trt)) +
-  scale_color_manual(values = brewer.pal(n = length(nma$trt.key), name = colour.set))+
+  scale_color_manual(values = brewer.pal(n = length(nma$trt.key), name = sucra.palette))+
   theme_bw()
 
 rankogram <- ggplot(data=x4, aes(y=prob, x=trt, fill=factor(rank)))+ 

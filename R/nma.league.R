@@ -8,7 +8,7 @@
 #' @param nma Results from running \code{nma.analysis()}.
 #' @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
 #' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.
-#' @param order A vector of strings representing the order of treatments in the heatmap.
+#' @param order A vector of strings representing the order in which to display the treatments.
 #' @param low.colour A string indicating the colour of low relative treatment effects for the heat plot (e.g relative risk of 0.5).
 #' @param mid.colour A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0). 
 #' @param high.colour A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).
@@ -25,9 +25,9 @@ nma.league <- function(nma,
                        central.tdcy = "median",
                        log.scale = FALSE,
                        order = NULL,
-                       low.colour = "red", 
+                       low.colour = "darkgoldenrod1", 
                        mid.colour = "white",
-                       high.colour = "springgreen4") {
+                       high.colour = "cornflowerblue") {
   
   x <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
 trt.names <- nma$trt.key

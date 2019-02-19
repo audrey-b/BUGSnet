@@ -154,7 +154,7 @@ nma.fit(random_effects_results, main= "Random Effects Model")
 ##Results
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
-sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
 sucra.out$sucra
 ```
 
@@ -164,6 +164,8 @@ sucra.out$sucra
 league.out <- nma.league(fixed_effects_results,  
                          central.tdcy="median",
                          order = rev(sucra.out$ranks))
+league.out$table
+league.out$longtable
 league.out$heatplot
 ```
 

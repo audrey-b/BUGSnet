@@ -227,11 +227,11 @@ With the exception of 1 or 2 points, the data lies on or near the $y=x$ line, in
 SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,...,worst rank. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, colour.set= "Set1")
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
 sucra.out$sucra
 ```
 
-From this plot, we can see that there is a $\sim$ 77% chance that ARB's are the best treatments, and a $\sim$ 80% chance that diuretics are the worst treatment. Since this plot was produced using ggplot2, one can easily customize the plot using ggplot2 commands, for instance:
+From this plot, we can see that there is a $\sim$ 77% probability that ARB's are the best treatments, and a $\sim$ 80% probability that diuretics are the worst treatment. Since this plot was produced using ggplot2, one can easily customize the plot using ggplot2 commands, for instance:
 
 ```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
 sucra.out$sucra + theme_gray()
@@ -255,7 +255,7 @@ League tables are another great way to summarize the results of an NMA. League t
 league.out <- nma.league(random_effects_results,  
                          central.tdcy="median",
                          order = rev(sucra.out$ranks),
-                         low.colour = "red",
+                         low.colour = "springgreen4",
                          mid.colour = "white",
                          high.colour = "red")
 league.out$heatplot
