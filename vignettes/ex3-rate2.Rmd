@@ -224,29 +224,38 @@ With the exception of 1 or 2 points, the data lies on or near the $y=x$ line, in
 ##Results
 
 ### SUCRA Plot
-SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,...,worst rank. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
+SUCRA plots provide a simulaneous comparison of every treatment based on the results of the NMA analysis. Each treatment is assigned a probability of being the best, second best,..., worst rank. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and  `FALSE` otherwise.
 
-```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
-sucra.out$sucra
-```
-
-From this plot, we can see that there is a $\sim$ 77% probability that ARB's are the best treatments, and a $\sim$ 80% probability that diuretics are the worst treatment. Since this plot was produced using ggplot2, one can easily customize the plot using ggplot2 commands, for instance:
-
-```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
-sucra.out$sucra + theme_gray()
-```
-
-The same data can be displayed in the form of a rankogram.
+The ranking probabilities can be displayed in the form of a rankogram.
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
 sucra.out$rankogram
 ```
 
-If you want the exact percentages, these results are also available in tabular form via `sucra.out$table`.
+From this rankogram, we can see that there is a $\sim$ 77% probability that ARB's are the best treatments, and a $\sim$ 80% probability that diuretics are the worst treatment. If you want the exact ranking percentages, these results are also available in tabular form via `sucra.out$ranktable`.
 ```{r, echo = FALSE}
-kable(sucra.out$table)
+kable(sucra.out$ranktable)
 ```
+
+A surface under the cumulative ranking curve (SUCRA) plot can also be displayed via `sucra.out$sucraplot`.
+
+```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
+sucra.out$sucraplot
+```
+
+If you want the exact percentages, these results are also available in tabular form via `sucra.out$sucratable`. The last row contains the SUCRA percentages calculated as the average of the cumulative percentages for ranks 1 to 5.
+```{r, echo = FALSE}
+kable(sucra.out$sucratable)
+```
+
+Since those plots were produced using ggplot2, one can easily customize the plots using ggplot2 commands, for instance via `sucra.out$sucraplot + theme_gray()`:
+
+```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
+sucra.out$sucraplot + theme_gray()
+```
+
+
 
 ### League Table and Heatplot
 League tables are another great way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes 95% credible intervals. You can also plot the league table as a heatplot using the following code:
@@ -254,7 +263,7 @@ League tables are another great way to summarize the results of an NMA. League t
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- nma.league(random_effects_results,  
                          central.tdcy="median",
-                         order = rev(sucra.out$ranks),
+                         order = rev(sucra.out$order),
                          low.colour = "springgreen4",
                          mid.colour = "white",
                          high.colour = "red")

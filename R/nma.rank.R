@@ -10,10 +10,13 @@
 #' there are many treatments in your network.
 #' 
 #' @return \code{ranktable} - A rank table showing the probability of each treatment being the nth best treatment.
-#' @return \code{rankplot} - A rank plot showing the probability of each treatment being the nth best treatment.
+#' @return \code{sucratable} - A table showing the probability of each treatment being the nth best treatment or better and an overall SUCRA value for each treatment.
+#' @return \code{order} - A vector containing the order of efficacy of treatments (from best to worst) based on their SUCRA value. This vector 
+#' is useful for ordering treatments when creating the league heat plot with \code{nma.league()}.
+#' @return \code{longtable} - A long form table of ranking probabilities and SUCRA value.
+#' @return \code{sucraplot} - A rank plot showing the probability of each treatment being the nth best treatment or better.
 #' @return \code{rankogram} - A rankogram showing the probability of each treatment being the nth best treatment.
-#' @return \code{ranks} - A vector containing the order of efficacy of treatments (from best to worst) based on their average rank weighted by the ranking probabilities. This value 
-#' is useful when creating the league heat plot with \code{nma.league()}.
+
 #' 
 #' @examples
 #' 
@@ -68,7 +71,29 @@ s.table <- x3 %>%
 
 x4 <- s.table %>% gather(trt, prob, -rank)
 
-s.plot <- ggplot(data=x4, aes(x=factor(rank), y=prob, group=trt)) +
+x5 <- x4 %>% 
+  ungroup() %>% 
+  group_by(trt) %>%
+  mutate(cumprob = cumsum(prob))
+
+sucra.table <- x5 %>% 
+  select(-prob) %>% 
+  spread(trt, -rank)
+sucra.table$rank = as.character(sucra.table$rank)
+sucras <- colMeans(sucra.table[1:(dim(sucra.table)[1]-1),-1]) %>% round(2)
+sucra.table %<>% rbind(c("SUCRA",sucras))
+
+order <- sucra.table[dim(sucra.table)[1],] %>% 
+  gather(key=rank, value=SUCRA) %>%
+  mutate(SUCRA=as.numeric(SUCRA)) %>%
+  arrange(by=desc(SUCRA)) %>%
+  select(rank) %>%
+  t() %>%
+  as.vector
+
+long.table <- x5
+
+s.plot <- ggplot(data=x5, aes(x=factor(rank), y=cumprob, group=trt)) +
   geom_line(aes(color=trt), size=sucra.lwd) +
   geom_point(aes(color=trt)) +
   scale_color_manual(values = brewer.pal(n = length(nma$trt.key), name = sucra.palette))+
@@ -83,37 +108,37 @@ if(largerbetter==TRUE){
   s.plot <- s.plot +
     labs(x=paste0("Rank of Treatment",
                   "\n(Higher ranks associated with larger outcome values)"), 
-         y="Probability (%)",
+         y="Probability of that rank or higher (%)",
          color="Treatment")
   rankogram <- rankogram + labs(x=paste0("Treatment",
                                          "\n(Higher ranks associated with larger outcome values)"), 
-                                y="Probability (%)",
+                                y="Probability of rank (%)",
                                 fill="Rank")
     
 }else if(largerbetter==FALSE){
   s.plot <- s.plot +
     labs(x=paste0("Rank of Treatment",
                   "\n(Higher ranks associated with smaller outcome values)"), 
-         y="Probability (%)",
+         y="Probability of that rank or higher (%)",
          color="Treatment")
   rankogram <- rankogram + labs(x=paste0("Treatment",
                                          "\n(Higher ranks associated with smaller outcome values)"), 
-                                y="Probability (%)",
+                                y="Probability of rank (%)",
                                 fill="Rank")
 }
 
 #output sucra ranks to input into league table
-sucra.totals <- s.table %>%ungroup() %>% select(-rank) %>% t()
-sucra.ranks <- sucra.totals %*% c(1:ncol(sucra.totals)) %>% 
-  data.frame() %>% 
-  cbind(rownames(sucra.totals))
+# sucra.totals <- s.table %>%ungroup() %>% select(-rank) %>% t()
+# sucra.ranks <- sucra.totals %*% c(1:ncol(sucra.totals)) %>% 
+#   data.frame() %>% 
+#   cbind(rownames(sucra.totals))
+# 
+# colnames(sucra.ranks) <- c("total", "treatment")
+# 
+# sucra.ranks <- sucra.ranks %>% arrange(total) %>% select(treatment)
 
-colnames(sucra.ranks) <- c("total", "treatment")
-
-sucra.ranks <- sucra.ranks %>% arrange(total) %>% select(treatment)
-
-x5 <- (list(s.table, sucra.ranks[,1], s.plot, rankogram))
-names(x5) <- c("table", "ranks", "sucra", "rankogram")
+x5 <- (list(s.table, sucra.table, order, long.table, s.plot, rankogram))
+names(x5) <- c("ranktable", "sucratable", "order", "longtable", "sucraplot", "rankogram")
 return(x5)
 }
 

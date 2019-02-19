@@ -173,14 +173,14 @@ Seeing as that all the points lie close to the $y=x$ line, there is very little 
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
-sucra.out$sucra
+sucra.out$sucraplot
 ```
 
 ### League Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  
                          central.tdcy="median",
-                         order = rev(sucra.out$ranks))
+                         order = rev(sucra.out$order))
 league.out$heatplot
 ```
 
