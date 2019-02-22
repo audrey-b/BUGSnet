@@ -95,7 +95,7 @@ sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette=
 sucra.out$sucra
 
 nma.forest(random_effects_results, comparator="SK", x.trans="log")
-nma.league(random_effects_results, midpoint=1, central.tdcy = "median", order = rev(sucra.out$ranks))
+nma.league(random_effects_results, central.tdcy = "median", order = rev(sucra.out$order))
 
 # Network Plots -----------------------------------------------------------
 

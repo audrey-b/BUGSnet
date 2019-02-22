@@ -1,7 +1,3 @@
-
-
-
-
 #' League Table and Heat Plot
 #' @description Produces a league table and a league heat plot that contain point estimates of relative effectiveness 
 #' for all possible pairs of treatments point estimates along with 95% credible intervals obtained with the quantile method.
@@ -32,6 +28,9 @@ nma.league <- function(nma,
   x <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
 trt.names <- nma$trt.key
 colnames(x) <- trt.names
+
+x %<>% select(order)
+trt.names <- order
 
 colvals <- function(x, b.col=1, paste=TRUE) {
   
@@ -154,6 +153,8 @@ if(log.scale==FALSE & nma$link!="identity"){
 } else{
   null.value <- 0
 }
+
+
 
 return(list("table"=default, "longtable"=longtable, "heatplot"=league.heat.plot(leaguetable=longtable,
                                                                                   central.tdcy=central.tdcy,
