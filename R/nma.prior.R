@@ -36,7 +36,7 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   } else if (scale == "MD"){
     
     deltas <- table %>% 
-      mutate(delta = outcome.e-outcome.c) %>%
+      mutate(delta = as.numeric(outcome.e)-as.numeric(outcome.c)) %>%
       select(delta)
     
   } else if (scale == "Rate Ratio"){
