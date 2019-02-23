@@ -62,6 +62,16 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
       data.frame() %>%
       slice(rep(1:n(), each = nrow(rhat)))
     pmdev_fitted <- 2*((thetatilde-r) + r*log(r/thetatilde))[1,]
+  } else if (nma$family == "normal"){
+      theta <- samples %>% select(., starts_with("theta"))
+      y <- samples %>% select(., starts_with("y"))
+      prec <- samples %>% select(., starts_with("prec"))
+      ytilde <- y %>%
+        colMeans() %>%
+        matrix(nrow=1, ncol=ncol(rhat)) %>%
+        data.frame() %>%
+        slice(rep(1:n(), each = nrow(y)))
+      pmdev_fitted <- ((ytilde-theta)*(ytilde-theta)*prec)[1,]
   }
   
   

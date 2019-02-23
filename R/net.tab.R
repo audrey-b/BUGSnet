@@ -132,7 +132,20 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
       return(bind_rows(tble,add.tble))
       
     }
-    if (type.outcome=="continuous"){return(tble)}
+    if (type.outcome=="continuous"){
+      
+      just.N <- data.nma$arm.data %>% select(N)
+      just.outcome <- data.nma$arm.data %>% select(outcome)
+      
+      total <- sum(just.N*just.outcome)
+      
+      w.average <- total/n.patients
+      
+      add.tble <- tibble(Characteristic="Average Outcome",
+                         Value=signif(w.average, digits=4) %>% as.character)
+      
+      return(bind_rows(tble,add.tble))
+      }
 }
  
 intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {

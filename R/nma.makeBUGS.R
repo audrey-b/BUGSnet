@@ -11,9 +11,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
   
   if (family=="normal"){
     family.str <- "y[i,k] ~ dnorm(theta[i,k],prec[i,k])"
-    monitor.str <- "var[i,k] <- pow(se[i,k],2) # calculate variances
-        prec[i,k] <- 1/pow(se[i,k],2) # set precisions
-        dev[i,k] <- (y[i,k]-theta[i,k])*(y[i,k]-theta[i,k])*prec[i,k] #Deviance contribution"
+    monitor.str <- "var[i,k] <- pow(se[i,k],2)
+    prec[i,k] <- pow(se[i,k],-2)
+    dev[i,k] <- (y[i,k]-theta[i,k])*(y[i,k]-theta[i,k])*prec[i,k] #Deviance contribution"
   }
   
   if (family=="poisson"){
