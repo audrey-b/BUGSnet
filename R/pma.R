@@ -7,12 +7,10 @@
 #' @param name.trt2 A string indicating the name of the experimental treatment
 #' @param outcome A string indicating the name of your outcome variable
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
-#' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-years reported), 
-#' "rate2" (e.g # events and followup time reported)
+#' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-years reported)
 #' @param sd A string (only required when type.outcome="continuous") indicating variable name
 #' of the standard deviation of the outcome
-#' @param time A string required when type.outcome = "rate" or "rate2". Name of variable 
-#'   indicating person-time followup (e.g person years) or study followup time
+#' @param time A string required when type.outcome = "rate". Name of variable indicating person-time followup (e.g person years).
 #' @param method A character string indicating what type of test was used. For more info, see \code{meta}'s
 #' documentation.
 #' @param method.tau A character string indicating which method is used to estimate the between study variance. 

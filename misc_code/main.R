@@ -43,7 +43,7 @@ pma(data = dich.slr,
 
 # Network Characteristics -------------------------------------------------
 
-net.plot(dich.slr,  flag="SK", node.scale = 1.5, edge.scale=0.5, label.offset1 = 4, label.offset2 = 4)
+net.plot(dich.slr,  flag="Placebo", node.scale = 1.5, edge.scale=0.5, label.offset1 = 4, label.offset2 = 4)
 
 network.char <- net.tab(data.nma = dich.slr,
                         outcome = "responders",
@@ -91,8 +91,8 @@ random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev
 
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
-sucra.out$sucra
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Dark2")
+sucra.out$sucraplot
 
 nma.forest(random_effects_results, comparator="SK", x.trans="log")
 nma.league(random_effects_results, central.tdcy = "median", order = rev(sucra.out$order))

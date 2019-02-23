@@ -5,7 +5,7 @@
 #' @param data A data object produced by \code{data.prep()}
 #' @param covariate A string indicating the name of the patient characteristic to be plotted
 #' @param half-length A string indicating how to calculate the half-length of error bars (optional)
-#' @param by If by="trial" then data from arms will be grouped by study/trial. If by="treatment" then
+#' @param by If by="study" then data from arms will be grouped by study/trial. If by="treatment" then
 #' bar graph is grouped by treatment.
 #' @param fill.str An optional string indicating the variable to categorize measurements. For instance,
 #' some studies report the mean treatment effect and others may report the median treatment effect. If there 
@@ -21,7 +21,7 @@
 #'data.plot(data = my.slr,
 #'              covariate = "Age", 
 #'              fill.str="type_measure",
-#'              by = "trial")
+#'              by = "study")
 #'              
 #'# Example containing no fill.str, no overall average, but contains errorbars
 #'
@@ -29,12 +29,12 @@
 #'              covariate = "Age", 
 #'              half.length = "Age_sd",
 #'              avg.hline=FALSE,
-#'              by = "trial")
+#'              by = "study")
 
 data.plot <- function(data,
                           covariate, 
                           half.length = NULL,
-                      by = "trial",
+                      by = "study",
                           avg.hline=TRUE,
                           fill.str=NULL){
   
@@ -70,7 +70,7 @@ data.plot <- function(data,
   patients.data <- patients.data %>%
     mutate(trt =(!! as.name(treatment.var)), trial =(!! as.name(trial.var)))
   
-  if (by == "trial"){
+  if (by == "study"){
   if(is.null(fill.str)) {p <- ggplot(patients.data, aes_string(x=treatment.var, y=covariate))}
   else p <- ggplot(patients.data, aes_string(x=treatment.var, y=covariate, fill=fill.str))
   
