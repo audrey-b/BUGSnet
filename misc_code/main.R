@@ -15,10 +15,18 @@ library(readxl)
 load_all(path = paste0(path,"R"))
 
 
-diabetes <- read_excel(paste0(path,"data","\\","rate2_example.xlsx"))
-dich.slr <- data.prep(arm.data = diabetes,
-                      varname.t = "Treatment",
-                      varname.s = "Study",
+rawdata <- read_excel(paste0(path,"data","\\","continuous_example.xlsx"))
+rawdata <- read_excel("data/continuous_example.xlsx", 
+                                                 col_types = c("text", "numeric", "numeric", 
+                                                                         "text", "text", "numeric", "numeric", 
+                                                                         "numeric", "numeric", "numeric", 
+                                                                         "numeric", "numeric", "numeric", 
+                                                                         "numeric", "numeric", "numeric", 
+                                                                         "numeric", "numeric", "numeric", 
+                                                                         "numeric", "numeric"))
+dich.slr <- data.prep(arm.data = rawdata,
+                      varname.t = "trt_name",
+                      varname.s = "trialstudy",
                       N = "n")
 
 
@@ -43,12 +51,12 @@ pma(data = dich.slr,
 
 # Network Characteristics -------------------------------------------------
 
-net.plot(dich.slr,  flag="Placebo", node.scale = 1.5, edge.scale=0.5, label.offset1 = 4, label.offset2 = 4)
+net.plot(dich.slr,  flag="PLCB", node.scale = 1.5, edge.scale=0.5, label.offset1 = 4, label.offset2 = 4)
 
-network.char <- net.tab(data.nma = dich.slr,
-                        outcome = "responders",
-                        N = "sampleSize",
-                        type.outcome = "binomial",
+network.char <- net.tab(data = dich.slr,
+                        outcome = "y",
+                        N = "n",
+                        type.outcome = "continuous",
                         time = NULL)
 
 network.char$network
@@ -58,21 +66,21 @@ network.char$comparison
 #NMA
 
 fixed_effects_model <- nma.model(data=dich.slr,
-                                 outcome="diabetes",
+                                 outcome="y",
                                  N="n",
-                                 reference="Diuretic",
-                                 family="binomial",
-                                 link="cloglog",
-                                 time = "followup",
+                                 sd="sd",
+                                 reference="PLCB",
+                                 family="normal",
+                                 link="identity",
                                  effects="fixed")
 
 random_effects_model <- nma.model(data=dich.slr,
-                                  outcome="diabetes",
+                                  outcome="y",
                                   N="n",
-                                  reference="Diuretic",
-                                  family="binomial",
-                                  link="cloglog",
-                                  time = "followup",
+                                  sd="sd",
+                                  reference="PLCB",
+                                  family="normal",
+                                  link="identity",
                                   effects="random")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")

@@ -11,8 +11,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
   
   if (family=="normal"){
     family.str <- "y[i,k] ~ dnorm(theta[i,k],prec[i,k])"
-    monitor.str <- "var[i,k] <- pow(se[i,k],2)
-    prec[i,k] <- pow(se[i,k],-2)
+    monitor.str <- "prec[i,k] <- pow(se[i,k],-2)
     dev[i,k] <- (y[i,k]-theta[i,k])*(y[i,k]-theta[i,k])*prec[i,k] #Deviance contribution"
   }
   
