@@ -38,11 +38,18 @@ nma.forest <- function(nma,
   x3 %<>% select(-comparator)
   
   if(log.scale==FALSE & nma$link!="identity"){
-
+    
+    if(central.tdcy=="mean"){
   tmp.mean <- x3 %>%  
     summarise_all(funs(mean = exp.mean)) %>% gather() %>%
     rename(trt = key, mean = value) %>%
     mutate(trt = sub("_mean", "", trt))
+    }else if(central.tdcy=="median"){
+      tmp.mean <- x3 %>%  
+        summarise_all(funs(mean = exp.median)) %>% gather() %>%
+        rename(trt = key, mean = value) %>%
+        mutate(trt = sub("_mean", "", trt))
+    }else stop("central.tdcy must be mean or median")
   
   tmp.lci <- x3 %>%  
     summarise_all(funs(lci = exp.lci)) %>% gather() %>%
@@ -54,14 +61,25 @@ nma.forest <- function(nma,
     rename(trt = key, uci = value) %>%
     mutate(trt = sub("_uci", "", trt))
   
+  
   null.value <- 1
   log.str<-""
+  
   } else{
     
-    tmp.mean <- x3 %>%  
-      summarise_all(funs(mean = id.mean)) %>% gather() %>%
-      rename(trt = key, mean = value) %>%
-      mutate(trt = sub("_mean", "", trt))
+    if(central.tdcy=="mean"){
+      tmp.mean <- x3 %>%  
+        summarise_all(funs(mean = id.mean)) %>% gather() %>%
+        rename(trt = key, mean = value) %>%
+        mutate(trt = sub("_mean", "", trt))
+    }else if(central.tdcy=="median"){
+      tmp.mean <- x3 %>%  
+        summarise_all(funs(mean = id.median)) %>% gather() %>%
+        rename(trt = key, mean = value) %>%
+        mutate(trt = sub("_mean", "", trt))
+    }else stop("central.tdcy must be mean or median")
+    
+   
     
     tmp.lci <- x3 %>%  
       summarise_all(funs(lci = id.lci)) %>% gather() %>%
