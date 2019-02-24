@@ -6,7 +6,8 @@
 #' @param lwd Line width relative to the default (default=1).
 #' @param x.trans Optional. A string indicating a transformation to apply to the x-axis. Setting this parameter to "log" is useful when there are extreme values or to allow an easier interpretation of odds ratios and relative ratios (if e.g. treatment B is twice as far from the line y=1 then treatment A then it's OR/RR is twice that of treatment A.) 
 #' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.
-#'
+#' @param cov.value  Must be specified for meta-regression. This is the value of the covariate for which to report the results.
+
 #' @return \code{forestplot} - A forest plot.
 #'
 #' @examples
@@ -17,15 +18,29 @@
 
 
 nma.forest <- function(nma, 
-                           comparator, 
-                           central.tdcy = "median", 
+                       comparator, 
+                       central.tdcy = "median", 
                        log.scale=FALSE,
-                           line.size=1,
-                           x.trans=NULL) {
+                       line.size=1,
+                       x.trans=NULL,
+                       cov.value=NULL) {
+  
+  if(!is.null(nma$model$covariate) & is.null(cov.value)) stop("cov.value must be specified for meta-regression")
+  
+
   
   x2 <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
   trt.names <- nma$trt.key
   colnames(x2) <- trt.names
+
+  if(!is.null(cov.value)){#meta-regression
+    
+    betamat <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("beta."))
+    trt.names <- nma$trt.key
+    colnames(betamat) <- trt.names
+    
+    x2 <- x2+betamat*(cov.value-nma$model$mean.cov)
+  }
   
   x3 <- x2
   new.vars <- paste0(colnames(x2), "-", comparator)
@@ -40,54 +55,54 @@ nma.forest <- function(nma,
   if(log.scale==FALSE & nma$link!="identity"){
     
     if(central.tdcy=="mean"){
-  tmp.mean <- x3 %>%  
-    summarise_all(funs(mean = exp.mean)) %>% gather() %>%
-    rename(trt = key, mean = value) %>%
-    mutate(trt = sub("_mean", "", trt))
-    }else if(central.tdcy=="median"){
       tmp.mean <- x3 %>%  
-        summarise_all(funs(mean = exp.median)) %>% gather() %>%
-        rename(trt = key, mean = value) %>%
-        mutate(trt = sub("_mean", "", trt))
-    }else stop("central.tdcy must be mean or median")
-  
-  tmp.lci <- x3 %>%  
-    summarise_all(funs(lci = exp.lci)) %>% gather() %>%
-    rename(trt = key, lci = value) %>%
-    mutate(trt = sub("_lci", "", trt))
-  
-  tmp.uci <- x3 %>%  
-    summarise_all(funs(uci = exp.uci)) %>% gather() %>%
-    rename(trt = key, uci = value) %>%
-    mutate(trt = sub("_uci", "", trt))
-  
-  
-  null.value <- 1
-  log.str<-""
-  
-  } else{
-    
-    if(central.tdcy=="mean"){
-      tmp.mean <- x3 %>%  
-        summarise_all(funs(mean = id.mean)) %>% gather() %>%
+        summarise_all(list(mean = exp.mean)) %>% gather() %>%
         rename(trt = key, mean = value) %>%
         mutate(trt = sub("_mean", "", trt))
     }else if(central.tdcy=="median"){
       tmp.mean <- x3 %>%  
-        summarise_all(funs(mean = id.median)) %>% gather() %>%
+        summarise_all(list(mean = exp.median)) %>% gather() %>%
         rename(trt = key, mean = value) %>%
         mutate(trt = sub("_mean", "", trt))
     }else stop("central.tdcy must be mean or median")
-    
-   
     
     tmp.lci <- x3 %>%  
-      summarise_all(funs(lci = id.lci)) %>% gather() %>%
+      summarise_all(list(lci = exp.lci)) %>% gather() %>%
       rename(trt = key, lci = value) %>%
       mutate(trt = sub("_lci", "", trt))
     
     tmp.uci <- x3 %>%  
-      summarise_all(funs(uci = id.uci)) %>% gather() %>%
+      summarise_all(list(uci = exp.uci)) %>% gather() %>%
+      rename(trt = key, uci = value) %>%
+      mutate(trt = sub("_uci", "", trt))
+    
+    
+    null.value <- 1
+    log.str<-""
+    
+  } else{
+    
+    if(central.tdcy=="mean"){
+      tmp.mean <- x3 %>%  
+        summarise_all(list(mean = id.mean)) %>% gather() %>%
+        rename(trt = key, mean = value) %>%
+        mutate(trt = sub("_mean", "", trt))
+    }else if(central.tdcy=="median"){
+      tmp.mean <- x3 %>%  
+        summarise_all(list(mean = id.median)) %>% gather() %>%
+        rename(trt = key, mean = value) %>%
+        mutate(trt = sub("_mean", "", trt))
+    }else stop("central.tdcy must be mean or median")
+    
+    
+    
+    tmp.lci <- x3 %>%  
+      summarise_all(list(lci = id.lci)) %>% gather() %>%
+      rename(trt = key, lci = value) %>%
+      mutate(trt = sub("_lci", "", trt))
+    
+    tmp.uci <- x3 %>%  
+      summarise_all(list(uci = id.uci)) %>% gather() %>%
       rename(trt = key, uci = value) %>%
       mutate(trt = sub("_uci", "", trt))
     
@@ -97,38 +112,40 @@ nma.forest <- function(nma,
       log.str <- ""
     } else{
       log.str <- "Log "  
-      }
+    }
     
   }
   
   tmp1 <- left_join(tmp.mean, tmp.lci, by = "trt") %>%
     left_join(., tmp.uci, by = "trt") %>% data.frame()
   
-
-
-f.plot <- ggplot(tmp1, aes(x=trt, y=mean, ymin=lci, ymax=uci)) +
-     geom_pointrange(size=line.size) +
-     geom_hline(yintercept=null.value,lty=2) +
-     scale_x_discrete(limits = sort(tmp1$trt, decreasing=TRUE)) +
-     xlab("Treatment") +
-     ylab(paste0(log.str, nma$scale, " relative to ",comparator,
-                 "\n(showing posterior ", central.tdcy," with 95% CrI)")) +
-     coord_flip() +
-     theme_classic() #+
-     #labs(caption = paste("note: each treatment compared to", comparator))
-
-if(is.null(x.trans)){
-  f.plot <- f.plot +
-    scale_y_continuous(breaks = scales::pretty_breaks(n=10 ))
-}
-else{
+  if(!is.null(cov.value)){#meta-regression
+    cov.str <- paste0(" when ",nma$model$covariate,"=",cov.value)
+  }else cov.str <- ""
   
-  f.plot <- f.plot +
-    scale_y_continuous(trans=x.trans,
-                       breaks = scales::pretty_breaks(n=10))
-}
-
-return("forestplot"=f.plot)
-
+  f.plot <- ggplot(tmp1, aes(x=trt, y=mean, ymin=lci, ymax=uci)) +
+    geom_pointrange(size=line.size) +
+    geom_hline(yintercept=null.value,lty=2) +
+    scale_x_discrete(limits = sort(tmp1$trt, decreasing=TRUE)) +
+    xlab("Treatment") +
+    ylab(paste0(log.str, nma$scale, " relative to ",comparator, cov.str,
+                "\n(showing posterior ", central.tdcy," with 95% CrI)")) +
+    coord_flip() +
+    theme_classic() #+
+  #labs(caption = paste("note: each treatment compared to", comparator))
+  
+  if(is.null(x.trans)){
+    f.plot <- f.plot +
+      scale_y_continuous(breaks = scales::pretty_breaks(n=10 ))
+  }
+  else{
+    
+    f.plot <- f.plot +
+      scale_y_continuous(trans=x.trans,
+                         breaks = scales::pretty_breaks(n=10))
+  }
+  
+  return("forestplot"=f.plot)
+  
 }
 

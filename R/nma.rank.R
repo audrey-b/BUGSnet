@@ -8,6 +8,7 @@
 #' @param sucra.lwd Line width relative to the default (default=1) in the SUCRA plot.
 #' @param sucra.palette A string indicating the colour set from RcolorBrewer for the SUCRA plot. "set1" is great, but you may need a different colour set if 
 #' there are many treatments in your network.
+#' @param cov.value  Must be specified for meta-regression. This is the value of the covariate for which to report the results.
 #' 
 #' @return \code{ranktable} - A rank table showing the probability of each treatment being the nth best treatment.
 #' @return \code{sucratable} - A table showing the probability of each treatment being the nth best treatment or better and an overall SUCRA value for each treatment.
@@ -30,16 +31,35 @@
 nma.rank <- function(nma, 
                   largerbetter, 
                   sucra.lwd = 1.0,
-                  sucra.palette= "Set1") {
+                  sucra.palette= "Set1",
+                  cov.value=NULL) {
+  
+  if(!is.null(nma$model$covariate) & is.null(cov.value)){
+    if(nma$model$prior.beta!="EQUAL") stop("cov.value must be specified for meta-regression")
+  }
+  if(is.null(nma$model$covariate) & !is.null(cov.value)) stop("cov.value cannot be specified outside of meta-regression")
   
   x <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
+  colnames(x) <- nma$trt.key
   
-  tmp.var <- vector(mode="character", length=ncol(x) - 1)
-  for(i in 1:ncol(x)) {
-    tmp.var[i] <- i
+  if(!is.null(cov.value)){#meta-regression
+
+    betamat <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("beta."))
+    colnames(betamat) <- nma$trt.key
+
+    x <- x+betamat*(cov.value-nma$model$mean.cov)
   }
   
-colnames(x) <- nma$trt.key
+  
+  
+  #tmp.var <- vector(mode="character", length=ncol(x) - 1)
+  #for(i in 1:ncol(x)) {
+  #  tmp.var[i] <- i
+  #}
+  
+  tmp.var <- 1:ncol(x) %>% as.character()
+  
+
   
   
 x2 <- x
@@ -103,28 +123,31 @@ rankogram <- ggplot(data=x4, aes(y=prob, x=trt, fill=factor(rank)))+
   geom_bar(stat = "identity", width = 0.5) +
   scale_fill_brewer(palette="Blues")
 
+if(!is.null(cov.value)){#meta-regression
+  cov.str <- paste0(" when ",nma$model$covariate,"=",cov.value)
+}else cov.str <- ""
 
 if(largerbetter==TRUE){
   s.plot <- s.plot +
-    labs(x=paste0("Rank of Treatment",
-                  "\n(Higher ranks associated with larger outcome values)"), 
-         y="Probability of that rank or higher (%)",
+    labs(x=paste0("Ranking of Treatment",
+                  "\n(Higher rankings associated with larger outcome values)"), 
+         y=paste0("Probability ranking or better (%)", cov.str),
          color="Treatment")
   rankogram <- rankogram + labs(x=paste0("Treatment",
-                                         "\n(Higher ranks associated with larger outcome values)"), 
-                                y="Probability of rank (%)",
-                                fill="Rank")
+                                         "\n(Higher rankings associated with larger outcome values)"), 
+                                y=paste0("Probability of ranking (%)", cov.str),
+                                fill="Ranking")
     
 }else if(largerbetter==FALSE){
   s.plot <- s.plot +
-    labs(x=paste0("Rank of Treatment",
-                  "\n(Higher ranks associated with smaller outcome values)"), 
-         y="Probability of that rank or higher (%)",
+    labs(x=paste0("Ranking of Treatment",
+                  "\n(Higher rankings associated with smaller outcome values)"), 
+         y=paste0("Probability of ranking or better (%)", cov.str),
          color="Treatment")
   rankogram <- rankogram + labs(x=paste0("Treatment",
-                                         "\n(Higher ranks associated with smaller outcome values)"), 
-                                y="Probability of rank (%)",
-                                fill="Rank")
+                                         "\n(Higher rankings associated with smaller outcome values)"), 
+                                y=paste0("Probability of ranking (%)", cov.str),
+                                fill="Ranking")
 }
 
 #output sucra ranks to input into league table

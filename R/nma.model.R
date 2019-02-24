@@ -189,9 +189,9 @@ nma.model <- function(data,
     }
     
     if (!is.null(covariate)) {
-      mean.x <- mean(x, na.rm=TRUE)
-      x <- x-mean.x
-      } else{mean.x <- NULL}
+      mean.cov <- mean(x, na.rm=TRUE)
+      x <- x-mean.cov
+      } else{mean.cov <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -224,9 +224,9 @@ nma.model <- function(data,
     }
     se <- sd/sqrt(n)
     if (!is.null(covariate)) {
-      mean.x <- mean(x, na.rm=TRUE)
-      x <- x-mean.x
-    } else{mean.x <- NULL}
+      mean.cov <- mean(x, na.rm=TRUE)
+      x <- x-mean.cov
+    } else{mean.cov <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -256,9 +256,9 @@ nma.model <- function(data,
       line <- line + na[i]
     }
     if (!is.null(covariate)) {
-      mean.x <- mean(x, na.rm=TRUE)
-      x <- x-mean.x
-    } else{mean.x <- NULL}
+      mean.cov <- mean(x, na.rm=TRUE)
+      x <- x-mean.cov
+    } else{mean.cov <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -289,9 +289,9 @@ nma.model <- function(data,
       line <- line + na[i]
     }
     if (!is.null(covariate)) {
-      mean.x <- mean(x, na.rm=TRUE)
-      x <- x-mean.x
-    } else{mean.x <- NULL}
+      mean.cov <- mean(x, na.rm=TRUE)
+      x <- x-mean.cov
+    } else{mean.cov <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -447,7 +447,7 @@ nma.model <- function(data,
                    outcome=outcome,
                    N=N,
                    sd=sd,
-                   mean.x=mean.x))
+                   mean.cov=mean.cov))
   
 
 }

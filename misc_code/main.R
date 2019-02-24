@@ -81,9 +81,7 @@ random_effects_model <- nma.model(data=dich.slr,
                                   reference="SK",
                                   family="binomial",
                                   link="logit",
-                                  effects="random",
-                                  covariate="age",
-                                  prior.beta="EQUAL")
+                                  effects="random")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
 cat(random_effects_model$model)
@@ -101,15 +99,18 @@ random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev
 
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE)
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, cov.value=NULL)
 sucra.out$sucraplot
 sucra.out$rankogram
 
-nma.forest(random_effects_results, comparator="SK")
+nma.forest(random_effects_results, 
+           comparator="SK", 
+           central.tdcy = "median",
+           cov.value=40)
 nma.league(random_effects_results, 
            central.tdcy = "median", 
            order = rev(sucra.out$order),
-           x=40,
+           cov.value=40,
            log.scale = TRUE)
 
 nma.regplot(random_effects_results, x.range=c(38,84))

@@ -12,8 +12,8 @@
 nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
   
   if(is.null(x.range)){
-    x.min=min(nma$model$data$x, na.rm=TRUE) + nma$model$mean.x
-    x.max=max(nma$model$data$x, na.rm=TRUE) + nma$model$mean.x
+    x.min=min(nma$model$data$x, na.rm=TRUE) + nma$model$mean.cov
+    x.max=max(nma$model$data$x, na.rm=TRUE) + nma$model$mean.cov
     x.range=c(x.min,x.max)
   }
   
@@ -52,7 +52,7 @@ nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
   plotting_values <- left_join(summary_values %>% mutate(one=1), 
                                xvalues %>% mutate(one=1),
                                by="one") %>%
-    mutate(y= d+beta*(x-nma$model$mean.x))
+    mutate(y= d+beta*(x-nma$model$mean.cov))
   
   g <- ggplot(plotting_values, aes(x=x, y=y, group=Treatment)) +
     geom_line(aes(color=Treatment), size=lwd) +
