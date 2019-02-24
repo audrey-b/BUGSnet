@@ -1,7 +1,7 @@
 #' Run NMA model
-#' @description Takes bugs code from an object produced by \code{nma.model} and runs model using \code{rjags}.
+#' @description Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 #' 
-#' @param bugs Object produced by running \code{nma.model}.
+#' @param model Object produced by running \code{nma.model}.
 #' @param monitor A list of all variables that you would like to monitor. The default is simply the treatment
 #' effect samples ("d"). But you may want to monitor the deviance ("dev") as well.
 #' @param n.adapt Number of adaptations for the mcmc chains.
@@ -10,15 +10,15 @@
 #' @param thin Thinning factor for the mcmc chains. Default is 1.
 #' @param n.chains Number of mcmc chains. Default is 3.
 #' 
-#' @return \code{model} - A long character string containing the model that was run in \code{rjags}.
-#' @return \code{data} - The data used in the BUGS code.
+#' @return \code{model} - A long character string containing the model that was run in \code{jags}.
+#' @return \code{data} - The data used with the BUGS code.
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function.
 #' @return \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 #' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
 #' 
 
-nma.run <- function(bugs,
+nma.run <- function(model,
                          monitor=c("d"),
                          n.adapt, 
                          n.burnin, 
@@ -27,8 +27,8 @@ nma.run <- function(bugs,
                          n.chains=3){
   
   
-  jagsmodel <- jags.model(textConnection(bugs$model),
-                          bugs$data,
+  jagsmodel <- jags.model(textConnection(model$bugs),
+                          model$data,
                           n.chains=n.chains,
                           n.adapt=n.adapt)
   
@@ -43,11 +43,11 @@ nma.run <- function(bugs,
   
   # print("The baseline treatment was ...")
   
-  return(list(model=jagsmodel, 
-              samples=jagssamples, 
-              scale=bugs$scale,
-              family=bugs$family,
-              link =bugs$link,
-              "trt.key"=as.character(t(bugs$trt.key[1]))))
+  return(list(samples=jagssamples,
+              model=model, 
+              scale=model$scale,
+              family=model$family,
+              link =model$link,
+              "trt.key"=as.character(t(model$trt.key[1]))))
   
 }

@@ -14,7 +14,7 @@
 #' @return \code{order} - A vector containing the order of efficacy of treatments (from best to worst) based on their SUCRA value. This vector 
 #' is useful for ordering treatments when creating the league heat plot with \code{nma.league()}.
 #' @return \code{longtable} - A long form table of ranking probabilities and SUCRA value.
-#' @return \code{sucraplot} - A rank plot showing the probability of each treatment being the nth best treatment or better.
+#' @return \code{sucraplot} - A SUCRA plot showing the probability of each treatment being the nth best treatment or better.
 #' @return \code{rankogram} - A rankogram showing the probability of each treatment being the nth best treatment.
 
 #' 

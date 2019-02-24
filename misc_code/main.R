@@ -83,7 +83,7 @@ random_effects_model <- nma.model(data=dich.slr,
                                   link="logit",
                                   effects="random",
                                   covariate="age",
-                                  prior.beta="UNRELATED")
+                                  prior.beta="EXCHANGEABLE")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
 cat(random_effects_model$model)
@@ -91,7 +91,7 @@ sink()
 
 
 random_effects_results <- nma.run(random_effects_model,
-                                 monitor = c("d", "dev", "r", "n","totresdev","rhat","sigma"),
+                                 monitor = c("d", "dev", "r", "n","totresdev","rhat","sigma","beta"),
                                  n.adapt=1000,
                                  n.burnin=1000,
                                  n.iter=10000)
@@ -105,8 +105,10 @@ sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE)
 sucra.out$sucraplot
 sucra.out$rankogram
 
-nma.forest(random_effects_results, comparator="PLCB")
+nma.forest(random_effects_results, comparator="SK")
 nma.league(random_effects_results, central.tdcy = "median", order = rev(sucra.out$order))
+
+nma.regplot(random_effects_results, x.range=c(38,84))
 
 # Network Plots -----------------------------------------------------------
 

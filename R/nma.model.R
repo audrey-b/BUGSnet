@@ -188,7 +188,10 @@ nma.model <- function(data,
       line <- line + na[i]
     }
     
-    if (!is.null(covariate)) {x <- x-mean(x, na.rm=TRUE)}
+    if (!is.null(covariate)) {
+      mean.x <- mean(x, na.rm=TRUE)
+      x <- x-mean.x
+      } else{mean.x <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -220,7 +223,10 @@ nma.model <- function(data,
       line <- line + na[i]
     }
     se <- sd/sqrt(n)
-    if (!is.null(covariate)) {x <- x-mean(x, na.rm=TRUE)}
+    if (!is.null(covariate)) {
+      mean.x <- mean(x, na.rm=TRUE)
+      x <- x-mean.x
+    } else{mean.x <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -249,7 +255,10 @@ nma.model <- function(data,
       }
       line <- line + na[i]
     }
-    if (!is.null(covariate)) {x <- x-mean(x, na.rm=TRUE)}
+    if (!is.null(covariate)) {
+      mean.x <- mean(x, na.rm=TRUE)
+      x <- x-mean.x
+    } else{mean.x <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -279,7 +288,10 @@ nma.model <- function(data,
       }
       line <- line + na[i]
     }
-    if (!is.null(covariate)) {x <- x-mean(x, na.rm=TRUE)}
+    if (!is.null(covariate)) {
+      mean.x <- mean(x, na.rm=TRUE)
+      x <- x-mean.x
+    } else{mean.x <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -417,11 +429,26 @@ nma.model <- function(data,
       paste0(add.to.model)
   }
   
-  return(bugs=list(model=model,
+  return(model=list(bugs=model,
                    data=bugsdata2, 
                    scale=scale, 
                    trt.key=trt.key, 
                    family=family, 
-                   link=link))
+                   link=link,
+                   type=type,
+                   effects=effects,
+                   covariate=covariate,
+                   prior.mu=prior.mu,
+                   prior.d=prior.d,
+                   prior.sigma=prior.sigma,
+                   prior.beta=prior.beta,
+                   reference=reference,
+                   time=time,
+                   outcome=outcome,
+                   N=N,
+                   sd=sd,
+                   mean.x=mean.x))
+  
+
 }
 
