@@ -4,6 +4,11 @@
 #' @param bugs Object produced by running \code{nma.model}.
 #' @param monitor A list of all variables that you would like to monitor. The default is simply the treatment
 #' effect samples ("d"). But you may want to monitor the deviance ("dev") as well.
+#' @param n.adapt Number of adaptations for the mcmc chains.
+#' @param n.burnin Number of burnin iterations for the mcmc chains.
+#' @param n.iter Number of iterations for the mcmc chains.
+#' @param thin Thinning factor for the mcmc chains. Default is 1.
+#' @param n.chains Number of mcmc chains. Default is 3.
 #' 
 #' @return \code{model} - A long character string containing the model that was run in \code{rjags}.
 #' @return \code{data} - The data used in the BUGS code.

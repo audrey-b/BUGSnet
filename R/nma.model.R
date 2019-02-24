@@ -103,6 +103,18 @@ nma.model <- function(data,
                      prior.sigma = "DEFAULT",
                      prior.beta = NULL,
                      covariate = NULL){
+  
+  if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
+  if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
+  if(!is.null(prior.beta)){
+    if(!(prior.beta %in% c("UNRELATED","EQUAL","EXCHANGEABLE"))){
+      stop("prior.beta must be either UNRELATED, EQUAL, or EXCHANGEABLE")
+    }
+  }
+      
+  
+  
+  
   if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
     scale <- "OR"
   }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){

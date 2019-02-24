@@ -24,7 +24,7 @@ data.prep <- function(arm.data,
                       varname.s,
                       N
 ){
-  return(list(arm.data=arm.data,
+  return(list(arm.data=arm.data %>% mutate_if(is.factor, as.character),
               #patient.data = patient.data,
               treatments=arm.data %>% select_(varname.t) %>% unique %>% arrange_(varname.t),
               studies=arm.data %>% select_(varname.s) %>% unique %>% arrange_(varname.s),

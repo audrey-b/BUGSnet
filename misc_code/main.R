@@ -15,7 +15,7 @@ library(readxl)
 load_all(path = paste0(path,"R"))
 
 
-rawdata <- read_excel(paste0(path,"data","\\","continuous_example.xlsx"))
+rawdata <- read_excel(paste0(path,"data","\\","rate_example.xlsx"))
 rawdata <- read_excel("data/continuous_example.xlsx", 
                                                  col_types = c("text", "numeric", "numeric", 
                                                                          "text", "text", "numeric", "numeric", 
@@ -25,8 +25,8 @@ rawdata <- read_excel("data/continuous_example.xlsx",
                                                                          "numeric", "numeric", "numeric", 
                                                                          "numeric", "numeric"))
 dich.slr <- data.prep(arm.data = rawdata,
-                      varname.t = "trt_name",
-                      varname.s = "trialstudy",
+                      varname.t = "Treatment",
+                      varname.s = "Study",
                       N = "n")
 
 
@@ -66,22 +66,24 @@ network.char$comparison
 #NMA
 
 fixed_effects_model <- nma.model(data=dich.slr,
-                                 outcome="y",
-                                 N="n",
-                                 sd="sd",
-                                 reference="PLCB",
-                                 family="normal",
-                                 link="identity",
-                                 effects="fixed")
+                                 outcome="responders",
+                                 N="sampleSize",
+                                 reference="SK",
+                                 family="binomial",
+                                 link="logit",
+                                 effects="fixed",
+                                 covariate="age",
+                                 prior.beta="UNRELATED")
 
 random_effects_model <- nma.model(data=dich.slr,
-                                  outcome="y",
-                                  N="n",
-                                  sd="sd",
-                                  reference="PLCB",
-                                  family="normal",
-                                  link="identity",
-                                  effects="random")
+                                  outcome="responders",
+                                  N="sampleSize",
+                                  reference="SK",
+                                  family="binomial",
+                                  link="logit",
+                                  effects="random",
+                                  covariate="age",
+                                  prior.beta="UNRELATED")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
 cat(random_effects_model$model)
@@ -99,10 +101,11 @@ random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev
 
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Dark2")
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE)
 sucra.out$sucraplot
+sucra.out$rankogram
 
-nma.forest(random_effects_results, comparator="SK", x.trans="log")
+nma.forest(random_effects_results, comparator="PLCB")
 nma.league(random_effects_results, central.tdcy = "median", order = rev(sucra.out$order))
 
 # Network Plots -----------------------------------------------------------
