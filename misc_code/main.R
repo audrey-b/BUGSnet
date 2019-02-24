@@ -83,7 +83,7 @@ random_effects_model <- nma.model(data=dich.slr,
                                   link="logit",
                                   effects="random",
                                   covariate="age",
-                                  prior.beta="EXCHANGEABLE")
+                                  prior.beta="EQUAL")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
 cat(random_effects_model$model)
@@ -106,7 +106,11 @@ sucra.out$sucraplot
 sucra.out$rankogram
 
 nma.forest(random_effects_results, comparator="SK")
-nma.league(random_effects_results, central.tdcy = "median", order = rev(sucra.out$order))
+nma.league(random_effects_results, 
+           central.tdcy = "median", 
+           order = rev(sucra.out$order),
+           x=40,
+           log.scale = TRUE)
 
 nma.regplot(random_effects_results, x.range=c(38,84))
 

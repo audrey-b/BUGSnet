@@ -10,7 +10,7 @@
 #' @param thin Thinning factor for the mcmc chains. Default is 1.
 #' @param n.chains Number of mcmc chains. Default is 3.
 #' 
-#' @return \code{model} - A long character string containing the model that was run in \code{jags}.
+#' @return \code{model} - The object obtained from \code{nma.model} that was used to run \code{jags}.
 #' @return \code{data} - The data used with the BUGS code.
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function.
 #' @return \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.

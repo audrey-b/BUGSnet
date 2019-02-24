@@ -3,11 +3,11 @@ extract.names <- function(string){
     as.character
 }
 
-calc.report <- function(x, fct="identity", arg=NULL, trans="identity", digits=16){
+calc.report <- function(x, fct="identity", arg=NULL, trans="identity"){
   if(is.null(arg)){
-    round(eval(call(fct,(call(trans, x)))), digits)
+    eval(call(fct,(call(trans, x))))
     } else 
-      round(eval(call(fct,(call(trans, x)), arg)), digits)
+      eval(call(fct,(call(trans, x)), arg))
 }
 
 exp.mean <- function(x) calc.report(x, "mean", trans="exp")
@@ -16,20 +16,8 @@ exp.sd <- function(x) calc.report(x, "sd", trans="exp")
 exp.lci <- function(x) calc.report(x, "quantile", arg=0.025, trans="exp")
 exp.uci <- function(x) calc.report(x, "quantile", arg=0.975, trans="exp")
 
-exp.mean.round <- function(x) calc.report(x, "mean", trans="exp", digits=2)
-exp.median.round <- function(x) calc.report(x, "median", trans="exp", digits=2)
-exp.sd.round <- function(x) calc.report(x, "sd", trans="exp", digits=2)
-exp.lci.round <- function(x) calc.report(x, "quantile", arg=0.025, trans="exp", digits=2)
-exp.uci.round <- function(x) calc.report(x, "quantile", arg=0.975, trans="exp", digits=2)
-
 id.mean <- function(x) calc.report(x, "mean", trans="identity")
 id.median <- function(x) calc.report(x, "median", trans="identity")
 id.sd <- function(x) calc.report(x, "sd", trans="identity")
 id.lci <- function(x) calc.report(x, "quantile", arg=0.025, trans="identity")
 id.uci <- function(x) calc.report(x, "quantile", arg=0.975, trans="identity")
-
-mean.round <- function(x) calc.report(x, "mean", trans="identity", digits=2)
-median.round <- function(x) calc.report(x, "median", trans="identity", digits=2)
-sd.round <- function(x) calc.report(x, "sd", trans="identity", digits=2)
-lci.round <- function(x) calc.report(x, "quantile", arg=0.025, trans="identity", digits=2)
-uci.round <- function(x) calc.report(x, "quantile", arg=0.975, trans="identity", digits=2)
