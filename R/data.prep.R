@@ -24,11 +24,20 @@ data.prep <- function(arm.data,
                       varname.s,
                       N
 ){
-  return(list(arm.data=arm.data %>% mutate_if(is.factor, as.character),
+  
+  varname.t.quo <- quo(!! as.name(varname.t))
+  varname.s.quo <- quo(!! as.name(varname.s))
+  
+  
+  arm.data %<>% mutate(!! varname.t.quo := as.character(!! varname.t.quo),
+                       !! varname.s.quo := as.character(!! varname.s.quo))
+  
+  
+  return(list(arm.data=arm.data,
               #patient.data = patient.data,
-              treatments=arm.data %>% select_(varname.t) %>% unique %>% arrange_(varname.t),
-              studies=arm.data %>% select_(varname.s) %>% unique %>% arrange_(varname.s),
-              n.arms= arm.data %>% group_by_(varname.s) %>% summarize(n.arms = n()) %>% ungroup() %>% arrange,
+              treatments=arm.data %>% select(varname.t) %>% unique %>% arrange(!! varname.t.quo),
+              studies=arm.data %>% select(varname.s) %>% unique %>% arrange(!! varname.s.quo),
+              n.arms= arm.data %>% group_by(!! varname.s.quo) %>% summarize(n.arms = n()) %>% ungroup() %>% arrange,
               varname.t = varname.t,
               varname.s = varname.s)
   )
