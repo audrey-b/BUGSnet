@@ -4,7 +4,6 @@
 #' @param arm.data Data with 1 row for each study arm.
 #' @param varname.t A string indicating the name of the treatment variable.
 #' @param varname.s A string indicating the name of the study variable.
-#' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' 
 #' @return \code{arm.data} - A tibble containing the arm level study data
 #' @return \code{treatments} - A list of all treatments in the network
@@ -21,8 +20,7 @@
 data.prep <- function(arm.data,
                       #patient.data = NULL,
                       varname.t,
-                      varname.s,
-                      N
+                      varname.s
 ){
   
   varname.t.quo <- quo(!! as.name(varname.t))

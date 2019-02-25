@@ -40,8 +40,7 @@ Before any analysis is done, we need to put our data in a form that BUGSnet can 
 ``` {r}
 rate2.slr <- data.prep(arm.data = diabetes,
                      varname.t = "Treatment",
-                     varname.s = "Study",
-                     N = "n")
+                     varname.s = "Study")
 ```
 
 We will use this `data.prep` object throughout the rest of our example.
