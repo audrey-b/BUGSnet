@@ -25,8 +25,8 @@ rawdata <- read_excel("data/continuous_example.xlsx",
                                                                          "numeric", "numeric", "numeric", 
                                                                          "numeric", "numeric"))
 dich.slr <- data.prep(arm.data = rawdata,
-                      varname.t = "Treatment",
-                      varname.s = "Study",
+                      varname.t = "trt_name",
+                      varname.s = "trial",
                       N = "n")
 
 

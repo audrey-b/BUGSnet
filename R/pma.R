@@ -90,7 +90,7 @@ pma <- function(data,
   }
   
   if(type.outcome %in% c("bin","binom","binomial","binary")){ 
-    pairwise.dat <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome=type.outcome, N=N)
+    pairwise.dat <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome="binomial", N=N)
     
     pairwise.dat.with.c <- pairwise.dat %>% 
       filter(grepl(name.trt1, comparison)) %>%

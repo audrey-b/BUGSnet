@@ -154,9 +154,7 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   
   if ("n" %in% colnames(data.nma$arm.data)) {
   n.studies <- data.nma$arm.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
-  }
-  
-  else {
+  } else {
     n.studies <- data.nma$arm.data %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
   }
   

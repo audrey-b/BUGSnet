@@ -18,8 +18,10 @@
 
 net.plot <- function(data,
                          node.scale=5, 
-                         edge.scale=2, flag=NULL, 
-                         label.offset1=0, label.offset2=1, 
+                         edge.scale=2, 
+                     flag=NULL, 
+                         label.offset1=0, 
+                     label.offset2=1, 
                          graph.scale=T,
                          node.lab.cex = 1,
                          edge.lab.cex = 1,
@@ -92,8 +94,7 @@ net.plot <- function(data,
         
         vertex.label.dist=lab.offset,
         vertex.label.degree=lab.locs) 
-   }
-   else if (graph.scale==F) {
+   }else if (graph.scale==F) {
      plot(net, 
           vertex.size=node.scale,
           edge.width=edge.scale,
@@ -112,8 +113,7 @@ net.plot <- function(data,
           vertex.label.degree=lab.locs,
           rescale = FALSE)
      
-   }
- else
+   }else{
      
  plot(net, 
       vertex.label=V(net)$trt, 
@@ -132,6 +132,7 @@ net.plot <- function(data,
       vertex.label.degree=lab.locs,
       
       vertex.label.cex = node.lab.cex)
+   }
   
 }
 
