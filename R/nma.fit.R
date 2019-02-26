@@ -63,15 +63,15 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
       slice(rep(1:n(), each = nrow(rhat)))
     pmdev_fitted <- 2*((thetatilde-r) + r*log(r/thetatilde))[1,]
   } else if (nma$family == "normal"){
-      theta <- samples %>% select(., starts_with("theta"))
-      y <- samples %>% select(., starts_with("y"))
+      rhat <- samples %>% select(., starts_with("theta"))
+      r <- samples %>% select(., starts_with("y"))
       prec <- samples %>% select(., starts_with("prec"))
-      ytilde <- y %>%
+      ytilde <- rhat %>%
         colMeans() %>%
         matrix(nrow=1, ncol=ncol(rhat)) %>%
         data.frame() %>%
-        slice(rep(1:n(), each = nrow(y)))
-      pmdev_fitted <- ((ytilde-theta)*(ytilde-theta)*prec)[1,]
+        slice(rep(1:n(), each = nrow(rhat)))
+      pmdev_fitted <- ((r-ytilde)*(r-ytilde)*prec)[1,]
   }
   
   
@@ -89,7 +89,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   c1=eq(x, c=rep(1, 6001))
   
   plot(w, leverage, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
-       ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
+        ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
   points(x, ifelse(c1 < 0, NA, c1),   lty=1, col="firebrick3",    type="l")
   points(x, ifelse(c1 < -1, NA, c1)+1, lty=2, col="chartreuse4",   type="l")
   points(x, ifelse(c1 < -2, NA, c1)+2, lty=3, col="mediumpurple3", type="l")
