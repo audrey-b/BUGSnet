@@ -385,16 +385,16 @@ nma.model <- function(data,
       }else if(prior.beta=="EXCHANGEABLE"){
     prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
-      beta[k] ~ dnorm(b, gamma^{-2})
+      beta[k] ~ dnorm(b, gamma^(-2))
     }
-    b~dt(0, (%s)^(-2), 1)
+    b~dt(0, %s^(-2), 1)
     gamma~dunif(0, %s)", max.delta, max.delta)
     }else if(prior.beta=="EQUAL"){
     prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
       beta[k] <- B
     }
-    B~dt(0, (%s)^(-2), 1)", max.delta)
+    B~dt(0, %s^(-2), 1)", max.delta)
   }else {
     prior.meta.reg <- prior.beta
   }

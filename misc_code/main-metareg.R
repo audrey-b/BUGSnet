@@ -19,14 +19,18 @@ regressor <- list(coefficient='exchangeable',
                   variable='stroke',
                   control="02")
 gemtc_model <- mtc.model(atrialFibrillation,
-                   type="consistency",
+                   type="regression",
                    link="logit",
                    likelihood="binom",
-                   linearModel = "random")
+                   linearModel = "random",
+                   regressor=regressor)
 gemtc_results <- mtc.run(gemtc_model, 
         n.adapt = 1000, 
         n.iter = 50000, 
         thin = 1)
+
+gemtc_leaguetable <- relative.effect.table(gemtc_results, covariate=0.1) %>% as.data.frame()
+write.csv(gemtc_leaguetable, "gemtc_leaguetable.csv")
 
 png("gemtcplots%02d.png")
 plot(gemtc_results)
@@ -59,7 +63,9 @@ random_effects_model <- nma.model(data=dataprep,
                                   reference="02",
                                   family="binomial",
                                   link="logit",
-                                  effects="random")
+                                  effects="random",
+                                  covariate="stroke",
+                                  prior.beta="EXCHANGEABLE")
 bugsnet_results <- nma.run(random_effects_model,
                            monitor=c("d","beta","sigma"),
                            n.iter=50000,
@@ -69,19 +75,17 @@ bugsnet_results <- nma.run(random_effects_model,
 random_effects_model$bugs %>% cat
 
 
+bugsnet_league <- nma.league(bugsnet_results, cov.value=0.1, log.scale = TRUE)
+bugsnet_league$table
+write.csv(bugsnet_league$table, "bugsnet_leaguetable.csv")
 
-random_effects_results <- nma.run(random_effects_model,
-                                 monitor = c("d", "dev", "r", "n","totresdev","rhat","sigma","beta"),
-                                 n.adapt=1000,
-                                 n.burnin=1000,
-                                 n.iter=10000)
 
 random_effects_fit <- nma.fit(random_effects_results, main = "Random Effects Model" )
 random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev
 
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, cov.value=NULL)
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, cov.value=0.1)
 sucra.out$sucraplot
 sucra.out$rankogram
 
