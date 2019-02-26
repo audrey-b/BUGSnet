@@ -32,9 +32,9 @@
 #' @details 
 #' For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
 #' \describe{
-#'   \item{Unrelated:}{\deqn{iid N(0, (15u)^2)}}
-#'   \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ N(0, (15u)^2), \gamma ~ U(0,u)}}
-#'   \item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ N(0, (15u)^2)}}
+#'   \item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
+#'   \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
+#'   \item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ t(0, u^2, 1)}}
 #' }
 #' where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' 
@@ -380,21 +380,21 @@ nma.model <- function(data,
     if (prior.beta=="UNRELATED"){
       prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
-      beta[k] ~ dnorm(0, (%s*15)^(-2))
+      beta[k] ~ dt(0, (%s)^(-2), 1)
     }", max.delta)
       }else if(prior.beta=="EXCHANGEABLE"){
     prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
-      beta[k] ~ dnorm(b, gamma)
+      beta[k] ~ dnorm(b, gamma^{-2})
     }
-    b~dnorm(0, (%s*15)^(-2))
+    b~dt(0, (%s)^(-2), 1)
     gamma~dunif(0, %s)", max.delta, max.delta)
     }else if(prior.beta=="EQUAL"){
     prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
       beta[k] <- B
     }
-    B~dnorm(0, (%s*15)^(-2))", max.delta)
+    B~dt(0, (%s)^(-2), 1)", max.delta)
   }else {
     prior.meta.reg <- prior.beta
   }
