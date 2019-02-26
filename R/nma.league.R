@@ -10,7 +10,7 @@
 #' @param high.colour A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).
 #' @param cov.value  Must be specified for meta-regression. This is the value of the covariate for which to report the results.
 #' 
-#' @return \code{table} - League table.
+#' @return \code{table} - A league table. Row names indicate comparator treatments.
 #' @return \code{longtable} - League table in the long format.
 #' @return \code{heatplot} - League heat plot, where a color scale is used to represent relative treatment effects and ** are used to highlight statistically significant differences.
 #' 
@@ -194,14 +194,14 @@ league.heat.plot <- function(leaguetable,
                              high.colour = "springgreen4",
                              midpoint){
   
-  if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
+  #if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
   
   league.tmp <- leaguetable%>%filter(Treatment != Comparator)
   
   if(central.tdcy=="mean"){
-    heatplot <- ggplot(data = league.tmp, aes(dmat=Treatment, y=Comparator, fill=mean)) + 
+    heatplot <- ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=mean)) + 
       geom_tile()+
-      coord_flip()+
+      #coord_flip()+
       geom_text(aes(label = 
                       ifelse(((midpoint<lci & midpoint< uci) | (midpoint>lci & midpoint> uci)),
                              ifelse(Treatment!=Comparator, paste0("**", formatC(mean, 2), "**", "\n", "(",formatC(lci, 2), ", ", formatC(uci, 2),")"), " "),
@@ -210,7 +210,7 @@ league.heat.plot <- function(leaguetable,
   } else if(central.tdcy=="median"){
     heatplot <- ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=median)) + 
       geom_tile()+
-      coord_flip()+
+      #coord_flip()+
       geom_text(aes(label = 
                       ifelse(((midpoint<lci & midpoint< uci) | (midpoint>lci & midpoint> uci)),
                              ifelse(Treatment!=Comparator, paste0("**", formatC(median, 2), "**", "\n", "(",formatC(lci, 2), ", ", formatC(uci, 2),")"), " "),
@@ -225,8 +225,8 @@ league.heat.plot <- function(leaguetable,
           legend.position="none", panel.border=element_blank(),
           axis.ticks.x=element_blank(),
           axis.ticks.y=element_blank())+
-    scale_x_discrete(limits = order, expand = c(0, 0)) +
-    scale_y_discrete(limits = order, expand = c(0, 0)) 
+    scale_x_discrete(limits = order, expand = c(0, 0), position="top") +
+    scale_y_discrete(limits = rev(order), expand = c(0, 0)) 
   
   return(heatplot)
 }

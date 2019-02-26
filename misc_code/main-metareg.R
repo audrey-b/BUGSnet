@@ -1,0 +1,103 @@
+#source("misc_code/load.packages.R")
+#source("R/functions.R")
+pathA <-"C:/Users/audre/Documents/Compile BUGSnet/BUGSnet/"
+sepA <- "/"
+pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
+sepJ <- "\\"
+path <- pathA
+sep <- sepA
+source(paste0(path,"misc_code",sep,"load.packages.R"))
+library(devtools)
+library(roxygen2)
+library(gemtc)
+library(knitr)
+library(readxl)
+load_all(path = paste0(path,"R"))
+
+
+regressor <- list(coefficient='exchangeable',
+                  variable='stroke',
+                  control="02")
+gemtc_model <- mtc.model(atrialFibrillation,
+                   type="regression",
+                   link="logit",
+                   likelihood="binom",
+                   linearModel = "random",
+                   regressor=regressor)
+gemtc_results <- mtc.run(gemtc_model, 
+        n.adapt = 1000, 
+        n.iter = 50000, 
+        thin = 1)
+
+gemtc_leaguetable <- relative.effect.table(gemtc_results, covariate=0.1) %>% as.data.frame()
+write.csv(gemtc_leaguetable, "gemtc_leaguetable.csv")
+
+png("gemtcplots%02d.png")
+plot(gemtc_results)
+graphics.off()
+
+gemtc_model$code %>% cat
+gemtc_model$om.scale^(-2)
+(15*gemtc_model$om.scale)^(-2)
+
+
+
+#plotCovariateEffect(gemtc_results, 
+ #                   atrialFibrillation$data.ab$treatment %>% unique, 
+  #                  atrialFibrillation$data.ab$treatment %>% unique, 
+   #                 xlim=NULL, 
+    #                ylim=NULL, 
+     #               ask=dev.interactive(orNone=TRUE))
+
+
+rawdata <- atrialFibrillation$data.ab %>%
+  left_join(atrialFibrillation$studies, by="study")
+
+dataprep <- data.prep(arm.data = rawdata,
+                      varname.t = "treatment",
+                      varname.s = "study")
+
+random_effects_model <- nma.model(data=dataprep,
+                                  outcome="responders",
+                                  N="sampleSize",
+                                  reference="02",
+                                  family="binomial",
+                                  link="logit",
+                                  effects="random",
+                                  covariate="stroke",
+                                  prior.beta="EXCHANGEABLE")
+bugsnet_results <- nma.run(random_effects_model,
+                           monitor=c("d","beta","sigma"),
+                           n.iter=50000,
+                           n.adapt=1000,
+                           n.burnin=0)
+
+random_effects_model$bugs %>% cat
+
+
+bugsnet_league <- nma.league(bugsnet_results, cov.value=0.1, log.scale = TRUE)
+bugsnet_league$table
+write.csv(bugsnet_league$table, "bugsnet_leaguetable.csv")
+
+
+random_effects_fit <- nma.fit(random_effects_results, main = "Random Effects Model" )
+random_effects_fit$DIC
+random_effects_fit$pD
+random_effects_fit$pmdev
+
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, cov.value=0.1)
+sucra.out$sucraplot
+sucra.out$rankogram
+
+nma.forest(random_effects_results, 
+           comparator="SK", 
+           central.tdcy = "median",
+           cov.value=40)
+nma.league(random_effects_results, 
+           central.tdcy = "median", 
+           order = rev(sucra.out$order),
+           cov.value=40,
+           log.scale = TRUE)
+
+nma.regplot(random_effects_results, x.range=c(38,84))
+

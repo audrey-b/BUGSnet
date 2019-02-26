@@ -33,8 +33,7 @@ fatdiet <- read_excel(paste0(path,"data","\\","rate_example.xlsx"))
 ``` {r}
 rate.slr <- data.prep(arm.data = fatdiet,
                      varname.t = "Treatment",
-                     varname.s = "Study",
-                     N = "n")
+                     varname.s = "Study")
 ```
 
 ##Feasibility Assessment

@@ -14,8 +14,8 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
     names(table)[names(table) == paste0(N,".c")] <- "N.c"
     
     deltas <- table %>% 
-      mutate(adj_r.e = outcome.e/N.e + 0.5, # add 0.5 to ensure ratio is non-zero
-             adj_r.c = outcome.c/N.c + 0.5) %>%
+      mutate(adj_r.e = (outcome.e+0.5)/(N.e + 1), # add 0.5 to ensure ratio is non-zero
+             adj_r.c = (outcome.c+0.5)/(N.c + 1)) %>%
       mutate(theta.e = log(adj_r.e/(1-adj_r.e)),
              theta.c = log(adj_r.c/(1-adj_r.c))) %>%
       mutate(delta = theta.e-theta.c) %>%
@@ -26,8 +26,8 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
     names(table)[names(table) == paste0(N,".c")] <- "N.c"
     
     deltas <- table %>% 
-      mutate(adj_r.e = outcome.e/N.e + 0.5,
-             adj_r.c = outcome.c/N.c + 0.5) %>%
+      mutate(adj_r.e = (outcome.e+0.5)/(N.e + 1),
+             adj_r.c = (outcome.c+0.5)/(N.c + 1)) %>%
       mutate(theta.e = log(adj_r.e),
              theta.c = log(adj_r.c)) %>%
       mutate(delta = theta.e-theta.c) %>%
@@ -46,8 +46,8 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
     names(table)[names(table) == paste0(time,".c")] <- "time.c"
     
     deltas <- table %>% 
-      mutate(adj_r.e = outcome.e/(N.e*time.e) + 0.5,
-             adj_r.c = outcome.c/(N.c*time.c) + 0.5) %>%
+      mutate(adj_r.e = (outcome.e+0.5)/((N.e+1)*time.e),
+             adj_r.c = (outcome.c+0.5)/((N.c+1)*time.c)) %>%
       mutate(theta.e = log(-log(adj_r.e)),
              theta.c = log(-log(adj_r.c))) %>%
       mutate(delta = theta.e-theta.c) %>%
@@ -58,8 +58,8 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
     names(table)[names(table) == paste0(time,".c")] <- "time.c"
     
     deltas <- table %>% 
-      mutate(adj_r.e = outcome.e/(time.e) + 0.5,
-             adj_r.c = outcome.c/(time.c) + 0.5) %>%
+      mutate(adj_r.e = (outcome.e+0.5)/(time.e+1),
+             adj_r.c = (outcome.c+0.5)/(time.c+1)) %>%
       mutate(theta.e = log(adj_r.e),
              theta.c = log(adj_r.c)) %>%
       mutate(delta = theta.e-theta.c) %>%

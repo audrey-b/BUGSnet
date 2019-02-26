@@ -35,13 +35,7 @@ age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
 
 dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
                      varname.t = "treatment",
-                     varname.s = "study",
-                     N = "sampleSize")
-
-#ensure that treatment and study variables are both of class character
-dich.slr$arm.data$treatment <- as.character(dich.slr$arm.data$treatment)
-dich.slr$arm.data$study <- as.character(dich.slr$arm.data$study)
-
+                     varname.s = "study")
 ```
 
 ##Feasibility Assessment

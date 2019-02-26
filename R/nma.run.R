@@ -21,7 +21,7 @@
 nma.run <- function(model,
                          monitor=c("d"),
                          n.adapt, 
-                         n.burnin, 
+                         n.burnin=0, 
                          n.iter, 
                          thin=1,
                          n.chains=3){
@@ -32,8 +32,7 @@ nma.run <- function(model,
                           n.chains=n.chains,
                           n.adapt=n.adapt)
   
-  jagsburnin <- update(jagsmodel,
-                       n.iter=n.burnin)
+  if(n.burnin!=0) jagsburnin <- update(jagsmodel, n.iter=n.burnin)
   
   jagssamples <- coda.samples(jagsmodel, 
                               variable.names=monitor,
