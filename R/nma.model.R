@@ -189,7 +189,7 @@ nma.model <- function(data,
     }
     
     if (!is.null(covariate)) {
-      mean.cov <- mean(x, na.rm=TRUE)
+      mean.cov <- mean(x[,1], na.rm=TRUE)
       x <- x-mean.cov
       } else{mean.cov <- NULL}
     

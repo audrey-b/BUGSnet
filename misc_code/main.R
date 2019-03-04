@@ -26,8 +26,7 @@ rawdata <- read_excel("data/continuous_example.xlsx",
                                                                          "numeric", "numeric"))
 dich.slr <- data.prep(arm.data = rawdata,
                       varname.t = "trt_name",
-                      varname.s = "trial",
-                      N = "n")
+                      varname.s = "trial")
 
 
 # Import data --------------------------------------------------------
@@ -35,8 +34,7 @@ age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
 
 dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
                       varname.t = "treatment",
-                      varname.s = "study",
-                      N = "sampleSize")
+                      varname.s = "study")
 
 #ensure that treatment and study variables are both of class character
 dich.slr$arm.data$treatment <- as.character(dich.slr$arm.data$treatment)
@@ -54,8 +52,8 @@ pma(data = dich.slr,
 net.plot(dich.slr,  flag="PLCB", node.scale = 1.5, edge.scale=0.5, label.offset1 = 4, label.offset2 = 4)
 
 network.char <- net.tab(data = dich.slr,
-                        outcome = "y",
-                        N = "n",
+                        outcome = "responders",
+                        N = "sampleSize",
                         type.outcome = "continuous",
                         time = NULL)
 
@@ -69,6 +67,7 @@ fixed_effects_model <- nma.model(data=dich.slr,
                                  outcome="responders",
                                  N="sampleSize",
                                  reference="SK",
+                                 type="inconsistency",
                                  family="binomial",
                                  link="logit",
                                  effects="fixed",
@@ -78,6 +77,7 @@ fixed_effects_model <- nma.model(data=dich.slr,
 random_effects_model <- nma.model(data=dich.slr,
                                   outcome="responders",
                                   N="sampleSize",
+                                  type="inconsistency",
                                   reference="SK",
                                   family="binomial",
                                   link="logit",
@@ -105,12 +105,9 @@ sucra.out$rankogram
 
 nma.forest(random_effects_results, 
            comparator="SK", 
-           central.tdcy = "median",
-           cov.value=40)
+           central.tdcy = "median")
 nma.league(random_effects_results, 
-           central.tdcy = "median", 
-           order = rev(sucra.out$order),
-           cov.value=40,
+           central.tdcy = "median",
            log.scale = TRUE)
 
 nma.regplot(random_effects_results, x.range=c(38,84))

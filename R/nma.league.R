@@ -29,6 +29,10 @@ nma.league <- function(nma,
   
   if(!is.null(nma$model$covariate) & is.null(cov.value)) stop("cov.value must be specified for meta-regression")
   
+  if(nma$model$type=="inconsistency") {
+    stop('This function has not been implemented yet for the inconsistency model.')
+  } 
+  
   dmat <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
   trt.names <- nma$trt.key
   colnames(dmat) <- trt.names

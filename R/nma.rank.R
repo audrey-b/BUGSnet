@@ -39,6 +39,10 @@ nma.rank <- function(nma,
   }
   if(is.null(nma$model$covariate) & !is.null(cov.value)) stop("cov.value cannot be specified outside of meta-regression")
   
+  if(nma$model$type=="inconsistency") {
+    stop('This function has not been implemented yet for the inconsistency model.')
+  } 
+  
   x <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
   colnames(x) <- nma$trt.key
   

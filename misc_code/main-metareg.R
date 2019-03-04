@@ -30,11 +30,36 @@ gemtc_results <- mtc.run(gemtc_model,
         thin = 1)
 
 gemtc_leaguetable <- relative.effect.table(gemtc_results, covariate=0.1) %>% as.data.frame()
+#write.csv(gemtc_leaguetable, "gemtc_leaguetable.csv")
+
+conv_exp <- function(x) {
+  strsplit(x, split="[ \\(\\),]")[[1]][c(1,3,5)] %>% #split into mean, lower, upper
+    as.numeric %>%
+    exp() %>%
+    formatC(digits=2, format= "f") %>% #keep two decimals
+    str_c(c(" (", ", ", ")")) %>% #put back into string
+    paste0(collapse="") %>% #put back into string
+    return()
+}
+
+library(stringr)
+for(i in 1:length(gemtc_leaguetable)){
+  for(j in (1:length(gemtc_leaguetable))[-i]){
+    gemtc_leaguetable[i,j] %<>% conv_exp()
+  }
+}
 write.csv(gemtc_leaguetable, "gemtc_leaguetable.csv")
 
-png("gemtcplots%02d.png")
-plot(gemtc_results)
-graphics.off()
+
+forest(relative.effect(gemtc_results, "02"))
+
+gemtc_ranks <- rank.probability(gemtc_results)
+plot(gemtc_ranks)
+plot(gemtc_ranks, beside=TRUE) 
+
+#png("gemtcplots%02d.png")
+#plot(gemtc_results)
+#graphics.off()
 
 gemtc_model$code %>% cat
 gemtc_model$om.scale^(-2)
@@ -80,24 +105,24 @@ bugsnet_league$table
 write.csv(bugsnet_league$table, "bugsnet_leaguetable.csv")
 
 
-random_effects_fit <- nma.fit(random_effects_results, main = "Random Effects Model" )
+random_effects_fit <- nma.fit(bugsnet_results, main = "Random Effects Model" )
 random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev
 
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, cov.value=0.1)
+sucra.out <- nma.rank(bugsnet_results, largerbetter=FALSE, cov.value=0.1)
 sucra.out$sucraplot
 sucra.out$rankogram
 
-nma.forest(random_effects_results, 
+nma.forest(bugsnet_results, 
            comparator="SK", 
            central.tdcy = "median",
-           cov.value=40)
-nma.league(random_effects_results, 
+           cov.value=0.1)
+nma.league(bugsnet_results, 
            central.tdcy = "median", 
            order = rev(sucra.out$order),
-           cov.value=40,
+           cov.value=0.1,
            log.scale = TRUE)
 
-nma.regplot(random_effects_results, x.range=c(38,84))
+nma.regplot(bugsnet_results, x.range=c(0.1,1))
 
