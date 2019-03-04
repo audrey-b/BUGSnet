@@ -157,7 +157,7 @@ sucra.out$sucraplot
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effects_results,  
                          central.tdcy="median",
-                         order = rev(sucra.out$order))
+                         order = sucra.out$order)
 league.out$heatplot
 ```
 

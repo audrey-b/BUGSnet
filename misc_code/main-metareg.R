@@ -99,28 +99,32 @@ bugsnet_results <- nma.run(random_effects_model,
 
 random_effects_model$bugs %>% cat
 
+png("bugsnetplots%02d.png", width=2000, height=2000)
+nma.trace(bugsnet_results)
+graphics.off()
 
-bugsnet_league <- nma.league(bugsnet_results, cov.value=0.1, log.scale = TRUE)
+bugsnet_league <- nma.league(bugsnet_results, cov.value=0.1, log.scale = FALSE)
 bugsnet_league$table
 write.csv(bugsnet_league$table, "bugsnet_leaguetable.csv")
 
 
-random_effects_fit <- nma.fit(bugsnet_results, main = "Random Effects Model" )
-random_effects_fit$DIC
-random_effects_fit$pD
-random_effects_fit$pmdev
+#random_effects_fit <- nma.fit(bugsnet_results, main = "Random Effects Model" )
+#random_effects_fit$DIC
+#random_effects_fit$pD
+#random_effects_fit$pmdev
 
 sucra.out <- nma.rank(bugsnet_results, largerbetter=FALSE, cov.value=0.1)
 sucra.out$sucraplot
 sucra.out$rankogram
 
 nma.forest(bugsnet_results, 
-           comparator="SK", 
+           comparator="02", 
            central.tdcy = "median",
            cov.value=0.1)
+
 nma.league(bugsnet_results, 
            central.tdcy = "median", 
-           order = rev(sucra.out$order),
+           order = sucra.out$order,
            cov.value=0.1,
            log.scale = TRUE)
 
