@@ -53,8 +53,7 @@ nma.rank <- function(nma,
 
     x <- x+betamat*(cov.value-nma$model$mean.cov)
   }
-  
-  
+
   
   #tmp.var <- vector(mode="character", length=ncol(x) - 1)
   #for(i in 1:ncol(x)) {
@@ -117,10 +116,21 @@ order <- sucra.table[dim(sucra.table)[1],] %>%
 
 long.table <- x5
 
+##Extend color palette if necessary
+n.trts <- length(nma$trt.key)
+max.colors <- brewer.pal.info[sucra.palette,]$maxcolors
+
+if (max.colors < n.trts){
+  tmp.colors <- brewer.pal(max.colors, sucra.palette)
+  plot.colors <- colorRampPalette(tmp.colors)(n.trts)
+} else{
+  plot.colors <- brewer.pal(n.trts, sucra.palette)
+}
+
 s.plot <- ggplot(data=x5, aes(x=factor(rank), y=cumprob, group=trt)) +
   geom_line(aes(color=trt), size=sucra.lwd) +
   geom_point(aes(color=trt)) +
-  scale_color_manual(values = brewer.pal(n = length(nma$trt.key), name = sucra.palette))+
+  scale_color_manual(values = plot.colors)+
   theme_bw()
 
 rankogram <- ggplot(data=x4, aes(y=prob, x=trt, fill=factor(rank)))+ 
