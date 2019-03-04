@@ -54,9 +54,20 @@ nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
                                by="one") %>%
     mutate(y= d+beta*(x-nma$model$mean.cov))
   
+  ##Extend color palette if necessary
+  n.trts <- dim(d.vec)[1]
+  max.colors <- brewer.pal.info[palette,]$maxcolors
+  
+  if (max.colors < n.trts){
+    tmp.colors <- brewer.pal(max.colors, palette)
+    plot.colors <- colorRampPalette(tmp.colors)(n.trts)
+  } else{
+    plot.colors <- brewer.pal(n.trts, palette)
+  }
+  
   g <- ggplot(plotting_values, aes(x=x, y=y, group=Treatment)) +
     geom_line(aes(color=Treatment), size=lwd) +
-    scale_color_manual(values = brewer.pal(n = dim(d.vec)[1], name = palette))+
+    scale_color_manual(values = plot.colors)+
     theme_bw() +
     labs(x=paste0("Values of the covariate ", nma$model$covariate), 
          y=paste0("Effect relative to ",

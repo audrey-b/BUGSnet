@@ -19,15 +19,15 @@ regressor <- list(coefficient='exchangeable',
                   variable='stroke',
                   control="02")
 gemtc_model <- mtc.model(atrialFibrillation,
-                   type="regression",
-                   link="logit",
-                   likelihood="binom",
-                   linearModel = "random",
-                   regressor=regressor)
+                         type="regression",
+                         link="logit",
+                         likelihood="binom",
+                         linearModel = "random",
+                         regressor=regressor)
 gemtc_results <- mtc.run(gemtc_model, 
-        n.adapt = 1000, 
-        n.iter = 50000, 
-        thin = 1)
+                         n.adapt = 1000, 
+                         n.iter = 50000, 
+                         thin = 1)
 
 gemtc_leaguetable <- relative.effect.table(gemtc_results, covariate=0.1) %>% as.data.frame()
 #write.csv(gemtc_leaguetable, "gemtc_leaguetable.csv")
@@ -68,11 +68,11 @@ gemtc_model$om.scale^(-2)
 
 
 #plotCovariateEffect(gemtc_results, 
- #                   atrialFibrillation$data.ab$treatment %>% unique, 
-  #                  atrialFibrillation$data.ab$treatment %>% unique, 
-   #                 xlim=NULL, 
-    #                ylim=NULL, 
-     #               ask=dev.interactive(orNone=TRUE))
+#                   atrialFibrillation$data.ab$treatment %>% unique, 
+#                  atrialFibrillation$data.ab$treatment %>% unique, 
+#                 xlim=NULL, 
+#                ylim=NULL, 
+#               ask=dev.interactive(orNone=TRUE))
 
 
 rawdata <- atrialFibrillation$data.ab %>%

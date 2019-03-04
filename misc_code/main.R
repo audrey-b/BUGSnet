@@ -17,13 +17,13 @@ load_all(path = paste0(path,"R"))
 
 rawdata <- read_excel(paste0(path,"data","\\","rate_example.xlsx"))
 rawdata <- read_excel("data/continuous_example.xlsx", 
-                                                 col_types = c("text", "numeric", "numeric", 
-                                                                         "text", "text", "numeric", "numeric", 
-                                                                         "numeric", "numeric", "numeric", 
-                                                                         "numeric", "numeric", "numeric", 
-                                                                         "numeric", "numeric", "numeric", 
-                                                                         "numeric", "numeric", "numeric", 
-                                                                         "numeric", "numeric"))
+                      col_types = c("text", "numeric", "numeric", 
+                                    "text", "text", "numeric", "numeric", 
+                                    "numeric", "numeric", "numeric", 
+                                    "numeric", "numeric", "numeric", 
+                                    "numeric", "numeric", "numeric", 
+                                    "numeric", "numeric", "numeric", 
+                                    "numeric", "numeric"))
 dich.slr <- data.prep(arm.data = rawdata,
                       varname.t = "trt_name",
                       varname.s = "trial")
@@ -89,10 +89,10 @@ sink()
 
 
 random_effects_results <- nma.run(random_effects_model,
-                                 monitor = c("d", "dev", "r", "n","totresdev","rhat","sigma","beta"),
-                                 n.adapt=1000,
-                                 n.burnin=1000,
-                                 n.iter=10000)
+                                  monitor = c("d", "dev", "r", "n","totresdev","rhat","sigma","beta"),
+                                  n.adapt=1000,
+                                  n.burnin=1000,
+                                  n.iter=10000)
 
 random_effects_fit <- nma.fit(random_effects_results, main = "Random Effects Model" )
 random_effects_fit$DIC

@@ -34,7 +34,7 @@ nma.forest <- function(nma,
   x2 <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("d."))
   trt.names <- nma$trt.key
   colnames(x2) <- trt.names
-
+  
   if(!is.null(cov.value)){#meta-regression
     
     betamat <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("beta."))

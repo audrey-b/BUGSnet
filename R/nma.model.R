@@ -89,20 +89,20 @@
 #' @importFrom Rdpack reprompt 
 
 nma.model <- function(data,
-                     outcome, 
-                     N,
-                     sd=NULL,
-                     reference,
-                     type="consistency",
-                     time=NULL,
-                     family,
-                     link,
-                     effects,
-                     prior.mu = "DEFAULT",
-                     prior.d = "DEFAULT",
-                     prior.sigma = "DEFAULT",
-                     prior.beta = NULL,
-                     covariate = NULL){
+                      outcome, 
+                      N,
+                      sd=NULL,
+                      reference,
+                      type="consistency",
+                      time=NULL,
+                      family,
+                      link,
+                      effects,
+                      prior.mu = "DEFAULT",
+                      prior.d = "DEFAULT",
+                      prior.sigma = "DEFAULT",
+                      prior.beta = NULL,
+                      covariate = NULL){
   
   if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
   if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
@@ -111,7 +111,7 @@ nma.model <- function(data,
       stop("prior.beta must be either UNRELATED, EQUAL, or EXCHANGEABLE")
     }
   }
-      
+  
   
   
   
@@ -148,8 +148,8 @@ nma.model <- function(data,
     mutate(trt.jags = 1:dim(.)[1])
   
   data1 %<>% mutate(trt.jags=mapvalues(trt,
-                                      from=trt.key$trt.ini,
-                                      to=trt.key$trt.jags) %>% as.integer)
+                                       from=trt.key$trt.ini,
+                                       to=trt.key$trt.jags) %>% as.integer)
   
   nt = data$treatments %>% nrow()
   ns = data$studies %>% nrow()
@@ -167,7 +167,7 @@ nma.model <- function(data,
   if (family == "normal"){names(sorted.data)[names(sorted.data) == sd] <- "sd"}
   if (!is.null(time)){names(sorted.data)[names(sorted.data) == time] <- "timevar"}
   if (!is.null(covariate)){names(sorted.data)[names(sorted.data) == covariate] <- "covariate"}
-    
+  
   sorted.data %<>% arrange(trial, trt.jags)
   
   if (family == "binomial" && link %in% c("log","logit")){
@@ -191,7 +191,7 @@ nma.model <- function(data,
     if (!is.null(covariate)) {
       mean.cov <- mean(x[,1], na.rm=TRUE)
       x <- x-mean.cov
-      } else{mean.cov <- NULL}
+    } else{mean.cov <- NULL}
     
     bugsdata2 <- list(ns=ns,
                       nt=nt,
@@ -326,7 +326,7 @@ nma.model <- function(data,
     prior.mu.str <- sprintf("for(i in 1:ns){
                                mu[i] ~ %s
   }", prior.mu)
-	}
+  }
   
   # RELATIVE EFFECTS PRIOR
   if (prior.d =="DEFAULT"){
@@ -334,27 +334,27 @@ nma.model <- function(data,
       prior.d.str <- sprintf("for(k in 2:nt){
                              d[k] ~ dnorm(0,(%s*15)^(-2))
     }", max.delta)
-
-  } else if(type=="inconsistency"){
-    prior.d.str <- sprintf("for (c in 1:(nt-1)) {
+      
+    } else if(type=="inconsistency"){
+      prior.d.str <- sprintf("for (c in 1:(nt-1)) {
                            for (k in (c+1):nt)  { 
                            d[c,k] ~ dnorm(0,(%s*15)^(-2))
                            } 
     }", max.delta)
-		}
+    }
   } else {
     if(type=="consistency"){
       prior.d.str <- sprintf("for(k in 2:nt){
                              d[k] ~ %s)
     }", prior.d)
-
-  }else if(type=="inconsistency"){
-    prior.d.str <- sprintf("for (c in 1:(nt-1)) {
+      
+    }else if(type=="inconsistency"){
+      prior.d.str <- sprintf("for (c in 1:(nt-1)) {
                            for (k in (c+1):nt)  { 
                            d[c,k] ~ %s
                            } 
   }", prior.d)
-		} 
+    } 
   }
   
   # RANDOM EFFECTS VARIANCE PRIOR
@@ -367,13 +367,13 @@ nma.model <- function(data,
   }
   
   ###hot fix for binomial family with log link.
-   if(scale == "RR"){
-     prior.mu.str <-  "for(i in 1:ns){
+  if(scale == "RR"){
+    prior.mu.str <-  "for(i in 1:ns){
      mu[i] <- log(p.base[i])           #priors for all trial baselines
      p.base[i] ~ dunif(0, 1)
    }"
-   }
-
+  }
+  
   #meta regression string
   if (!is.null(covariate)){
     
@@ -382,73 +382,73 @@ nma.model <- function(data,
     for (k in 2:nt){
       beta[k] ~ dt(0, (%s)^(-2), 1)
     }", max.delta)
-      }else if(prior.beta=="EXCHANGEABLE"){
-    prior.meta.reg <- sprintf("beta[1]<-0
+    }else if(prior.beta=="EXCHANGEABLE"){
+      prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
       beta[k] ~ dnorm(b, gamma^(-2))
     }
     b~dt(0, %s^(-2), 1)
     gamma~dunif(0, %s)", max.delta, max.delta)
     }else if(prior.beta=="EQUAL"){
-    prior.meta.reg <- sprintf("beta[1]<-0
+      prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
       beta[k] <- B
     }
     B~dt(0, %s^(-2), 1)", max.delta)
-  }else {
-    prior.meta.reg <- prior.beta
-  }
+    }else {
+      prior.meta.reg <- prior.beta
+    }
   }else prior.meta.reg <- ""
   #remove covariate from bugsdata2 if unused
   if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
-
   
   
-    if(type=="inconsistency"){     
-      model <- makeBUGScode(family=family,
-                                link=link,
-                                effects=effects,
-                                inconsistency=TRUE,
-                                prior.mu.str,
-                                prior.d.str,
-                                prior.sigma2.str,
-                                covariate,
-                                prior.meta.reg) %>%
-        paste0(add.to.model)
-    } else if(type=="consistency"){
+  
+  if(type=="inconsistency"){     
+    model <- makeBUGScode(family=family,
+                          link=link,
+                          effects=effects,
+                          inconsistency=TRUE,
+                          prior.mu.str,
+                          prior.d.str,
+                          prior.sigma2.str,
+                          covariate,
+                          prior.meta.reg) %>%
+      paste0(add.to.model)
+  } else if(type=="consistency"){
     model <- makeBUGScode(family=family, 
-                              link=link, 
-                              effects=effects, 
-                              inconsistency=FALSE, 
-                              prior.mu.str,
-                              prior.d.str, 
-                              prior.sigma2.str, 
-                              covariate, 
-                              prior.meta.reg) %>%
+                          link=link, 
+                          effects=effects, 
+                          inconsistency=FALSE, 
+                          prior.mu.str,
+                          prior.d.str, 
+                          prior.sigma2.str, 
+                          covariate, 
+                          prior.meta.reg) %>%
       paste0(add.to.model)
   }
   
   return(model=list(bugs=model,
-                   data=bugsdata2, 
-                   scale=scale, 
-                   trt.key=trt.key, 
-                   family=family, 
-                   link=link,
-                   type=type,
-                   effects=effects,
-                   covariate=covariate,
-                   prior.mu=prior.mu,
-                   prior.d=prior.d,
-                   prior.sigma=prior.sigma,
-                   prior.beta=prior.beta,
-                   reference=reference,
-                   time=time,
-                   outcome=outcome,
-                   N=N,
-                   sd=sd,
-                   mean.cov=mean.cov))
+                    data=bugsdata2, 
+                    scale=scale, 
+                    trt.key=trt.key, 
+                    family=family, 
+                    link=link,
+                    type=type,
+                    effects=effects,
+                    covariate=covariate,
+                    prior.mu=prior.mu,
+                    prior.d=prior.d,
+                    prior.sigma=prior.sigma,
+                    prior.beta=prior.beta,
+                    reference=reference,
+                    time=time,
+                    outcome=outcome,
+                    N=N,
+                    sd=sd,
+                    mean.cov=mean.cov))
   
-
+  
 }
 
