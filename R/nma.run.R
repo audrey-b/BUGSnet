@@ -2,8 +2,8 @@
 #' @description Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 #' 
 #' @param model Object produced by running \code{nma.model}.
-#' @param monitor A list of all variables that you would like to monitor. The default is simply the treatment
-#' effect samples ("d").
+#' @param monitor A vector of all variables that you would like to monitor. Default is "DEFAULT" which will monitor the relative treatment effects \code{d} 
+#' as well as \code{sigma} when a random effects model is used and the regression coefficients \code{beta} when meta-regression is used.
 #' @param DIC Default is TRUE and nodes required to calculate the DIC and other fit statistics are monitored. Otherwise you may set it to FALSE. 
 #' @param n.adapt Number of adaptations for the mcmc chains.
 #' @param n.burnin Number of burnin iterations for the mcmc chains.
@@ -20,13 +20,13 @@
 #' 
 
 nma.run <- function(model,
-                         monitor=c("d"),
-                        DIC=TRUE,
-                         n.adapt, 
-                         n.burnin=0, 
-                         n.iter, 
-                         thin=1,
-                         n.chains=3){
+                    monitor="DEFAULT",
+                    DIC=TRUE,
+                    n.adapt, 
+                    n.burnin=0, 
+                    n.iter, 
+                    thin=1,
+                    n.chains=3){
   
   
   jagsmodel <- jags.model(textConnection(model$bugs),
@@ -36,6 +36,12 @@ nma.run <- function(model,
   
   if(n.burnin!=0) jagsburnin <- update(jagsmodel, n.iter=n.burnin)
   
+  if(monitor=="DEFAULT"){
+    make.monitor <- "d"
+    if(model$effects=="random") make.monitor <- c(make.monitor, "sigma")
+    if(!is.null(model$covariate)) make.monitor <- c(make.monitor, "beta")
+  }else make.monitor <- monitor
+  
   if(DIC==TRUE){
     if (model$family == "binomial"){
       DIC.monitor <- c("dev", "r", "n","totresdev","rhat")
@@ -44,9 +50,9 @@ nma.run <- function(model,
     } else if(model$family == "normal"){
       DIC.monitor <- c("theta", "prec", "y", "n")
     }
-  new.monitor <- unique(c(monitor, DIC.monitor))
+    new.monitor <- unique(c(make.monitor, DIC.monitor))
   } else if(DIC==FALSE){
-    new.monitor <- monitor
+    new.monitor <- make.monitor
   }
   
   jagssamples <- coda.samples(jagsmodel, 

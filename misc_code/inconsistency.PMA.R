@@ -111,10 +111,10 @@ if(model=="fixed") {
  #labs(caption = paste("note: each treatment compared to", base.trt))
  
  
- if(jagsoutput$scale == "RR"){
-   f.plot <- f.plot + ylab(paste0("RR relative to ",base.trt))
- } else if(jagsoutput$scale == "OR"){
-   f.plot <- f.plot + ylab(paste0("OR relative to ",base.trt))
+ if(jagsoutput$scale == "Risk Ratio"){
+   f.plot <- f.plot + ylab(paste0("Risk Ratio relative to ",base.trt))
+ } else if(jagsoutput$scale == "Odds Ratio"){
+   f.plot <- f.plot + ylab(paste0("Odds Ratio relative to ",base.trt))
  }
  
  if(is.null(x.trans)){

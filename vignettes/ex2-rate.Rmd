@@ -104,13 +104,11 @@ The next step is to run the NMA model using `nma.run()`. Since we are working in
 
 ```{r, results = "hide"}
 fixed_effects_results <- nma.run(fixed_effects_model,
-                           monitor = c("d"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
 
 random_effects_results <- nma.run(random_effects_model,
-                           monitor = c("d", "sigma"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
@@ -144,7 +142,6 @@ fe_inconsistency_model <- nma.model(data=rate.slr,
                                    effects="fixed")
 
 fe_inconsistency_results <- nma.run(fe_inconsistency_model,
-                                         monitor = c("d", "dev", "r","totresdev","lambda", "theta"),
                                          n.adapt=1000,
                                          n.burnin=1000,
                                          n.iter=10000)
