@@ -57,6 +57,8 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
     
     pmdev_fitted <- 2*(r*log(r/rtilde)+(n-r)*log((n-r)/(n-rtilde)))[1,]
     
+    if(TRUE %in% c(nma$model$data$r==0)) warning("Leverage cannot be calculated for zero cells.")
+    
   } else if (nma$family == "poisson"){
     rhat <- samples %>% select(., starts_with("theta"))
     r <- samples %>% select(., starts_with("r.")) 
@@ -67,6 +69,9 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
       data.frame() %>%
       slice(rep(1:n(), each = nrow(rhat)))
     pmdev_fitted <- 2*((thetatilde-r) + r*log(r/thetatilde))[1,]
+    
+    if(TRUE %in% c(nma$model$data$r==0)) warning("Leverage cannot be calculated for zero cells.")
+    
   } else if (nma$family == "normal"){
       rhat <- samples %>% select(., starts_with("theta"))
       r <- samples %>% select(., starts_with("y"))

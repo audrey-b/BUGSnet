@@ -1,6 +1,6 @@
 ---
 title: "NMA for Rate Outcomes"
-author: "Justin Slater"
+author: "Justin Slater, Audrey Beliveau"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 bibliography: references.bib
@@ -98,7 +98,7 @@ random_effects_model <- nma.model(data=rate.slr,
 
 ```
 
-If you want to review the BUGS code, you can review it by outputting `makebugs$model`. 
+If you want to review the BUGS code, you can review it by outputting `cat(random_effects_model$bugs)`. 
 
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 

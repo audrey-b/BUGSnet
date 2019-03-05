@@ -91,11 +91,11 @@ random_effects_model <- nma.model(data=dataprep,
                                   effects="random",
                                   covariate="stroke",
                                   prior.beta="EXCHANGEABLE")
+
 bugsnet_results <- nma.run(random_effects_model,
-                           monitor=c("d","beta","sigma"),
-                           n.iter=5000,
+                           n.iter=10000,
                            n.adapt=1000,
-                           n.burnin=0)
+                           n.burnin=1000)
 
 random_effects_model$bugs %>% cat
 
@@ -109,6 +109,7 @@ random_effects_fit <- nma.fit(bugsnet_results, main = "Random Effects Model" )
 random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev
+random_effects_fit$leverage
 
 sucra.out <- nma.rank(bugsnet_results, largerbetter=FALSE, cov.value=0.1)
 sucra.out$sucraplot
