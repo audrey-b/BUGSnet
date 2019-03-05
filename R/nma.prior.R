@@ -1,15 +1,15 @@
 nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
-  if (scale =="OR" ){type.outcome = "binomial"}
-  else if (scale =="RR"){type.outcome = "binomial"}
-  else if (scale =="MD"){type.outcome = "continuous"}
-  else if (scale =="HR"){type.outcome = "rate"}
-  else if (scale =="Rate Ratio"){type.outcome = "rate2"}
+  if (scale =="Odds Ratio" ){type.outcome = "binomial"}
+  else if (scale =="Risk Ratio"){type.outcome = "binomial"}
+  else if (scale =="Mean Difference"){type.outcome = "continuous"}
+  else if (scale =="Rate Ratio"){type.outcome = "rate"}
+  else if (scale =="Hazard Ratio"){type.outcome = "rate2"}
   
   table <- by.comparison(data.nma, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
   names(table)[names(table) == paste0(outcome,".e")] <- "outcome.e"
   names(table)[names(table) == paste0(outcome,".c")] <- "outcome.c"
   
-  if (scale == "OR"){
+  if (scale == "Odds Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
     names(table)[names(table) == paste0(N,".c")] <- "N.c"
     
@@ -21,7 +21,7 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
     
-  } else if (scale =="RR"){
+  } else if (scale =="Risk Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
     names(table)[names(table) == paste0(N,".c")] <- "N.c"
     
@@ -33,13 +33,13 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
     
-  } else if (scale == "MD"){
+  } else if (scale == "Mean Difference"){
     
     deltas <- table %>% 
       mutate(delta = as.numeric(outcome.e)-as.numeric(outcome.c)) %>%
       select(delta)
     
-  } else if (scale == "Rate Ratio"){
+  } else if (scale == "Hazard Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
     names(table)[names(table) == paste0(N,".c")] <- "N.c"
     names(table)[names(table) == paste0(time,".e")] <- "time.e"
@@ -53,7 +53,7 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
     
-  } else if (scale =="HR"){
+  } else if (scale =="Rate Ratio"){
     names(table)[names(table) == paste0(time,".e")] <- "time.e"
     names(table)[names(table) == paste0(time,".c")] <- "time.c"
     
@@ -70,7 +70,7 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   return(max(abs(deltas)))
 }
 
-#nma.prior(data.nma = dich.slr, scale = "RR", outcome = "responders", N = "sampleSize")
+#nma.prior(data.nma = dich.slr, scale = "Risk Ratio", outcome = "responders", N = "sampleSize")
 
 
 

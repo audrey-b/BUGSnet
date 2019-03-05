@@ -26,7 +26,7 @@
 #' @return \code{model} - A long character string containing BUGS code that will be run in \code{jags}.
 #' @return \code{data} - The data used in the BUGS code.
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function
-#' examples are "RR" (relative risk), "OR" (odds ratio), "MD" (mean difference), "HR" (hazard ratio)
+#' examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Hazard Ratio"
 #' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 #' 
 #' @details 
@@ -111,20 +111,23 @@ nma.model <- function(data,
       stop("prior.beta must be either UNRELATED, EQUAL, or EXCHANGEABLE")
     }
   }
-  
-  
-  
+  if(family=="normal" & is.null(sd)) stop("sd must be specified for continuous outcomes")
+  if(family=="normal" & link!="identity") stop("This combination of family and link is currently not supported in BUGSnet.")
+  if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
+  if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   
   if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "OR"
+    scale <- "Odds Ratio"
   }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "RR"
+    scale <- "Risk Ratio"
   }else if(link== "identity" & family =="normal"){
-    scale <- "MD"
+    scale <- "Mean Difference"
   }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "Rate Ratio"
+    if(is.null(time)) stop("time must be specified when using a binomial family with the cloglog link")
+    scale <- "Hazard Ratio"
   }else if(link == "log" & family =="poisson"){
-    scale <- "HR"
+    if(is.null(time)) stop("time must be specified when using a poisson family with the log link")
+    scale <- "Rate Ratio"
   }
   
   data1 <- data$arm.data
@@ -367,7 +370,7 @@ nma.model <- function(data,
   }
   
   ###hot fix for binomial family with log link.
-  if(scale == "RR"){
+  if(scale == "Risk Ratio"){
     prior.mu.str <-  "for(i in 1:ns){
      mu[i] <- log(p.base[i])           #priors for all trial baselines
      p.base[i] ~ dunif(0, 1)

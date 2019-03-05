@@ -93,25 +93,22 @@ random_effects_model <- nma.model(data=dataprep,
                                   prior.beta="EXCHANGEABLE")
 bugsnet_results <- nma.run(random_effects_model,
                            monitor=c("d","beta","sigma"),
-                           n.iter=50000,
+                           n.iter=5000,
                            n.adapt=1000,
                            n.burnin=0)
 
 random_effects_model$bugs %>% cat
 
-png("bugsnetplots%02d.png", width=2000, height=2000)
-nma.trace(bugsnet_results)
-graphics.off()
-
-bugsnet_league <- nma.league(bugsnet_results, cov.value=0.1, log.scale = FALSE)
-bugsnet_league$table
-write.csv(bugsnet_league$table, "bugsnet_leaguetable.csv")
+#png("bugsnetplots%02d.png", width=2000, height=2000)
+#nma.trace(bugsnet_results)
+#graphics.off()
 
 
-#random_effects_fit <- nma.fit(bugsnet_results, main = "Random Effects Model" )
-#random_effects_fit$DIC
-#random_effects_fit$pD
-#random_effects_fit$pmdev
+
+random_effects_fit <- nma.fit(bugsnet_results, main = "Random Effects Model" )
+random_effects_fit$DIC
+random_effects_fit$pD
+random_effects_fit$pmdev
 
 sucra.out <- nma.rank(bugsnet_results, largerbetter=FALSE, cov.value=0.1)
 sucra.out$sucraplot
@@ -122,11 +119,12 @@ nma.forest(bugsnet_results,
            central.tdcy = "median",
            cov.value=0.1)
 
-nma.league(bugsnet_results, 
-           central.tdcy = "median", 
-           order = sucra.out$order,
-           cov.value=0.1,
-           log.scale = TRUE)
+bugsnet_league <- nma.league(bugsnet_results, 
+                             central.tdcy = "median",
+                             order = as.vector(t(dataprep$treatments)),
+                             cov.value=0.1, 
+                             log.scale = FALSE)
+write.csv(bugsnet_league$table, "bugsnet_leaguetable.csv")
 
 nma.regplot(bugsnet_results, x.range=c(0.1,1))
 

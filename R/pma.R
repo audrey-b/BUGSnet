@@ -67,11 +67,13 @@ pma <- function(data,
                      outcome,
                      N,
                      sd = NULL,
-                     time= NULL,
-                     type.outcome="binomial",
+                     time = NULL,
+                     type.outcome,
                      method = "MH",
                      method.tau="DL",
-                     sm="RR"){
+                     sm){
+  
+  if(type.outcome=="continuous" & is.null(sd)) stop("sd must be specified for continuous outcomes")
   
   data.nma <- data
   

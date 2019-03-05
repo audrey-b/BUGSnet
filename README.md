@@ -9,15 +9,13 @@ BUGSnet is still being developped so please check back regularly for updates. Th
 
 # How to get started with BUGSnet
 
+- Download the BUGSnet package in the form of a compressed folder (e.g. .tar.gz)
+
 - Install JAGS.
 
-- Install the devtools package in R.
+- In R, type
 
-- Then, in R, type
-
-library(devtools)
-
-install_github("audrey-b/BUGSnet")
+install.packages("C:/path/BUGSnet_0.0.1.tar.gz", repos = NULL, type = "source") where you replace "C:/path/BUGSnet_0.0.1.tar.gz" with the correct path to the package on your device
 
 - You are all set.
 

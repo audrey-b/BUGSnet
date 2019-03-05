@@ -90,13 +90,13 @@ inconsistency.model <- function(inconsistency.out, nma.out, central.tdcy="median
   
   
   
-  if(inconsistency.out$scale == "RR" & nma.out$scale == "RR"){
+  if(inconsistency.out$scale == "Risk Ratio" & nma.out$scale == "Risk Ratio"){
     
-    f.plot <- f.plot + ylab("RR")
+    f.plot <- f.plot + ylab("Risk Ratio")
     
-  } else if(inconsistency.out$scale == "OR" & nma.out$scale == "OR"){
+  } else if(inconsistency.out$scale == "Odds Ratio" & nma.out$scale == "Odds Ratio"){
     
-    f.plot <- f.plot + ylab("OR")
+    f.plot <- f.plot + ylab("Odds Ratio")
     
   }
   

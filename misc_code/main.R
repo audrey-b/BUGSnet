@@ -67,24 +67,22 @@ fixed_effects_model <- nma.model(data=dich.slr,
                                  outcome="responders",
                                  N="sampleSize",
                                  reference="SK",
-                                 type="inconsistency",
+                                 type="consistency",
                                  family="binomial",
                                  link="logit",
-                                 effects="fixed",
-                                 covariate="age",
-                                 prior.beta="UNRELATED")
+                                 effects="fixed")
 
 random_effects_model <- nma.model(data=dich.slr,
                                   outcome="responders",
                                   N="sampleSize",
-                                  type="inconsistency",
+                                  type="consistency",
                                   reference="SK",
                                   family="binomial",
                                   link="logit",
                                   effects="random")
 
 sink("Z:/ResearchDocuments/Research/BUGSnet/code.bug")
-cat(random_effects_model$model)
+cat(random_effects_model$bugs)
 sink()
 
 
@@ -110,7 +108,7 @@ nma.league(random_effects_results,
            central.tdcy = "median",
            log.scale = TRUE)
 
-nma.regplot(random_effects_results, x.range=c(38,84))
+#nma.regplot(random_effects_results, x.range=c(38,84))
 
 # Network Plots -----------------------------------------------------------
 

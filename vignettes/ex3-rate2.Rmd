@@ -158,13 +158,13 @@ Once the NMA models have been specified, the next step is to run the models usin
 
 ```{r, results = "hide"}
 fixed_effects_results <- nma.run(fixed_effects_model,
-                           monitor = c("d", "dev", "r", "n","totresdev","rhat"),
+                           monitor = c("d"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
 
 random_effects_results <- nma.run(random_effects_model,
-                           monitor = c("d", "dev", "r", "n","totresdev","rhat", "sigma"),
+                           monitor = c("d", "sigma"),
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)

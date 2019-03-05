@@ -1,7 +1,7 @@
 ###CURRENT ISSUES
 ####1) comparison.charac() needs overall mean for continuous variables
 
-network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
+network.charac <- function(data.nma, outcome, N, type.outcome, time){
 
   # Check if number of events and participants is integer
   tmp.check1 <- data.nma$arm.data %>% select(outcome)
@@ -116,7 +116,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time = NULL){
       n.studies.all.0 <- tmp3$all.0 %>% sum
       
       mean.person.time.Fup <- data.nma$arm.data %>% select(time) %>% colMeans %>% round(digits=2)
-      str.mean.person.time.Fup <- ifelse(type.outcome=="rate", "Mean person-time of studies", "Mean patient follow up time")
+      str.mean.person.time.Fup <- ifelse(type.outcome=="rate", "Mean person-time of studies", "Mean person follow up time")
       
       add.tble <- tibble(Characteristic=c("Total Number of Events in Network",
                                           "Number of Studies With  No Zero Events",
@@ -320,7 +320,7 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 #' network.charac(data = data.prep(my.data), outcome = "n_died", N = "n", type.outcome="binomial", time = NULL)
 #' network.charac(data = data.prep(my.data), outcome = "y", N = "N", type.outcome="rate", time = "personYears")
 
-net.tab <- function(data, outcome, N, type.outcome, time){
+net.tab <- function(data, outcome, N, type.outcome, time=NULL){
   return(list(network = network.charac(data, outcome, N, type.outcome,time),
               intervention = intervention.charac(data, outcome, N, type.outcome, time),
               comparison = comparison.charac(data, outcome, N, type.outcome, time)))
