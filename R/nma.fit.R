@@ -38,14 +38,17 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   #stack all chains on top of each other
   samples = do.call(rbind, jagssamples) %>% data.frame()
   
-  r <- samples %>% select(., starts_with("r.")) 
-  n <- samples %>% select(., starts_with("n"))
+  #r <- samples %>% select(., starts_with("r.")) 
+  #n <- samples %>% select(., starts_with("n"))
+  #r <- nma$model$data
   dev <- samples %>% select(., starts_with("dev"))
   totresdev <- samples$totresdev %>% mean()
   pmdev <- colMeans(dev)
 
   if (nma$family == "binomial") {
     rhat <- samples %>% select(., starts_with("rhat"))
+    r <- samples %>% select(., starts_with("r."))
+    n <- samples %>% select(., starts_with("n"))
     rtilde <- rhat %>%
       colMeans() %>%
       matrix(nrow=1, ncol=ncol(rhat)) %>%
@@ -56,6 +59,8 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
     
   } else if (nma$family == "poisson"){
     rhat <- samples %>% select(., starts_with("theta"))
+    r <- samples %>% select(., starts_with("r.")) 
+    n <- samples %>% select(., starts_with("n"))
     thetatilde <- rhat %>%
       colMeans() %>%
       matrix(nrow=1, ncol=ncol(rhat)) %>%

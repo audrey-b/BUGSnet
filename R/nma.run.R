@@ -50,7 +50,7 @@ nma.run <- function(model,
     } else if(model$family == "poisson"){
       DIC.monitor <- c("dev", "r","totresdev","theta")
     } else if(model$family == "normal"){
-      DIC.monitor <- c("theta", "prec", "y", "n")
+      DIC.monitor <- c("theta", "prec", "y", "totresdev", "dev")
     }
     new.monitor <- unique(c(make.monitor, DIC.monitor))
   } else if(DIC==FALSE){
