@@ -91,12 +91,12 @@ cat(random_effects_model$bugs)
 
 
 random_effects_results <- nma.run(random_effects_model,
-                                  monitor = c("d","sigma"),
                                   n.adapt=1000,
                                   n.burnin=1000,
                                   n.iter=10000)
 
-random_effects_fit <- nma.fit(random_effects_results, main = "Random Effects Model" )
+random_effects_fit <- nma.fit(random_effects_results, 
+                              main = "Random Effects Model" )
 random_effects_fit$DIC
 random_effects_fit$pD
 random_effects_fit$pmdev

@@ -36,10 +36,12 @@ nma.run <- function(model,
   
   if(n.burnin!=0) jagsburnin <- update(jagsmodel, n.iter=n.burnin)
   
-  if(monitor=="DEFAULT"){
-    make.monitor <- "d"
-    if(model$effects=="random") make.monitor <- c(make.monitor, "sigma")
-    if(!is.null(model$covariate)) make.monitor <- c(make.monitor, "beta")
+  if(length(monitor)==1){
+    if(monitor=="DEFAULT"){
+      make.monitor <- "d"
+      if(model$effects=="random") make.monitor <- c(make.monitor, "sigma")
+      if(!is.null(model$covariate)) make.monitor <- c(make.monitor, "beta")
+    }
   }else make.monitor <- monitor
   
   if(DIC==TRUE){
