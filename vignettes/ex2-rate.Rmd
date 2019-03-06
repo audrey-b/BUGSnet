@@ -17,21 +17,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r, include = FALSE}
 path <- paste0(dirname(getwd()),"/")
 source(paste0(path,"misc_code","\\","load.packages.R"))
 library(devtools)
 library(roxygen2)
-library(gemtc)
 library(knitr)
-library(readxl)
 load_all(path = paste0(path,"R"))
-fatdiet <- read_excel(paste0(path,"data","\\","rate_example.xlsx"))
 ```
+ 
 
 ``` {r}
-rate.slr <- data.prep(arm.data = fatdiet,
+data(dietfat)
+rate.slr <- data.prep(arm.data = dietfat,
                      varname.t = "Treatment",
                      varname.s = "Study")
 ```

@@ -29,6 +29,7 @@
 #' par(mfrow=c(1,2))
 #' nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
 #' nma.fit(random_effects_results, main= "Random Effects Model")
+#' @export
 
 nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   jagssamples <- nma$samples
@@ -123,7 +124,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #' 
 #' @param consistency.model.fit Results of \code{nma.fit()} of an consistency model.
 #' @param inconsistency.model.fit Results of \code{nma.fit()} of an inconsistency model.
-#' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}.
+#' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed in \code{plot()}.
 #' 
 #' @examples
 #' # Assess model fit for a both an inconsistency model and consistency model using nma.fit()
@@ -132,6 +133,9 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #' 
 #' #Plot the results against each other to assess inconsistency
 #' inconsistency.plot(consistency_results, inconsistency_results)
+#' @export
+
+
 
 
 nma.compare <- function(consistency.model.fit, inconsistency.model.fit, ...){

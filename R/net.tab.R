@@ -14,8 +14,8 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
            stop('The "N" variable (number of participants) must be an integer')
     }
   
-  outcome2 <- quo(!! as.name(outcome))#this may be redundant now
-  N2 <- quo(!! as.name(N))
+  outcome2 <- rlang::quo(!! as.name(outcome))#this may be redundant now
+  N2 <- rlang::quo(!! as.name(N))
   
     n.interventions <- data.nma$arm.data %>% select(data.nma$varname.t) %>% unique() %>% nrow()
     
@@ -149,8 +149,8 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
 }
  
 intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
-  outcome2 <- quo(!! as.name(outcome))
-  N2 <- quo(!! as.name(N))
+  outcome2 <- rlang::quo(!! as.name(outcome))
+  N2 <- rlang::quo(!! as.name(N))
   
   if ("n" %in% colnames(data.nma$arm.data)) {
   n.studies <- data.nma$arm.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
@@ -193,7 +193,7 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
      select(-w.outcome)
     
   } else if (type.outcome =="rate"){
-    time2 <- quo(!! as.name(time))
+    time2 <- rlang::quo(!! as.name(time))
     
     person.time <- data.nma$arm.data %>% 
       group_by_(data.nma$varname.t) %>% 
@@ -317,8 +317,19 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 #' @return \code{intervention} - Summary statistics broken down by treatment
 #' @return \code{comparison} - Summary statistics broken down by treatment comparison
 #' @examples
-#' network.charac(data = data.prep(my.data), outcome = "n_died", N = "n", type.outcome="binomial", time = NULL)
-#' network.charac(data = data.prep(my.data), outcome = "y", N = "N", type.outcome="rate", time = "personYears")
+#' network.charac(data = data.prep(my.data), 
+#' outcome = "n_died", 
+#' N = "n", 
+#' type.outcome="binomial", 
+#' time = NULL)
+#' network.charac(data = data.prep(my.data), 
+#' outcome = "y", 
+#' N = "N", 
+#' type.outcome="rate", 
+#' time = "personYears")
+#' @export
+
+
 
 net.tab <- function(data, outcome, N, type.outcome, time=NULL){
   return(list(network = network.charac(data, outcome, N, type.outcome,time),

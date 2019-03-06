@@ -13,27 +13,29 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
-)
-```
+  comment = "#>")
 
-### Data Preparation
+```
 
 ```{r, include = FALSE}
 path <- paste0(dirname(getwd()),"/")
 source(paste0(path,"misc_code","\\","load.packages.R"))
 library(devtools)
 library(roxygen2)
-library(gemtc)
 library(knitr)
-library(readxl)
 load_all(path = paste0(path,"R"))
 ```
 
-``` {r}
-age <- rnorm(nrow(thrombolytic$data.ab), 60, 10)
+### Data Preparation
 
-dich.slr <- data.prep(arm.data = cbind(tbl_df(thrombolytic$data.ab),age),
+
+
+``` {r}
+data(thrombolytic)
+
+age <- rnorm(nrow(thrombolytic), 60, 10)
+
+dich.slr <- data.prep(arm.data = cbind(thrombolytic, age),
                      varname.t = "treatment",
                      varname.s = "study")
 ```

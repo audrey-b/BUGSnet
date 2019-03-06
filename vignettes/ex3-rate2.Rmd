@@ -17,28 +17,27 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r, include = FALSE}
 path <- paste0(dirname(getwd()),"/")
 source(paste0(path,"misc_code","\\","load.packages.R"))
 library(devtools)
 library(roxygen2)
-library(gemtc)
 library(knitr)
-library(readxl)
 load_all(path = paste0(path,"R"))
-diabetes <- read_excel(paste0(path,"data","\\","rate2_example.xlsx"))
 ```
+ 
 The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2 [@TSD2], page 66. The results of our package are concordant with those reported in the TSD.
 
-The Diabetes data has 22 studies and 6 treatments, each study has a follow up time between 1 and 6.1 years. The outcome for this data (`diabetes`) is the number of new diabetes cases observed during the trial period. An age variable, including its standard deviation, was simulated for demonstration purposes. This data contains multi-arm trials, which can easily be accomodated using BUGSnet. The data is shown here:
+The Diabetes data has 22 studies and 6 treatments, each study has a follow up time between 1 and 6.1 years. The outcome for this data (`diabetes.sim`) is the number of new diabetes cases observed during the trial period. An age variable, including its standard deviation, was simulated for demonstration purposes. This data contains multi-arm trials, which can easily be accomodated using BUGSnet. The data is shown here:
 ```{r, echo = FALSE}
-kable(diabetes)
+data(diabetes.sim)
+kable(diabetes.sim)
 ```
 
 Before any analysis is done, we need to put our data in a form that BUGSnet can easily handle. This is done by simple running the `data.prep()` function and specifying the name of the treatment, study, and sample size variables:
 ``` {r}
-rate2.slr <- data.prep(arm.data = diabetes,
+data(diabetes.sim)
+rate2.slr <- data.prep(arm.data = diabetes.sim,
                      varname.t = "Treatment",
                      varname.s = "Study")
 ```
@@ -294,7 +293,7 @@ A random effects model showed to be adequate in modelling the treatment effects 
 ###BUGS code for final model
 The following BUGS code is produced by the `nma.model()` function.
 ```{r}
-random_effects_model$bugs
+cat(random_effects_model$bugs)
 ```
 
 ###Assessment of convergence of final model

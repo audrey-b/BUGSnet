@@ -28,6 +28,9 @@
 #' 
 #' #plot sucra results
 #' sucra_results$sucra
+#' @export
+
+
 
 
 nma.rank <- function(nma, 
@@ -155,7 +158,7 @@ nma.rank <- function(nma,
     s.plot <- s.plot +
       labs(x=paste0("Ranking of Treatment",
                     "\n(Higher rankings associated with larger outcome values)"), 
-           y=paste0("Probability ranking or better (%)", cov.str),
+           y=paste0("Probability of ranking or better (%)", cov.str),
            color="Treatment")
     rankogram <- rankogram + labs(x=paste0("Treatment",
                                            "\n(Higher rankings associated with larger outcome values)"), 

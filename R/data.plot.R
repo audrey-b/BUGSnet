@@ -12,24 +12,27 @@
 #' is a variable in \code{data} called "type.measure" indicating whether the mean or median is 
 #' reported, setting fill.str="type.measure" would colour all studies reporting the mean as red, and all
 #' the studies reporting the median as turquoise.
-#' @param avg.hline If true, adds overall average line to plot.
+#' @param avg.hline If TRUE, adds overall average line to plot. Default is TRUE.
 
 #' 
 #' @examples
 #' # Example containing a fill.str, an overall average, and no error
 #' 
-#'data.plot(data = my.slr,
-#'              covariate = "Age", 
-#'              fill.str="type_measure",
+#'data(diabetes.sim)
+#'data.plot(data = diabetes.sim,
+#'              covariate = "age", 
+#'              fill.str="age_type",
 #'              by = "study")
 #'              
 #'# Example containing no fill.str, no overall average, but contains errorbars
 #'
-#'data.plot(data = my.slr,
-#'              covariate = "Age", 
-#'              half.length = "Age_sd",
+#'data(diabetes.sim)
+#'data.plot(data = diabetes.sim,
+#'              covariate = "age", 
+#'              half.length = "age_SD",
 #'              avg.hline=FALSE,
 #'              by = "study")
+#' @export
 
 data.plot <- function(data,
                           covariate, 

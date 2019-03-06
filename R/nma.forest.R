@@ -14,7 +14,7 @@
 #' 
 #' #make forest plot
 #' nma.forest(nma = nma_results, comparator="Placebo")
-#' 
+#' @export
 
 
 nma.forest <- function(nma, 

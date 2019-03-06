@@ -17,6 +17,7 @@
 #' @examples
 #'
 #' league_table <- leaguetable(nma=nma.results, central.tdcy="median")
+#' @export
 
 nma.league <- function(nma, 
                        central.tdcy = "median",

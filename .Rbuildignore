@@ -1,2 +1,6 @@
+^Meta$
+^doc$
+^data-raw$
+^models$
 ^BUGSnet\.Rproj$
 ^\.Rproj\.user$

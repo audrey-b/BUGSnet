@@ -17,7 +17,7 @@
 #' @return \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 #' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
-#' 
+#' @export
 
 nma.run <- function(model,
                     monitor="DEFAULT",

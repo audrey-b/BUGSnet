@@ -13,9 +13,16 @@
 #' @return \code{varname.s} - A string containing the name of the study variable
 #' 
 #' @examples
-#' # Example 1, no patient data
-#' my.data <- read.csv("diabetes_NMAdata.csv")
-#' diabetes.slr <- data.prep(arm.data = my.data, varname.t = "treatment", varname.s = "studyName", N="n_patients")
+#' # Example 1
+#' data(diabetes)
+#' my.data <- diabetes
+#' diabetes.slr <- data.prep(arm.data = my.data, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' diabetes.slr$arm.data
+#' diabetes.slr$treatments
+#' diabetes.slr$studies
+#' @export
 
 data.prep <- function(arm.data,
                       #patient.data = NULL,
@@ -23,8 +30,8 @@ data.prep <- function(arm.data,
                       varname.s
 ){
   
-  varname.t.quo <- quo(!! as.name(varname.t))
-  varname.s.quo <- quo(!! as.name(varname.s))
+  varname.t.quo <- rlang::quo(!! as.name(varname.t))
+  varname.s.quo <- rlang::quo(!! as.name(varname.s))
   
   
   arm.data %<>% mutate(!! varname.t.quo := as.character(!! varname.t.quo),

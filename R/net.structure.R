@@ -1,7 +1,7 @@
 network.structure <- function(data.nma) {
 
-  trial <- quo(!! as.name(data.nma$varname.s))
-  varname.t.quo <- quo(!! as.name(data.nma$varname.t))
+  trial <- rlang::quo(!! as.name(data.nma$varname.s))
+  varname.t.quo <- rlang::quo(!! as.name(data.nma$varname.t))
   
 
   if ("n" %in% colnames(data.nma$arm.data)) {

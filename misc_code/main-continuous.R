@@ -15,7 +15,7 @@ library(readxl)
 load_all(path = paste0(path,"R"))
 
 
-rawdata <- read_excel("data/continuous_example.xlsx", 
+rawdata <- read_excel("data-raw/continuous_example.xlsx", 
                       col_types = c("text", "numeric", "numeric", 
                                     "text", "text", "numeric", "numeric", 
                                     "numeric", "numeric", "numeric", 

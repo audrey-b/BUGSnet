@@ -1,18 +1,18 @@
 Package: BUGSnet
-Title: All-in-one package for Network Meta-Analysis
+Title: Bayesian network meta-analyses in compliance with best practice guidelines
 Version: 0.0.0.9000
 Authors@R: c(
-  person("Audrey", "Beliveau", email = "audrey.beliveau@uwaterloo.ca", role = c("aut","rth")),
+  person("Audrey", "Beliveau", email = "audrey.beliveau@uwaterloo.ca", role = c("aut","cph")),
   person("Justin", "Slater", email = "jslater@lighthouseoutcomes.com", role = c("aut", "cre")),
-  person("Devon", "Boyne", email = "dboyne@lighthouseoutcomes.com", role = c("aut")),
-  person("Paul", "Arora", email = "parora@lighthouseoutcomes.com", role = c("sad")),
-  person("Darren", "Brenner", email = "dbrenner@lighthouseoutcomes.com", role = c("sad"))
+  person("Devon", "Boyne", email = "dboyne@lighthouseoutcomes.com", role = c("aut", "cph")),
+  person("Paul", "Arora", email = "parora@lighthouseoutcomes.com", role = c("cph")),
+  person("Darren", "Brenner", email = "dbrenner@lighthouseoutcomes.com", role = c("cph"))
   )
-Description: What the package does (one paragraph).
-Depends: R (>= 3.5.1)
+Description: BUGSnet is a feature-rich R package to conduct Bayesian network meta-analyses in compliance with best practice guidelines and facilitate reporting. Bayesian analyses are conducted with JAGS. Outputs include network plots, tables of network characteristics, league tables and league heat plots, SUCRA plots, rankograms, forest plots, leverage plots, traceplots, posterior mean deviance comparison plots.
+Depends: R (>= 3.5.2)
 License: TBD
 Encoding: UTF-8
-LazyData: True
+LazyData: yes
 RoxygenNote: 6.1.1
 Imports:
     tidyr,
@@ -27,10 +27,16 @@ Imports:
     purrr,
     scales,
     RColorBrewer,
-    Rdpack
+    Rdpack,
+    graphics,
+    utils,
+    rlang
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    devtools,
+    roxygen2
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace", "collate"))
 RdMacros: Rdpack
 

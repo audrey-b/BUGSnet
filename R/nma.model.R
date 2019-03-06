@@ -79,6 +79,7 @@
 #'         link = "cloglog",
 #'         effects = "random")
 #'         
+#' @export
 #'
 #' @references
 #' \insertRef{gemtc}{BUGSnet}
@@ -86,7 +87,6 @@
 #' \insertRef{TSD3}{BUGSnet}
 #' 
 #' 
-#' @importFrom Rdpack reprompt 
 
 nma.model <- function(data,
                       outcome, 

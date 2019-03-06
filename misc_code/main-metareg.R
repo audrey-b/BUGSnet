@@ -75,10 +75,16 @@ gemtc_model$om.scale^(-2)
 #               ask=dev.interactive(orNone=TRUE))
 
 
-rawdata <- atrialFibrillation$data.ab %>%
-  left_join(atrialFibrillation$studies, by="study")
+#rawdata <- atrialFibrillation$data.ab %>%
+#  left_join(atrialFibrillation$studies, by="study")
 
-dataprep <- data.prep(arm.data = rawdata,
+#dataprep <- data.prep(arm.data = rawdata,
+#                      varname.t = "treatment",
+#                      varname.s = "study")
+
+data(afib)
+
+dataprep <- data.prep(arm.data = afib,
                       varname.t = "treatment",
                       varname.s = "study")
 

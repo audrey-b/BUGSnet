@@ -11,10 +11,22 @@
 #' @param label.offset2 Node label location (y-axis) relative to node. Default=1
 #' @examples
 #' # use default settings
-#' network.plot(my.slr)
+#' data(diabetes)
+#' my.data <- diabetes
+#' diabetes.slr <- data.prep(arm.data = my.data, varname.t = "Treatment", varname.s = "Study", N="n")
+#' network.plot(diabetes.slr)
 #' 
 #' # Highlight all direct comparisons with Placebo. Adjust node and edge size, centre node labels
-#' network.plot(my.slr, node.scale=4, edge.scale=1.5, flag="Placebo", label.offset1=0, label.offset2=0)
+#' network.plot(diabetes.slr, 
+#' node.scale=4, 
+#' edge.scale=1.5, 
+#' flag="Placebo", 
+#' label.offset1=0, 
+#' label.offset2=0)
+#' @export
+
+
+
 
 net.plot <- function(data,
                          node.scale=5, 

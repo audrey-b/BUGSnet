@@ -7,6 +7,7 @@
 #' there are many treatments in your network.
 #' 
 #' @return \code{regplot} - A plot of the relative treatment effects vs covariate values for meta-regression.
+#' @export
 
 
 nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){

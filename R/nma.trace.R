@@ -2,6 +2,7 @@
 #' @description Produces traceplots of the MCMC chains obtained from \code{nma.run()}
 #' @param nma An output produced by \code{nma.run()}
 #' @param n Limits the number of printed variables to the first \code{n}
+#' @export
 
 nma.trace <- function(nma, n="all"){
   samples <- do.call(rbind, nma$samples) %>% data.frame()

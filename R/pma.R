@@ -60,6 +60,7 @@
 #'                          method = "MH",
 #'                          method.tau="DL",
 #'                          sm = "IRR")
+#' @export
 
 pma <- function(data,
                      name.trt1, 
