@@ -19,6 +19,14 @@
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
 #' @export
 #' @seealso \code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}
+#' @examples
+#' #Example 1
+#' 
+#'diabetes.re.c.res <- nma.run(diabetes.re.c,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)
+#'        
 
 
 nma.run <- function(model,

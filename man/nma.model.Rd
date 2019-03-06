@@ -70,43 +70,39 @@ where \eqn{u} is the largest maximum likelihood estimator in single trials \inse
 }
 \examples{
 #Example 1
-#Fixed effects, consistency model.
-#Binomial family, log link. This implies that the relative risk (RR) will be the scale.
+#Random effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 
-nma.model(data = my.slr,
-       outcome = "n_died", 
+data(diabetes.sim)
+diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+varname.t = "Treatment", 
+varname.s = "Study")
+
+diabetes.re.c <- nma.model(data = diabetes.slr,
+       outcome = "diabetes", 
        N = "n",
-       reference = "plbo",
+       reference = "Placebo",
        family = "binomial",
-       link = "log",
-       effects = "fixed")
+       link = "cloglog",
+       effects = "random",
+       type="consistency",
+       time="followup"
+       )
        
 #Example 2
-#Random Effects, inconsistency model
-#Normal family, identity link.        
- 
-nma.model(data = my.slr,
-        outcome = "weight_change", 
-        N = "n",
-        reference = "control",
-        type = "inconsistency",
-        sd = "std_dev",
-        family = "normal",
-        link = "identity",
-        effects = "random")
-        
-# Example 3
-# Random Effects, consistency model,
-# Poisson family, cloglog link.
+#Fixed effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 
-nma.model(data = my.slr,
-        outcome = "n_died", 
-        N = "n",
-        reference = "plbo",
-        time="personyears",
-        family = "poisson",
-        link = "cloglog",
-        effects = "random")
+diabetes.fe.c <- nma.model(data = diabetes.slr,
+       outcome = "diabetes", 
+       N = "n",
+       reference = "Placebo",
+       family = "binomial",
+       link = "cloglog",
+       effects = "fixed",
+       type="consistency",
+       time="followup"
+       )
         
 }
 \references{

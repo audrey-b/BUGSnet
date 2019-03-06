@@ -4,7 +4,7 @@
 #' 
 #' @param data A data object produced by \code{data.prep()}
 #' @param covariate A string indicating the name of the patient characteristic to be plotted
-#' @param half-length A string indicating how to calculate the half-length of error bars (optional)
+#' @param half.length A string indicating how to calculate the half-length of error bars (optional)
 #' @param by If by="study" then data from arms will be grouped by study/trial. If by="treatment" then
 #' bar graph is grouped by treatment.
 #' @param fill.str An optional string indicating the variable to categorize measurements. For instance,
@@ -16,6 +16,11 @@
 
 #' 
 #' @examples
+#' 
+#' data(diabetes.sim)
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
 #'
 #' # Example containing a fill.str, an overall average, and no error
 #' 

@@ -5,7 +5,7 @@
 \title{Forest plot}
 \usage{
 nma.forest(nma, comparator, central.tdcy = "median", log.scale = FALSE,
-  line.size = 1, x.trans = NULL, cov.value = NULL)
+  lwd = 1, x.trans = NULL, cov.value = NULL)
 }
 \arguments{
 \item{nma}{An output produced by \code{nma.run()}}
@@ -16,11 +16,11 @@ nma.forest(nma, comparator, central.tdcy = "median", log.scale = FALSE,
 
 \item{log.scale}{If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.}
 
+\item{lwd}{Line width relative to the default (default=1).}
+
 \item{x.trans}{Optional. A string indicating a transformation to apply to the x-axis. Setting this parameter to "log" is useful when there are extreme values or to allow an easier interpretation of odds ratios and relative ratios (if e.g. treatment B is twice as far from the line y=1 then treatment A then it's OR/RR is twice that of treatment A.)}
 
 \item{cov.value}{Must be specified for meta-regression. This is the value of the covariate for which to report the results.}
-
-\item{lwd}{Line width relative to the default (default=1).}
 }
 \value{
 \code{forestplot} - A forest plot.
@@ -29,9 +29,32 @@ nma.forest(nma, comparator, central.tdcy = "median", log.scale = FALSE,
 Produces a forest plot of point estimates and 95% credible intervals obtained with the quantile method.
 }
 \examples{
+#Example 1
+#Random effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 
+data(diabetes.sim)
+diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+varname.t = "Treatment", 
+varname.s = "Study")
+
+diabetes.re.c <- nma.model(data = diabetes.slr,
+       outcome = "diabetes", 
+       N = "n",
+       reference = "Placebo",
+       family = "binomial",
+       link = "cloglog",
+       effects = "random",
+       type="consistency",
+       time="followup"
+       )
+diabetes.re.c.res <- nma.run(diabetes.re.c,
+n.adapt=1000,
+n.burnin=1000,
+n.iter=10000)        
+       
 #make forest plot
-nma.forest(nma = nma_results, comparator="Placebo")
+nma.forest(nma = diabetes.re.c.res, comparator="Placebo")
 }
 \seealso{
 \code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.rank}}

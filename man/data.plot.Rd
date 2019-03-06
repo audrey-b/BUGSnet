@@ -12,6 +12,8 @@ data.plot(data, covariate, half.length = NULL, by = "study",
 
 \item{covariate}{A string indicating the name of the patient characteristic to be plotted}
 
+\item{half.length}{A string indicating how to calculate the half-length of error bars (optional)}
+
 \item{by}{If by="study" then data from arms will be grouped by study/trial. If by="treatment" then
 bar graph is grouped by treatment.}
 
@@ -22,14 +24,17 @@ some studies report the mean treatment effect and others may report the median t
 is a variable in \code{data} called "type.measure" indicating whether the mean or median is
 reported, setting fill.str="type.measure" would colour all studies reporting the mean as red, and all
 the studies reporting the median as turquoise.}
-
-\item{half-length}{A string indicating how to calculate the half-length of error bars (optional)}
 }
 \description{
 Plots a particular patient characteristic by study or by treatment. Useful for assessing
 differences in potential effect modifiers.
 }
 \examples{
+
+data(diabetes.sim)
+diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+varname.t = "Treatment", 
+varname.s = "Study")
 
 # Example containing a fill.str, an overall average, and no error
 

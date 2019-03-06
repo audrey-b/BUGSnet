@@ -317,6 +317,11 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 #' @return \code{intervention} - Summary statistics broken down by treatment
 #' @return \code{comparison} - Summary statistics broken down by treatment comparison
 #' @examples
+#' data(diabetes.sim)
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' 
 #' network.char <- net.tab(data = diabetes.slr,
 #' outcome = "diabetes",
 #' N = "n",

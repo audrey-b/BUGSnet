@@ -9,6 +9,12 @@ nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, ...)
 \arguments{
 \item{nma}{Resulting output from running \code{nma.analysis()}.}
 
+\item{plot.pD}{Whether to include pD on the plot. Default is TRUE.}
+
+\item{plot.DIC}{Whether to include DIC on the plot. Default is TRUE.}
+
+\item{plot.Dres}{Whether to include Dres on the plot. Default is TRUE.}
+
 \item{...}{Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}. These arguments will only effect the
 leverage plot.}
 }
@@ -44,4 +50,7 @@ contributing to the model's poor fit.
 par(mfrow=c(1,2))
 nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
 nma.fit(random_effects_results, main= "Random Effects Model")
+}
+\seealso{
+\code{\link{nma.run}}
 }

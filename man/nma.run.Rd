@@ -41,6 +41,15 @@ as well as \code{sigma} when a random effects model is used and the regression c
 \description{
 Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 }
+\examples{
+#Example 1
+
+diabetes.re.c.res <- nma.run(diabetes.re.c,
+n.adapt=1000,
+n.burnin=1000,
+n.iter=10000)
+       
+}
 \seealso{
 \code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}
 }

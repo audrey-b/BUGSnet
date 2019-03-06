@@ -6,6 +6,9 @@
 #' contributing to the model's poor fit.
 #' 
 #' @param nma Resulting output from running \code{nma.analysis()}. 
+#' @param plot.pD Whether to include pD on the plot. Default is TRUE.
+#' @param plot.DIC Whether to include DIC on the plot. Default is TRUE.
+#' @param plot.Dres Whether to include Dres on the plot. Default is TRUE.
 #' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}. These arguments will only effect the
 #' leverage plot.
 #' 

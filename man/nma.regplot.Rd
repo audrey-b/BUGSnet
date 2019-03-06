@@ -9,6 +9,8 @@ nma.regplot(nma, x.range = NULL, lwd = 1, palette = "Set1")
 \arguments{
 \item{nma}{Resulting output from running \code{nma.run()}.}
 
+\item{x.range}{The range of the x axis (covariate values). By default, the range will be the same as in the data.}
+
 \item{lwd}{Line width relative to the default (default=1).}
 
 \item{palette}{A string indicating the colour set from RcolorBrewer for the plot. "set1" is great, but you may need a different colour set if

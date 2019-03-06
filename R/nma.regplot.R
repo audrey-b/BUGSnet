@@ -2,6 +2,7 @@
 #' @description Produces a plot of relative treatment effects on the linear scale vs covariate values for meta-regression.
 #' 
 #' @param nma Resulting output from running \code{nma.run()}.
+#' @param x.range The range of the x axis (covariate values). By default, the range will be the same as in the data.
 #' @param lwd Line width relative to the default (default=1).
 #' @param palette A string indicating the colour set from RcolorBrewer for the plot. "set1" is great, but you may need a different colour set if 
 #' there are many treatments in your network.

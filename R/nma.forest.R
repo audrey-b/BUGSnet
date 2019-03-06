@@ -11,9 +11,32 @@
 #' @return \code{forestplot} - A forest plot.
 #'
 #' @examples
+#' #Example 1
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 #' 
+#' data(diabetes.sim)
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' 
+#'diabetes.re.c <- nma.model(data = diabetes.slr,
+#'        outcome = "diabetes", 
+#'        N = "n",
+#'        reference = "Placebo",
+#'        family = "binomial",
+#'        link = "cloglog",
+#'        effects = "random",
+#'        type="consistency",
+#'        time="followup"
+#'        )
+#'diabetes.re.c.res <- nma.run(diabetes.re.c,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)        
+#'        
 #' #make forest plot
-#' nma.forest(nma = nma_results, comparator="Placebo")
+#' nma.forest(nma = diabetes.re.c.res, comparator="Placebo")
 #' @export
 #' @seealso \code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.rank}} 
 
@@ -22,7 +45,7 @@ nma.forest <- function(nma,
                        comparator, 
                        central.tdcy = "median", 
                        log.scale=FALSE,
-                       line.size=1,
+                       lwd=1,
                        x.trans=NULL,
                        cov.value=NULL) {
   
@@ -127,7 +150,7 @@ nma.forest <- function(nma,
   }else cov.str <- ""
   
   f.plot <- ggplot(tmp1, aes(x=trt, y=mean, ymin=lci, ymax=uci)) +
-    geom_pointrange(size=line.size) +
+    geom_pointrange(size=lwd) +
     geom_hline(yintercept=null.value,lty=2) +
     scale_x_discrete(limits = sort(tmp1$trt, decreasing=TRUE)) +
     xlab("Treatment") +

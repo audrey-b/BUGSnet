@@ -30,6 +30,11 @@ indicating person-time followup (e.g person years) or study followup time}
 Generates tables of network characteristics
 }
 \examples{
+data(diabetes.sim)
+diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+varname.t = "Treatment", 
+varname.s = "Study")
+
 network.char <- net.tab(data = diabetes.slr,
 outcome = "diabetes",
 N = "n",

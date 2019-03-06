@@ -54,33 +54,10 @@ from the package \code{meta}.
 #Dichotomous / binomial outcome example comparing rapid-acting inhaled insulin to placebo.
 raii_vs_plbo <- pairwise(data = diabetes.slr,
                          name.trt1 = "Placebo", 
-                         name.trt2 = "raii", 
-                         outcome = "n_died",
+                         name.trt2 = "Diuretic", 
+                         outcome = "diabetes",
                          N = "n")
                            
-# Continuous outcome example.                           
-alben_vs_plbo <- pairwise(data=weight.slr,
-                         name.trt1 = "plbo",
-                         name.trt2 = "alben",
-                         outcome="y",
-                         N="n",
-                         sd="std_dev",
-                         type.outcome="continuous",
-                         method = "Inverse",
-                         method.tau="DL",
-                         sm = "SMD")
-
-# A rate outcome example
-diet1_vs_ctrl <- pairwise(data=diet.slr,
-                         name.trt1 = "control",
-                         name.trt2 = "diet 1",
-                         outcome="death",
-                         N="n",
-                         time="py",
-                         type.outcome="rate",
-                         method = "MH",
-                         method.tau="DL",
-                         sm = "IRR")
 }
 \seealso{
 \code{\link{data.prep}}

@@ -23,11 +23,34 @@
 #' 
 #' @examples
 #' 
+#' #Example 1
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#' 
+#' data(diabetes.sim)
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' 
+#'diabetes.re.c <- nma.model(data = diabetes.slr,
+#'        outcome = "diabetes", 
+#'        N = "n",
+#'        reference = "Placebo",
+#'        family = "binomial",
+#'        link = "cloglog",
+#'        effects = "random",
+#'        type="consistency",
+#'        time="followup"
+#'        )
+#'diabetes.re.c.res <- nma.run(diabetes.re.c,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)
 #' #get sucra results
-#' sucra_results <- nma.rank(nma = nma_results, largerbetter = TRUE)
+#' sucra_results <- nma.rank(nma = diabetes.re.c.res, largerbetter = FALSE)
 #' 
 #' #plot sucra results
-#' sucra_results$sucra
+#' sucra_results$sucraplot
 #' @export
 #' @seealso \code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.forest}} 
 

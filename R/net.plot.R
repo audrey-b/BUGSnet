@@ -9,15 +9,26 @@
 #' going into this treatment.
 #' @param label.offset1 Node label location (x-axis) relative to node. Default=0
 #' @param label.offset2 Node label location (y-axis) relative to node. Default=1
+#' @param graph.scale bla
+#' @param node.lab.cex bla
+#' @param edge.lab.cex bla
+#' @param node.colour bla
+#' @param edge.colour bla
+#' @param edge.lab.colour bla
+#' @param flag.edge.colour bla
+#' @param ... bla
 #' @examples
+#' 
+#' data(diabetes.sim)
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' 
 #' # use default settings
-#' data(diabetes)
-#' my.data <- diabetes
-#' diabetes.slr <- data.prep(arm.data = my.data, varname.t = "Treatment", varname.s = "Study", N="n")
-#' network.plot(diabetes.slr)
+#' net.plot(diabetes.slr)
 #' 
 #' # Highlight all direct comparisons with Placebo. Adjust node and edge size, centre node labels
-#' network.plot(diabetes.slr, 
+#' net.plot(diabetes.slr, 
 #' node.scale=4, 
 #' edge.scale=1.5, 
 #' flag="Placebo", 

@@ -24,20 +24,39 @@ going into this treatment.}
 \item{label.offset1}{Node label location (x-axis) relative to node. Default=0}
 
 \item{label.offset2}{Node label location (y-axis) relative to node. Default=1}
+
+\item{graph.scale}{bla}
+
+\item{node.lab.cex}{bla}
+
+\item{edge.lab.cex}{bla}
+
+\item{node.colour}{bla}
+
+\item{edge.colour}{bla}
+
+\item{edge.lab.colour}{bla}
+
+\item{flag.edge.colour}{bla}
+
+\item{...}{bla}
 }
 \description{
 Produces network plot where nodes represent treatments and edges represent direct
 evidence (e.g an RCT) comparing treatments.
 }
 \examples{
+
+data(diabetes.sim)
+diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+varname.t = "Treatment", 
+varname.s = "Study")
+
 # use default settings
-data(diabetes)
-my.data <- diabetes
-diabetes.slr <- data.prep(arm.data = my.data, varname.t = "Treatment", varname.s = "Study", N="n")
-network.plot(diabetes.slr)
+net.plot(diabetes.slr)
 
 # Highlight all direct comparisons with Placebo. Adjust node and edge size, centre node labels
-network.plot(diabetes.slr, 
+net.plot(diabetes.slr, 
 node.scale=4, 
 edge.scale=1.5, 
 flag="Placebo", 
