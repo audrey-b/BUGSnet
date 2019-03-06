@@ -28,14 +28,20 @@
 #' 
 #' 
 #' @examples
-#' #Sample pairwise meta-analyis
 #' 
-#' #Dichotomous / binomial outcome example comparing rapid-acting inhaled insulin to placebo.
-#' raii_vs_plbo <- pairwise(data = diabetes.slr,
-#'                          name.trt1 = "Placebo", 
-#'                          name.trt2 = "Diuretic", 
-#'                          outcome = "diabetes",
-#'                          N = "n")
+#' data(diabetes.sim)
+#' 
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' 
+#' pma(data = diabetes.slr,
+#' type.outcome="binomial",
+#' sm="OR",
+#' name.trt1 = "Placebo", 
+#' name.trt2 = "Diuretic", 
+#' outcome = "diabetes",
+#' N = "n")
 #'                            
 #' @export
 #' @seealso \code{\link{data.prep}}

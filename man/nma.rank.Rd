@@ -42,16 +42,14 @@ Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A 
 that each treatment is the best, second best...worst treatment in the network.
 }
 \examples{
-
-#Example 1
-#Random effects, consistency model.
-#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-
 data(diabetes.sim)
+
 diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 varname.t = "Treatment", 
 varname.s = "Study")
 
+#Random effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 diabetes.re.c <- nma.model(data = diabetes.slr,
        outcome = "diabetes", 
        N = "n",
@@ -62,10 +60,12 @@ diabetes.re.c <- nma.model(data = diabetes.slr,
        type="consistency",
        time="followup"
        )
+ 
 diabetes.re.c.res <- nma.run(diabetes.re.c,
 n.adapt=1000,
 n.burnin=1000,
 n.iter=10000)
+ 
 #get sucra results
 sucra_results <- nma.rank(nma = diabetes.re.c.res, largerbetter = FALSE)
 

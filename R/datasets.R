@@ -1,6 +1,6 @@
 #' Thrombolytic data
 #'
-#' Data from ...
+#' Data from gemtc
 #'
 #' @docType data
 #'
@@ -17,7 +17,7 @@
 
 #' Diabetes data
 #'
-#' Data from ...
+#' Data from NICE TSD 2.
 #'
 #' @docType data
 #'
@@ -34,7 +34,7 @@
 
 #' Diabetes data with simulated age covariate
 #'
-#' Data from ...
+#' Data from NICE TSD 2.
 #'
 #' @docType data
 #'
@@ -66,3 +66,21 @@
 #' data(dietfat)
 #' 
 "dietfat"
+
+
+#' Atrial Fibrillation data
+#'
+#' Data from gemtc
+#'
+#' @docType data
+#'
+#' @usage data(afib)
+#'
+#' @format A dataset.
+#'
+#' @keywords datasets
+#'
+#' @examples
+#' data(afib)
+#' 
+"afib"

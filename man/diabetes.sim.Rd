@@ -9,7 +9,7 @@
 data(diabetes.sim)
 }
 \description{
-Data from ...
+Data from NICE TSD 2.
 }
 \examples{
 data(diabetes.sim)

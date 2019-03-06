@@ -9,7 +9,7 @@
 data(thrombolytic)
 }
 \description{
-Data from ...
+Data from gemtc
 }
 \examples{
 data(thrombolytic)

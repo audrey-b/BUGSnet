@@ -40,15 +40,16 @@
 #' 
 #' 
 #' @examples
-#' #Example 1
-#' #Random effects, consistency model.
-#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#' 
 #' 
 #' data(diabetes.sim)
+#' 
 #' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 #' varname.t = "Treatment", 
 #' varname.s = "Study")
 #' 
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 #'diabetes.re.c <- nma.model(data = diabetes.slr,
 #'        outcome = "diabetes", 
 #'        N = "n",
@@ -60,10 +61,8 @@
 #'        time="followup"
 #'        )
 #'        
-#' #Example 2
 #' #Fixed effects, consistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#' 
 #'diabetes.fe.c <- nma.model(data = diabetes.slr,
 #'        outcome = "diabetes", 
 #'        N = "n",

@@ -69,15 +69,16 @@ For meta-regression, the prespecified prior choices for the regression coefficie
 where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 }
 \examples{
-#Example 1
-#Random effects, consistency model.
-#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+
 
 data(diabetes.sim)
+
 diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 varname.t = "Treatment", 
 varname.s = "Study")
 
+#Random effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 diabetes.re.c <- nma.model(data = diabetes.slr,
        outcome = "diabetes", 
        N = "n",
@@ -89,10 +90,8 @@ diabetes.re.c <- nma.model(data = diabetes.slr,
        time="followup"
        )
        
-#Example 2
 #Fixed effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-
 diabetes.fe.c <- nma.model(data = diabetes.slr,
        outcome = "diabetes", 
        N = "n",

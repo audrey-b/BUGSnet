@@ -10,6 +10,32 @@
 #' @return \code{regplot} - A plot of the relative treatment effects vs covariate values for meta-regression.
 #' @export
 #' @seealso \code{\link{nma.run}}
+#' 
+#' @examples 
+#' data(afib)
+#' 
+#' afib.slr <- data.prep(arm.data = afib,
+#' varname.t = "treatment",
+#' varname.s = "study")
+#' 
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#'afib.re.c <- nma.model(data=afib.slr,
+#'outcome="responders",
+#'N="sampleSize",
+#'reference="02",
+#'family="binomial",
+#'link="logit",
+#'effects="random",
+#'covariate="stroke",
+#'prior.beta="EXCHANGEABLE")
+#'  
+#'afib.re.c.res <- nma.run(afib.re.c,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)
+#'
+#'nma.regplot(afib.re.c.res)
 
 nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
   

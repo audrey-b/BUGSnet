@@ -25,13 +25,53 @@
 
 #' 
 #' @examples
-#' #Compare fixed vs random effects via leverage plots and DIC
-#' #fixed_effects_results are the outputs of nma.analysis() where the parameter effects="fixed"
-#' #random_effects_results are the outputs of nma.analysis() where the parameter effects="random"
 #' 
+#' data(diabetes.sim)
+#' 
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' 
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#'diabetes.re.c <- nma.model(data = diabetes.slr,
+#'        outcome = "diabetes", 
+#'        N = "n",
+#'        reference = "Placebo",
+#'        family = "binomial",
+#'        link = "cloglog",
+#'        effects = "random",
+#'        type="consistency",
+#'        time="followup"
+#'        )
+#'  
+#'diabetes.re.c.res <- nma.run(diabetes.re.c,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)
+#'
+#' #Fixed effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#'diabetes.fe.c <- nma.model(data = diabetes.slr,
+#'        outcome = "diabetes", 
+#'        N = "n",
+#'        reference = "Placebo",
+#'        family = "binomial",
+#'        link = "cloglog",
+#'        effects = "fixed",
+#'        type="consistency",
+#'        time="followup"
+#'        )
+#'  
+#'diabetes.fe.c.res <- nma.run(diabetes.fe.c,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)  
+#' 
+#' #Compare fixed vs random effects via leverage plots and DIC 
 #' par(mfrow=c(1,2))
-#' nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
-#' nma.fit(random_effects_results, main= "Random Effects Model")
+#' nma.fit(diabetes.fe.c.res, main = "Fixed Effects Model" )
+#' nma.fit(diabetes.re.c.res, main= "Random Effects Model")
 #' @export
 #' @seealso \code{\link{nma.run}}
 
@@ -130,15 +170,59 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #' @param inconsistency.model.fit Results of \code{nma.fit()} of an inconsistency model.
 #' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed in \code{plot()}.
 #' 
-#' @examples
-#' # Assess model fit for a both an inconsistency model and consistency model using nma.fit()
-#' assess.consistency <- nma.fit(consistency_results)
-#' assess.inconsistency <- nma.fit(inconsistency_results)
-#' 
-#' #Plot the results against each other to assess inconsistency
-#' inconsistency.plot(consistency_results, inconsistency_results)
+
 #' @export
 #' @seealso \code{\link{nma.run}}
+#' @examples
+#' data(diabetes.sim)
+#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+#' varname.t = "Treatment", 
+#' varname.s = "Study")
+#' 
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#'diabetes.re.c <- nma.model(data = diabetes.slr,
+#'        outcome = "diabetes", 
+#'        N = "n",
+#'        reference = "Placebo",
+#'        family = "binomial",
+#'        link = "cloglog",
+#'        effects = "random",
+#'        type="consistency",
+#'        time="followup"
+#'        )
+#'  
+#'diabetes.re.c.res <- nma.run(diabetes.re.c,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)
+#'
+#' #Random effects, inconsistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#'diabetes.re.i <- nma.model(data = diabetes.slr,
+#'        outcome = "diabetes", 
+#'        N = "n",
+#'        reference = "Placebo",
+#'        family = "binomial",
+#'        link = "cloglog",
+#'        effects = "random",
+#'        type="inconsistency",
+#'        time="followup"
+#'        )
+#'  
+#'diabetes.re.i.res <- nma.run(diabetes.re.i,
+#'n.adapt=1000,
+#'n.burnin=1000,
+#'n.iter=10000)  
+#' 
+#' # Assess model fit for a both an inconsistency model and consistency model using nma.fit()
+#' assess.consistency <- nma.fit(diabetes.re.c.res)
+#' assess.inconsistency <- nma.fit(diabetes.re.i.res)
+#' 
+#' #Plot the results against each other to assess inconsistency
+#' nma.compare(assess.consistency, assess.inconsistency)
+
+
 
 
 
@@ -146,9 +230,11 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 nma.compare <- function(consistency.model.fit, inconsistency.model.fit, ...){
   x=as.numeric(consistency.model.fit$pmdev)
   y=as.numeric(inconsistency.model.fit$pmdev)
+  upp <- max(0, max(x,y)*1.04)
+  ptsline <- seq(0,upp, length.out=2000)
   plot(x, y,
-       xlim=c(0, max(0, max(x,y) + 0.5)),
-       ylim=c(0, max(0, max(x,y) + 0.5)),
+       xlim=c(0, upp),
+       ylim=c(0, upp),
        ylab="Inconsistency model", xlab="Consistency model", pch=16, ...)
-  lines(-1:100,-1:100, lty = 2 )
+  points(ptsline, ptsline, type = "l", lty=2)
 }

@@ -11,15 +11,14 @@
 #' @return \code{forestplot} - A forest plot.
 #'
 #' @examples
-#' #Example 1
-#' #Random effects, consistency model.
-#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#' 
 #' data(diabetes.sim)
+#' 
 #' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 #' varname.t = "Treatment", 
 #' varname.s = "Study")
 #' 
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 #'diabetes.re.c <- nma.model(data = diabetes.slr,
 #'        outcome = "diabetes", 
 #'        N = "n",
@@ -30,10 +29,12 @@
 #'        type="consistency",
 #'        time="followup"
 #'        )
+#'  
 #'diabetes.re.c.res <- nma.run(diabetes.re.c,
 #'n.adapt=1000,
 #'n.burnin=1000,
-#'n.iter=10000)        
+#'n.iter=10000)
+#'      
 #'        
 #' #make forest plot
 #' nma.forest(nma = diabetes.re.c.res, comparator="Placebo")

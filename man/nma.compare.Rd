@@ -18,12 +18,53 @@ Plots the posterior mean deviance of a consistency model vs an inconsistency mod
 where inconsistency is present. Ideally, both models will contribute approximately 1 to the posterior mean deviance.
 }
 \examples{
+data(diabetes.sim)
+diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+varname.t = "Treatment", 
+varname.s = "Study")
+
+#Random effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+diabetes.re.c <- nma.model(data = diabetes.slr,
+       outcome = "diabetes", 
+       N = "n",
+       reference = "Placebo",
+       family = "binomial",
+       link = "cloglog",
+       effects = "random",
+       type="consistency",
+       time="followup"
+       )
+ 
+diabetes.re.c.res <- nma.run(diabetes.re.c,
+n.adapt=1000,
+n.burnin=1000,
+n.iter=10000)
+
+#Random effects, inconsistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+diabetes.re.i <- nma.model(data = diabetes.slr,
+       outcome = "diabetes", 
+       N = "n",
+       reference = "Placebo",
+       family = "binomial",
+       link = "cloglog",
+       effects = "random",
+       type="inconsistency",
+       time="followup"
+       )
+ 
+diabetes.re.i.res <- nma.run(diabetes.re.i,
+n.adapt=1000,
+n.burnin=1000,
+n.iter=10000)  
+
 # Assess model fit for a both an inconsistency model and consistency model using nma.fit()
-assess.consistency <- nma.fit(consistency_results)
-assess.inconsistency <- nma.fit(inconsistency_results)
+assess.consistency <- nma.fit(diabetes.re.c.res)
+assess.inconsistency <- nma.fit(diabetes.re.i.res)
 
 #Plot the results against each other to assess inconsistency
-inconsistency.plot(consistency_results, inconsistency_results)
+nma.compare(assess.consistency, assess.inconsistency)
 }
 \seealso{
 \code{\link{nma.run}}

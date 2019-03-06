@@ -22,6 +22,32 @@ there are many treatments in your network.}
 \description{
 Produces a plot of relative treatment effects on the linear scale vs covariate values for meta-regression.
 }
+\examples{
+data(afib)
+
+afib.slr <- data.prep(arm.data = afib,
+varname.t = "treatment",
+varname.s = "study")
+
+#Random effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+afib.re.c <- nma.model(data=afib.slr,
+outcome="responders",
+N="sampleSize",
+reference="02",
+family="binomial",
+link="logit",
+effects="random",
+covariate="stroke",
+prior.beta="EXCHANGEABLE")
+ 
+afib.re.c.res <- nma.run(afib.re.c,
+n.adapt=1000,
+n.burnin=1000,
+n.iter=10000)
+
+nma.regplot(afib.re.c.res)
+}
 \seealso{
 \code{\link{nma.run}}
 }

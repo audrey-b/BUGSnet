@@ -9,10 +9,38 @@ nma.trace(nma, n = "all")
 \arguments{
 \item{nma}{An output produced by \code{nma.run()}}
 
-\item{n}{Limits the number of printed variables to the first \code{n}}
+\item{n}{Integer which limits the number of printed variables to the first \code{n}. Default is "all" which plots every variable.}
 }
 \description{
 Produces traceplots of the MCMC chains obtained from \code{nma.run()}
+}
+\examples{
+data(diabetes.sim)
+
+diabetes.slr <- data.prep(arm.data = diabetes.sim, 
+varname.t = "Treatment", 
+varname.s = "Study")
+
+#Random effects, consistency model.
+#Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+diabetes.re.c <- nma.model(data = diabetes.slr,
+       outcome = "diabetes", 
+       N = "n",
+       reference = "Placebo",
+       family = "binomial",
+       link = "cloglog",
+       effects = "random",
+       type="consistency",
+       time="followup"
+       )
+ 
+diabetes.re.c.res <- nma.run(diabetes.re.c,
+n.adapt=1000,
+n.burnin=1000,
+n.iter=10000)
+
+nma.trace(diabetes.re.c.res, n=4)
+ 
 }
 \seealso{
 \code{\link{nma.run}}

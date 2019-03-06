@@ -30,11 +30,12 @@ data.prep(arm.data, varname.t, varname.s)
 Puts data into appropriate form for subsequent analysis using BUGSnet.
 }
 \examples{
-# Example 1
 data(diabetes.sim)
+
 diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 varname.t = "Treatment", 
 varname.s = "Study")
+
 diabetes.slr$arm.data
 diabetes.slr$treatments
 diabetes.slr$studies

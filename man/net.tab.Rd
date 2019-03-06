@@ -31,6 +31,7 @@ Generates tables of network characteristics
 }
 \examples{
 data(diabetes.sim)
+
 diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 varname.t = "Treatment", 
 varname.s = "Study")

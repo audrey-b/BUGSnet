@@ -15,15 +15,14 @@
 #' @return \code{heatplot} - League heat plot, where a color scale is used to represent relative treatment effects and ** are used to highlight statistically significant differences.
 #' 
 #' @examples
-#' #Example 1
-#' #Random effects, consistency model.
-#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#' 
 #' data(diabetes.sim)
+#' 
 #' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 #' varname.t = "Treatment", 
 #' varname.s = "Study")
 #' 
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 #'diabetes.re.c <- nma.model(data = diabetes.slr,
 #'        outcome = "diabetes", 
 #'        N = "n",
@@ -34,11 +33,17 @@
 #'        type="consistency",
 #'        time="followup"
 #'        )
+#'  
 #'diabetes.re.c.res <- nma.run(diabetes.re.c,
 #'n.adapt=1000,
 #'n.burnin=1000,
 #'n.iter=10000)
-#' league_table <- leaguetable(nma=diabetes.re.c.res, central.tdcy="median")
+#'
+#'  
+#' league_table <- nma.league(nma=diabetes.re.c.res, central.tdcy="median")
+#' league_table$heatplot
+#' league_table$table
+#' league_table$longtable
 #' @export
 #' @seealso \code{\link{nma.run}}, \code{\link{nma.rank}}, \code{\link{nma.forest}} 
 

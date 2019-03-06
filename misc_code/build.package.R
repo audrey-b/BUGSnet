@@ -17,6 +17,8 @@ devtools::build_vignettes()
 devtools::install()
 library(BUGSnet)
 
+system("R CMD Rd2pdf . --title=Package BUGSnet --output=./manual.pdf --force --no-clean --internals")
+
 install.packages("~/Compile BUGSnet/BUGSnet_0.0.0.9000.tar.gz", repos = NULL, type = "source")
 library(BUGSnet)
 ??BUGSnet

@@ -12,12 +12,13 @@
 #' @return \code{varname.t} - A string containing the name of the treatment variable
 #' @return \code{varname.s} - A string containing the name of the study variable
 #' 
-#' @examples
-#' # Example 1
+#' @examples 
 #' data(diabetes.sim)
+#' 
 #' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
 #' varname.t = "Treatment", 
 #' varname.s = "Study")
+#' 
 #' diabetes.slr$arm.data
 #' diabetes.slr$treatments
 #' diabetes.slr$studies
