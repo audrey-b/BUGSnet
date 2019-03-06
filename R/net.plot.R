@@ -3,20 +3,20 @@
 #' evidence (e.g an RCT) comparing treatments.
 #' @param data An object produced by \code{data.prep()} containing the data.
 #' @param node.scale Size of the nodes (default=5)
-#' @param edge.scale Thickness of the edges (default=2)
+#' @param edge.scale Thickness of the edges (default=2).
 #' @param flag Used to highlight direct comparisons to a particular treatment (optional.
 #' Set this value to treatment of interest and it will highlight, in red, all of the edges
 #' going into this treatment.
 #' @param label.offset1 Node label location (x-axis) relative to node. Default=0
 #' @param label.offset2 Node label location (y-axis) relative to node. Default=1
-#' @param graph.scale bla
-#' @param node.lab.cex bla
-#' @param edge.lab.cex bla
-#' @param node.colour bla
-#' @param edge.colour bla
-#' @param edge.lab.colour bla
-#' @param flag.edge.colour bla
-#' @param ... bla
+#' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
+#' @param node.lab.cex Size of node labels
+#' @param edge.lab.cex Size of edge labels
+#' @param node.colour Node colour (string)
+#' @param edge.colour Edge colour (string)
+#' @param edge.lab.colour Edge label colour (string)
+#' @param flag.edge.colour Color of flagged edges (string)
+#' @param ... extra parameters for plotting
 #' @examples
 #' 
 #' data(diabetes.sim)
@@ -42,122 +42,122 @@
 
 
 net.plot <- function(data,
-                         node.scale=5, 
-                         edge.scale=2, 
+                     node.scale=5, 
+                     edge.scale=2, 
                      flag=NULL, 
-                         label.offset1=0, 
+                     label.offset1=0, 
                      label.offset2=1, 
-                         graph.scale=T,
-                         node.lab.cex = 1,
-                         edge.lab.cex = 1,
-                         node.colour = "#f69c54",
-                         edge.colour = "#4a5b71",
-                         edge.lab.colour = "blue",
-                         flag.edge.colour = "lightpink",
-                         ...) {
+                     graph.scale=T,
+                     node.lab.cex = 1,
+                     edge.lab.cex = 1,
+                     node.colour = "#f69c54",
+                     edge.colour = "#4a5b71",
+                     edge.lab.colour = "blue",
+                     flag.edge.colour = "lightpink",
+                     ...) {
   
-
- edgesANDnodes <- network.structure(data)
- edges <- edgesANDnodes[[1]]
- nodes <- edgesANDnodes[[2]]
- 
- names(nodes)[names(nodes) == data$varname.t] <- "trt"
- 
- net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
- 
- 
-## Source for function to offset node labels...
-## https://stackoverflow.com/questions/23209802/placing-vertex-label-outside-a-circular-layout-in-igraph
- 
- radian.rescale <- function(x, start=0, direction=1) {
-   c.rotate <- function(x) (x + start) %% (2 * pi) * direction
-   c.rotate(scales::rescale(x, c(0, 2 * pi), range(x)))
- }
- 
+  
+  edgesANDnodes <- network.structure(data)
+  edges <- edgesANDnodes[[1]]
+  nodes <- edgesANDnodes[[2]]
+  
+  names(nodes)[names(nodes) == data$varname.t] <- "trt"
+  
+  net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
+  
+  
+  ## Source for function to offset node labels...
+  ## https://stackoverflow.com/questions/23209802/placing-vertex-label-outside-a-circular-layout-in-igraph
+  
+  radian.rescale <- function(x, start=0, direction=1) {
+    c.rotate <- function(x) (x + start) %% (2 * pi) * direction
+    c.rotate(scales::rescale(x, c(0, 2 * pi), range(x)))
+  }
+  
   lab.locs <- radian.rescale(x=1:nrow(nodes), direction=-1, start=0)
   
   lab.offset <- data.frame(x = abs(lab.locs), y=label.offset1, z = label.offset2) %>%
     mutate(offset = ifelse(x < pi/6 | x > 5*pi/6 & x < 7*pi/6 | x > 11*pi/6, y, y/z)) %>%
     select(offset) %>% pull 
-      
-
-## -----------------------------------------------------------------
+  
+  
+  ## -----------------------------------------------------------------
   # following can be used in the future to specify a 
   # star layout with a single var in the middle
   # layout=layout_as_star(net, center = V(net)$trt==center.trt),
-
+  
   if(!is.null(flag)) {
     
-   inc.edges <- incident(net, V(net)[trt==flag], mode="all")
-   
-   ecol <- rep("grey", ecount(net))
-   ecol[inc.edges] <- flag.edge.colour
-   vcol <- rep("grey", vcount(net))
-   vcol[V(net)$trt==flag] <- node.colour
-   
-   plot(net, 
-        vertex.size=node.scale*V(net)$node.weight,
-        edge.width=edge.scale*E(net)$edge.weight,
-        
-        vertex.color=vcol,
-        vertex.frame.color=vcol,
-        vertex.label.cex = node.lab.cex,
-        edge.color=ecol,
-        
-        vertex.label=V(net)$trt,
-        vertex.label.color="black",
-        vertex.label.family="sans",
-        
-        
-        layout= layout_in_circle(net),
-        edge.label= ifelse(ecol==flag.edge.colour, E(net)$study, NA),
-        edge.label.family="sans",
-        edge.label.cex=edge.lab.cex,
-        edge.label.color=edge.lab.colour,
-        edge.label.dist=0,
-        edge.label.deg=0,
-        
-        vertex.label.dist=lab.offset,
-        vertex.label.degree=lab.locs) 
-   }else if (graph.scale==F) {
-     plot(net, 
-          vertex.size=node.scale,
-          edge.width=edge.scale,
-          vertex.label=V(net)$trt, 
-          vertex.label.color="black",
-          vertex.color=node.colour,
-          vertex.frame.color=node.colour,
-          vertex.label.cex = node.lab.cex,
-
-          edge.color=edge.colour,
-          
-          vertex.label.family="sans",
-          
-          layout= layout_in_circle(net),
-          vertex.label.dist=lab.offset,
-          vertex.label.degree=lab.locs,
-          rescale = FALSE)
-     
-   }else{
-     
- plot(net, 
-      vertex.label=V(net)$trt, 
-      edge.width=edge.scale*E(net)$edge.weight,
-      vertex.size=node.scale*V(net)$node.weight,
-      
-      vertex.label.color="black",
-      vertex.color=node.colour,
-      vertex.frame.color=node.colour,
-      edge.color=edge.colour,
-      
-      vertex.label.family="sans",
-
-      layout= layout_in_circle(net),
-      vertex.label.dist=lab.offset,
-      vertex.label.degree=lab.locs,
-      
-      vertex.label.cex = node.lab.cex)
-   }
+    inc.edges <- incident(net, V(net)[trt==flag], mode="all")
+    
+    ecol <- rep("grey", ecount(net))
+    ecol[inc.edges] <- flag.edge.colour
+    vcol <- rep("grey", vcount(net))
+    vcol[V(net)$trt==flag] <- node.colour
+    
+    plot(net, 
+         vertex.size=node.scale*V(net)$node.weight,
+         edge.width=edge.scale*E(net)$edge.weight,
+         
+         vertex.color=vcol,
+         vertex.frame.color=vcol,
+         vertex.label.cex = node.lab.cex,
+         edge.color=ecol,
+         
+         vertex.label=V(net)$trt,
+         vertex.label.color="black",
+         vertex.label.family="sans",
+         
+         
+         layout= layout_in_circle(net),
+         edge.label= ifelse(ecol==flag.edge.colour, E(net)$study, NA),
+         edge.label.family="sans",
+         edge.label.cex=edge.lab.cex,
+         edge.label.color=edge.lab.colour,
+         edge.label.dist=0,
+         edge.label.deg=0,
+         
+         vertex.label.dist=lab.offset,
+         vertex.label.degree=lab.locs) 
+  }else if (graph.scale==FALSE) {
+    plot(net, 
+         vertex.size=node.scale,
+         edge.width=edge.scale,
+         vertex.label=V(net)$trt, 
+         vertex.label.color="black",
+         vertex.color=node.colour,
+         vertex.frame.color=node.colour,
+         vertex.label.cex = node.lab.cex,
+         
+         edge.color=edge.colour,
+         
+         vertex.label.family="sans",
+         
+         layout= layout_in_circle(net),
+         vertex.label.dist=lab.offset,
+         vertex.label.degree=lab.locs,
+         rescale = FALSE)
+    
+  }else{
+    
+    plot(net, 
+         vertex.label=V(net)$trt, 
+         edge.width=edge.scale*E(net)$edge.weight,
+         vertex.size=node.scale*V(net)$node.weight,
+         
+         vertex.label.color="black",
+         vertex.color=node.colour,
+         vertex.frame.color=node.colour,
+         edge.color=edge.colour,
+         
+         vertex.label.family="sans",
+         
+         layout= layout_in_circle(net),
+         vertex.label.dist=lab.offset,
+         vertex.label.degree=lab.locs,
+         
+         vertex.label.cex = node.lab.cex)
+  }
   
 }
 

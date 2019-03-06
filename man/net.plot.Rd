@@ -15,7 +15,7 @@ net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
 
 \item{node.scale}{Size of the nodes (default=5)}
 
-\item{edge.scale}{Thickness of the edges (default=2)}
+\item{edge.scale}{Thickness of the edges (default=2).}
 
 \item{flag}{Used to highlight direct comparisons to a particular treatment (optional.
 Set this value to treatment of interest and it will highlight, in red, all of the edges
@@ -25,21 +25,21 @@ going into this treatment.}
 
 \item{label.offset2}{Node label location (y-axis) relative to node. Default=1}
 
-\item{graph.scale}{bla}
+\item{graph.scale}{Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.}
 
-\item{node.lab.cex}{bla}
+\item{node.lab.cex}{Size of node labels}
 
-\item{edge.lab.cex}{bla}
+\item{edge.lab.cex}{Size of edge labels}
 
-\item{node.colour}{bla}
+\item{node.colour}{Node colour (string)}
 
-\item{edge.colour}{bla}
+\item{edge.colour}{Edge colour (string)}
 
-\item{edge.lab.colour}{bla}
+\item{edge.lab.colour}{Edge label colour (string)}
 
-\item{flag.edge.colour}{bla}
+\item{flag.edge.colour}{Color of flagged edges (string)}
 
-\item{...}{bla}
+\item{...}{extra parameters for plotting}
 }
 \description{
 Produces network plot where nodes represent treatments and edges represent direct

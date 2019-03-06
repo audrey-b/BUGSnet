@@ -9,7 +9,7 @@
 data(diabetes)
 }
 \description{
-Data from NICE TSD 2.
+Data from NICE TSD 2. Description and references will be added soon.
 }
 \examples{
 data(diabetes)

@@ -9,7 +9,7 @@
 data(afib)
 }
 \description{
-Data from gemtc
+Data from the R package gemtc. Description and references will be added soon.
 }
 \examples{
 data(afib)

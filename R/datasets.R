@@ -1,6 +1,6 @@
 #' Thrombolytic data
 #'
-#' Data from gemtc
+#' Data from the R package gemtc. Description and references will be added soon.
 #'
 #' @docType data
 #'
@@ -17,7 +17,7 @@
 
 #' Diabetes data
 #'
-#' Data from NICE TSD 2.
+#' Data from NICE TSD 2. Description and references will be added soon.
 #'
 #' @docType data
 #'
@@ -34,7 +34,7 @@
 
 #' Diabetes data with simulated age covariate
 #'
-#' Data from NICE TSD 2.
+#' Data from NICE TSD 2. Description and references will be added soon.
 #'
 #' @docType data
 #'
@@ -52,7 +52,7 @@
 
 #' Dietfat data
 #'
-#' Data from NICE TSD 2.
+#' Data from NICE TSD 2. Description and references will be added soon.
 #'
 #' @docType data
 #'
@@ -70,7 +70,7 @@
 
 #' Atrial Fibrillation data
 #'
-#' Data from gemtc
+#' Data from the R package gemtc. Description and references will be added soon.
 #'
 #' @docType data
 #'

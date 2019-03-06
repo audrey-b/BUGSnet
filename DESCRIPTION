@@ -10,7 +10,7 @@ Authors@R: c(
 Description: BUGSnet is a feature-rich R package to conduct Bayesian network meta-analyses in compliance with best practice guidelines and facilitate reporting. Bayesian analyses are conducted with JAGS. Outputs include network plots, tables of network characteristics, league tables and league heat plots, SUCRA plots, rankograms, forest plots, leverage plots, traceplots, posterior mean deviance comparison plots.
 Depends: R (>= 3.5.2),
   rjags
-License: At the moment, BUGSnet is the sole property of its owners. It may not be used, modified or distributed without the permission of the owners. If permission to use BUGSnet is granted by the owners, it may not be used outside of the scope/intent and timeframe permitted by the owners.
+License: Currently, BUGSnet is the sole property of its owners. It may not be used, modified or distributed without the permission of the owners. If permission to use BUGSnet is granted by the owners, it may not be used outside of the scope/intent and timeframe permitted by the owners.
 Encoding: UTF-8
 LazyData: yes
 RoxygenNote: 6.1.1
