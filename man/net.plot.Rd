@@ -44,3 +44,6 @@ flag="Placebo",
 label.offset1=0, 
 label.offset2=0)
 }
+\seealso{
+\code{\link{data.prep}}
+}

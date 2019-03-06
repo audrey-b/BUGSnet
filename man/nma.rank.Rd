@@ -49,3 +49,6 @@ sucra_results <- nma.rank(nma = nma_results, largerbetter = TRUE)
 #plot sucra results
 sucra_results$sucra
 }
+\seealso{
+\code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.forest}}
+}

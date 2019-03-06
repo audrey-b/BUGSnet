@@ -41,3 +41,6 @@ as well as \code{sigma} when a random effects model is used and the regression c
 \description{
 Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 }
+\seealso{
+\code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}
+}

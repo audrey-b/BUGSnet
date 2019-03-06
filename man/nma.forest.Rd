@@ -33,3 +33,6 @@ Produces a forest plot of point estimates and 95% credible intervals obtained wi
 #make forest plot
 nma.forest(nma = nma_results, comparator="Placebo")
 }
+\seealso{
+\code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.rank}}
+}

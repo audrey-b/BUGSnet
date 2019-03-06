@@ -82,3 +82,6 @@ diet1_vs_ctrl <- pairwise(data=diet.slr,
                          method.tau="DL",
                          sm = "IRR")
 }
+\seealso{
+\code{\link{data.prep}}
+}

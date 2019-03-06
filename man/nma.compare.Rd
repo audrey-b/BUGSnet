@@ -25,3 +25,6 @@ assess.inconsistency <- nma.fit(inconsistency_results)
 #Plot the results against each other to assess inconsistency
 inconsistency.plot(consistency_results, inconsistency_results)
 }
+\seealso{
+\code{\link{nma.run}}
+}

@@ -3,6 +3,7 @@
 #' @param nma An output produced by \code{nma.run()}
 #' @param n Limits the number of printed variables to the first \code{n}
 #' @export
+#' @seealso \code{\link{nma.run}}
 
 nma.trace <- function(nma, n="all"){
   samples <- do.call(rbind, nma$samples) %>% data.frame()

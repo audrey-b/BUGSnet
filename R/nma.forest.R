@@ -15,6 +15,7 @@
 #' #make forest plot
 #' nma.forest(nma = nma_results, comparator="Placebo")
 #' @export
+#' @seealso \code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.rank}} 
 
 
 nma.forest <- function(nma, 

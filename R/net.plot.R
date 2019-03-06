@@ -24,6 +24,7 @@
 #' label.offset1=0, 
 #' label.offset2=0)
 #' @export
+#' @seealso \code{\link{data.prep}}
 
 
 

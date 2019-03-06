@@ -87,6 +87,8 @@
 #' \insertRef{TSD3}{BUGSnet}
 #' 
 #' 
+#' @seealso \code{\link{data.prep}}, \code{\link{nma.run}}
+
 
 nma.model <- function(data,
                       outcome, 

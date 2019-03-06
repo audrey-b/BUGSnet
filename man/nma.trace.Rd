@@ -14,3 +14,6 @@ nma.trace(nma, n = "all")
 \description{
 Produces traceplots of the MCMC chains obtained from \code{nma.run()}
 }
+\seealso{
+\code{\link{nma.run}}
+}

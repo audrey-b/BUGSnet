@@ -40,3 +40,6 @@ for all possible pairs of treatments point estimates along with 95% credible int
 
 league_table <- leaguetable(nma=nma.results, central.tdcy="median")
 }
+\seealso{
+\code{\link{nma.run}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}
+}

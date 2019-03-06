@@ -20,3 +20,6 @@ there are many treatments in your network.}
 \description{
 Produces a plot of relative treatment effects on the linear scale vs covariate values for meta-regression.
 }
+\seealso{
+\code{\link{nma.run}}
+}

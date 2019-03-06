@@ -16,7 +16,7 @@
 #' @import purrr
 #' @importFrom scales pretty_breaks
 #' @importFrom rlang quo
-#' @importFrom tibble as_data_frame
+#' @importFrom tibble tibble
 #' @importFrom plyr mapvalues
 #' @importFrom utils combn 
 #' @import tidyr
@@ -27,5 +27,4 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
 
-#' 
-NULL
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))

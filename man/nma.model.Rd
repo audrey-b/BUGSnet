@@ -114,3 +114,6 @@ nma.model(data = my.slr,
 
 \insertRef{TSD3}{BUGSnet}
 }
+\seealso{
+\code{\link{data.prep}}, \code{\link{nma.run}}
+}

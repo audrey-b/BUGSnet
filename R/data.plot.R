@@ -16,22 +16,23 @@
 
 #' 
 #' @examples
+#'
 #' # Example containing a fill.str, an overall average, and no error
 #' 
-#'data(diabetes.sim)
-#'data.plot(data = diabetes.sim,
+#'data.plot(data = diabetes.slr,
 #'              covariate = "age", 
 #'              fill.str="age_type",
 #'              by = "study")
 #'              
 #'# Example containing no fill.str, no overall average, but contains errorbars
 #'
-#'data(diabetes.sim)
-#'data.plot(data = diabetes.sim,
+#'data.plot(data = diabetes.slr,
 #'              covariate = "age", 
 #'              half.length = "age_SD",
 #'              avg.hline=FALSE,
 #'              by = "study")
+#'              
+#' @seealso \code{\link{data.prep}}
 #' @export
 
 data.plot <- function(data,

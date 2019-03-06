@@ -61,6 +61,7 @@
 #'                          method.tau="DL",
 #'                          sm = "IRR")
 #' @export
+#' @seealso \code{\link{data.prep}}
 
 pma <- function(data,
                      name.trt1, 

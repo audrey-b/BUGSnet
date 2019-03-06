@@ -30,7 +30,8 @@ Imports:
     Rdpack,
     graphics,
     utils,
-    rlang
+    rlang,
+    tibble
 Suggests: 
     knitr,
     rmarkdown,

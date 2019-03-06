@@ -40,3 +40,6 @@ diabetes.slr$arm.data
 diabetes.slr$treatments
 diabetes.slr$studies
 }
+\seealso{
+\code{\link{net.plot}}, \code{\link{net.tab}}, \code{\link{data.plot}}, \code{\link{nma.model}}
+}

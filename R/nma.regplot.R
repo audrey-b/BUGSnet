@@ -8,7 +8,7 @@
 #' 
 #' @return \code{regplot} - A plot of the relative treatment effects vs covariate values for meta-regression.
 #' @export
-
+#' @seealso \code{\link{nma.run}}
 
 nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
   

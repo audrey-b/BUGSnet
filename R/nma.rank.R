@@ -29,6 +29,7 @@
 #' #plot sucra results
 #' sucra_results$sucra
 #' @export
+#' @seealso \code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.forest}} 
 
 
 

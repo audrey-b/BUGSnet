@@ -30,14 +30,12 @@ indicating person-time followup (e.g person years) or study followup time}
 Generates tables of network characteristics
 }
 \examples{
-network.charac(data = data.prep(my.data), 
-outcome = "n_died", 
-N = "n", 
-type.outcome="binomial", 
-time = NULL)
-network.charac(data = data.prep(my.data), 
-outcome = "y", 
-N = "N", 
-type.outcome="rate", 
-time = "personYears")
+network.char <- net.tab(data = diabetes.slr,
+outcome = "diabetes",
+N = "n",
+type.outcome = "rate2",
+time = "followup")
+}
+\seealso{
+\code{\link{data.prep}}
 }

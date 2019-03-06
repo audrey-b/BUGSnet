@@ -30,6 +30,7 @@
 #' nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
 #' nma.fit(random_effects_results, main= "Random Effects Model")
 #' @export
+#' @seealso \code{\link{nma.run}}
 
 nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   jagssamples <- nma$samples
@@ -134,6 +135,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #' #Plot the results against each other to assess inconsistency
 #' inconsistency.plot(consistency_results, inconsistency_results)
 #' @export
+#' @seealso \code{\link{nma.run}}
 
 
 

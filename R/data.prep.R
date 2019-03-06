@@ -23,6 +23,8 @@
 #' diabetes.slr$treatments
 #' diabetes.slr$studies
 #' @export
+#' @seealso \code{\link{net.plot}}, \code{\link{net.tab}}, \code{\link{data.plot}}, \code{\link{nma.model}}
+
 
 data.prep <- function(arm.data,
                       #patient.data = NULL,

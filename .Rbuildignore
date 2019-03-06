@@ -2,5 +2,6 @@
 ^doc$
 ^data-raw$
 ^models$
+^misc_code$
 ^BUGSnet\.Rproj$
 ^\.Rproj\.user$

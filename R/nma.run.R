@@ -18,6 +18,8 @@
 #' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
 #' @export
+#' @seealso \code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}
+
 
 nma.run <- function(model,
                     monitor="DEFAULT",
