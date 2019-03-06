@@ -4,7 +4,7 @@
 \alias{net.tab}
 \title{Generate Network Characteristics}
 \usage{
-net.tab(data, outcome, N, type.outcome, time)
+net.tab(data, outcome, N, type.outcome, time = NULL)
 }
 \arguments{
 \item{data}{A data object produced by \code{data.prep()}}
@@ -13,10 +13,10 @@ net.tab(data, outcome, N, type.outcome, time)
 
 \item{N}{A string indicating the name of the variable containing the number of participants in each arm}
 
-\item{type.outcome}{A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-time reported), 
+\item{type.outcome}{A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-time reported),
 "rate2" (e.g # events and followup time reported)}
 
-\item{time}{A string required when type.outcome = "rate" or "rate2". Name of variable 
+\item{time}{A string required when type.outcome = "rate" or "rate2". Name of variable
 indicating person-time followup (e.g person years) or study followup time}
 }
 \value{
@@ -30,6 +30,14 @@ indicating person-time followup (e.g person years) or study followup time}
 Generates tables of network characteristics
 }
 \examples{
-network.charac(data = data.prep(my.data), outcome = "n_died", N = "n", type.outcome="binomial", time = NULL)
-network.charac(data = data.prep(my.data), outcome = "y", N = "N", type.outcome="rate", time = "personYears")
+network.charac(data = data.prep(my.data), 
+outcome = "n_died", 
+N = "n", 
+type.outcome="binomial", 
+time = NULL)
+network.charac(data = data.prep(my.data), 
+outcome = "y", 
+N = "N", 
+type.outcome="rate", 
+time = "personYears")
 }

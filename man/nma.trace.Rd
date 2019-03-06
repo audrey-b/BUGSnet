@@ -4,10 +4,10 @@
 \alias{nma.trace}
 \title{Traceplot of MCMC chains}
 \usage{
-nma.trace(jagsoutput, n = "all")
+nma.trace(nma, n = "all")
 }
 \arguments{
-\item{jagsoutput}{An output produced by \code{nma.run()}}
+\item{nma}{An output produced by \code{nma.run()}}
 
 \item{n}{Limits the number of printed variables to the first \code{n}}
 }

@@ -4,14 +4,14 @@
 \alias{net.plot}
 \title{Network Plot}
 \usage{
-net.plot(data.nma, node.scale = 5, edge.scale = 2, flag = NULL,
+net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
   label.offset1 = 0, label.offset2 = 1, graph.scale = T,
   node.lab.cex = 1, edge.lab.cex = 1, node.colour = "#f69c54",
   edge.colour = "#4a5b71", edge.lab.colour = "blue",
   flag.edge.colour = "lightpink", ...)
 }
 \arguments{
-\item{data.nma}{A data object produced by \code{data.prep()}}
+\item{data}{An object produced by \code{data.prep()} containing the data.}
 
 \item{node.scale}{Size of the nodes (default=5)}
 
@@ -31,8 +31,16 @@ evidence (e.g an RCT) comparing treatments.
 }
 \examples{
 # use default settings
-network.plot(my.slr)
+data(diabetes)
+my.data <- diabetes
+diabetes.slr <- data.prep(arm.data = my.data, varname.t = "Treatment", varname.s = "Study", N="n")
+network.plot(diabetes.slr)
 
 # Highlight all direct comparisons with Placebo. Adjust node and edge size, centre node labels
-network.plot(my.slr, node.scale=4, edge.scale=1.5, flag="Placebo", label.offset1=0, label.offset2=0)
+network.plot(diabetes.slr, 
+node.scale=4, 
+edge.scale=1.5, 
+flag="Placebo", 
+label.offset1=0, 
+label.offset2=0)
 }

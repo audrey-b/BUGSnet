@@ -4,12 +4,11 @@
 \alias{pma}
 \title{Pairwise meta-analysis}
 \usage{
-pma(data.nma, name.trt1, name.trt2, outcome, N, sd = NULL, time = NULL,
-  type.outcome = "binomial", method = "MH", method.tau = "DL",
-  sm = "RR")
+pma(data, name.trt1, name.trt2, outcome, N, sd = NULL, time = NULL,
+  type.outcome, method = "MH", method.tau = "DL", sm)
 }
 \arguments{
-\item{data.nma}{A data object produced by \code{data.prep()}}
+\item{data}{An object produced by \code{data.prep()}}
 
 \item{name.trt1}{A string indicating the name of the comparator treatment (often Placebo)}
 
@@ -22,16 +21,14 @@ pma(data.nma, name.trt1, name.trt2, outcome, N, sd = NULL, time = NULL,
 \item{sd}{A string (only required when type.outcome="continuous") indicating variable name
 of the standard deviation of the outcome}
 
-\item{time}{A string required when type.outcome = "rate" or "rate2". Name of variable 
-indicating person-time followup (e.g person years) or study followup time}
+\item{time}{A string required when type.outcome = "rate". Name of variable indicating person-time followup (e.g person years).}
 
-\item{type.outcome}{A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-years reported), 
-"rate2" (e.g # events and followup time reported)}
+\item{type.outcome}{A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-years reported)}
 
 \item{method}{A character string indicating what type of test was used. For more info, see \code{meta}'s
 documentation.}
 
-\item{method.tau}{A character string indicating which method is used to estimate the between study variance. 
+\item{method.tau}{A character string indicating which method is used to estimate the between study variance.
 Either "DL", "PM", "REML", "ML", "HS", "SJ", "HE", or "EB", can be abbreviated.}
 
 \item{sm}{A character string indicating which summary measure ("RR", "OR", "RD", or
@@ -41,7 +38,7 @@ ASD") is to be used for pooling of studies.}
 A forest plot as produced by the package \code{meta}
 
 \code{raw} - dataset containing summary statistics of meta-analysis (effect estimates,
- confidence bounds, I-squared, Q-statistic)
+confidence bounds, I-squared, Q-statistic)
 }
 \description{
 implements pairwise meta-analysis via the package \code{meta}
@@ -49,20 +46,20 @@ implements pairwise meta-analysis via the package \code{meta}
 \note{
 Depending on the the value of \code{type.outcome}, this function will implement the functions
 \code{metabin} (dichotomous outcomes), \code{metacont} (continuos outcomes), or \code{metainc} (rate outcomes)
- from the package \code{meta}.
+from the package \code{meta}.
 }
 \examples{
 #Sample pairwise meta-analyis
 
 #Dichotomous / binomial outcome example comparing rapid-acting inhaled insulin to placebo.
-raii_vs_plbo <- pairwise(data.nma = diabetes.slr,
+raii_vs_plbo <- pairwise(data = diabetes.slr,
                          name.trt1 = "Placebo", 
                          name.trt2 = "raii", 
                          outcome = "n_died",
                          N = "n")
                            
 # Continuous outcome example.                           
-alben_vs_plbo <- pairwise(data.nma=weight.slr,
+alben_vs_plbo <- pairwise(data=weight.slr,
                          name.trt1 = "plbo",
                          name.trt2 = "alben",
                          outcome="y",
@@ -74,7 +71,7 @@ alben_vs_plbo <- pairwise(data.nma=weight.slr,
                          sm = "SMD")
 
 # A rate outcome example
-diet1_vs_ctrl <- pairwise(data.nma=diet.slr,
+diet1_vs_ctrl <- pairwise(data=diet.slr,
                          name.trt1 = "control",
                          name.trt2 = "diet 1",
                          outcome="death",

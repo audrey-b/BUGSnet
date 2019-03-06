@@ -5,8 +5,8 @@
 \title{League Table and Heat Plot}
 \usage{
 nma.league(nma, central.tdcy = "median", log.scale = FALSE,
-  order = NULL, low.colour = "red", mid.colour = "white",
-  high.colour = "springgreen4")
+  order = NULL, low.colour = "darkgoldenrod1", mid.colour = "white",
+  high.colour = "cornflowerblue", cov.value = NULL)
 }
 \arguments{
 \item{nma}{Results from running \code{nma.analysis()}.}
@@ -15,23 +15,25 @@ nma.league(nma, central.tdcy = "median", log.scale = FALSE,
 
 \item{log.scale}{If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.}
 
-\item{order}{A vector of strings representing the order of treatments in the heatmap.}
+\item{order}{A vector of strings representing the order in which to display the treatments.}
 
 \item{low.colour}{A string indicating the colour of low relative treatment effects for the heat plot (e.g relative risk of 0.5).}
 
 \item{mid.colour}{A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0).}
 
 \item{high.colour}{A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).}
+
+\item{cov.value}{Must be specified for meta-regression. This is the value of the covariate for which to report the results.}
 }
 \value{
-\code{table} - League table.
+\code{table} - A league table. Row names indicate comparator treatments.
 
 \code{longtable} - League table in the long format.
 
 \code{heatplot} - League heat plot, where a color scale is used to represent relative treatment effects and ** are used to highlight statistically significant differences.
 }
 \description{
-Produces a league table and a league heat plot that contain point estimates of relative effectiveness 
+Produces a league table and a league heat plot that contain point estimates of relative effectiveness
 for all possible pairs of treatments point estimates along with 95% credible intervals obtained with the quantile method.
 }
 \examples{

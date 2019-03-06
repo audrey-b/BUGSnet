@@ -13,14 +13,14 @@ nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, ...)
 leverage plot.}
 }
 \value{
-\code{DIC} - A number indicating the Deviance Information Criteria. The DIC is calculated as the sum of \code{Dres} and \code{pD}. 
+\code{DIC} - A number indicating the Deviance Information Criteria. The DIC is calculated as the sum of \code{Dres} and \code{pD}.
 A larger DIC is indicative of a worse model fit.
 
-\code{leverage} - A vector with one value per study arm indicating the leverage of each data point (study arm). Leverage is defined as \code{pmdev} minus the 
+\code{leverage} - A vector with one value per study arm indicating the leverage of each data point (study arm). Leverage is defined as \code{pmdev} minus the
 deviance at the posterior mean of the fitted values.
 
-\code{w} - A vector with one value per study arm. The magnitude of \code{w} represents the data point's contribution to the posterior mean deviance of the 
-model and is simply the square root of \code{pmdev}. The sign indicates whether the data point is being over (negative sign) or under (positive sign) estimated by 
+\code{w} - A vector with one value per study arm. The magnitude of \code{w} represents the data point's contribution to the posterior mean deviance of the
+model and is simply the square root of \code{pmdev}. The sign indicates whether the data point is being over (negative sign) or under (positive sign) estimated by
 the model and is calculated as the sign of the difference of the observed outcome minus the predicted outcome.
 
 \code{pmdev} - A vector with one value per study arm representing the posterior mean residual deviance for each data point (study arm).

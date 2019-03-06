@@ -2,34 +2,44 @@
 % Please edit documentation in R/nma.rank.R
 \name{nma.rank}
 \alias{nma.rank}
-\title{SUCRA Table and Plot}
+\title{Table and Plots of Treatment Rankings}
 \usage{
-nma.rank(nma, largerbetter, lwd = 1, colour.set = "Set1")
+nma.rank(nma, largerbetter, sucra.lwd = 1, sucra.palette = "Set1",
+  ranko.palette = "Blues", cov.value = NULL)
 }
 \arguments{
-\item{nma}{Resulting dataset from running \code{nma.run()}.}
+\item{nma}{Resulting output from running \code{nma.run()}.}
 
 \item{largerbetter}{A boolean variable indicating whether a larger probability should indicate a more effective treatment (TRUE) or
 if a smaller probability should indicate a more effective treatment (FALSE).}
 
-\item{lwd}{Line width relative to the default (default=1) in the SUCRA plot.}
+\item{sucra.lwd}{Line width relative to the default (default=1) in the SUCRA plot.}
 
-\item{colour.set}{A string indicating the colour set from RcolorBrewer. "set1" is great, but you may need a different colour set if 
+\item{sucra.palette}{A string indicating the colour set from RcolorBrewer for the SUCRA plot. "Set1" is used by default and is automatically extended if
 there are many treatments in your network.}
+
+\item{ranko.palette}{A string indicating the colour set from RcolorBrewer for the rankogram. "Blues" is used by default and is automatically extended if
+there are many treatments in your network.}
+
+\item{cov.value}{Must be specified for meta-regression. This is the value of the covariate for which to report the results.}
 }
 \value{
-\code{table} - A rank table as a dataset object.
+\code{ranktable} - A rank table showing the probability of each treatment being the nth best treatment.
 
-\code{sucra} - A SUCRA plot showing the probability of each treatment being the nth best treatment.
+\code{sucratable} - A table showing the probability of each treatment being the nth best treatment or better and an overall SUCRA value for each treatment.
 
-\code{rankogram} - A rankogram plot showing the probability of each treatment being the nth best treatment.
+\code{order} - A vector containing the order of efficacy of treatments (from best to worst) based on their SUCRA value. This vector
+is useful for ordering treatments when creating the league heat plot with \code{nma.league()}.
 
-\code{ranks} - A vector containing the order of efficacy of treatments (from best to worst). This value 
-is useful when creating the league heat plot with \code{nma.league()}.
+\code{longtable} - A long form table of ranking probabilities and SUCRA value.
+
+\code{sucraplot} - A SUCRA plot showing the probability of each treatment being the nth best treatment or better.
+
+\code{rankogram} - A rankogram showing the probability of each treatment being the nth best treatment.
 }
 \description{
 Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A Sucra table summarizes the probabilities
-that each  treatment is the best, second best...worst treatment in the network.
+that each treatment is the best, second best...worst treatment in the network.
 }
 \examples{
 

@@ -4,19 +4,31 @@
 \alias{nma.run}
 \title{Run NMA model}
 \usage{
-nma.run(bugs, monitor = c("d"), n.adapt, n.burnin, n.iter, thin = 1,
-  n.chains = 3)
+nma.run(model, monitor = "DEFAULT", DIC = TRUE, n.adapt,
+  n.burnin = 0, n.iter, thin = 1, n.chains = 3)
 }
 \arguments{
-\item{bugs}{Object produced by running \code{nma.model}.}
+\item{model}{Object produced by running \code{nma.model}.}
 
-\item{monitor}{A list of all variables that you would like to monitor. The default is simply the treatment
-effect samples ("d"). But you may want to monitor the deviance ("dev") as well.}
+\item{monitor}{A vector of all variables that you would like to monitor. Default is "DEFAULT" which will monitor the relative treatment effects \code{d}
+as well as \code{sigma} when a random effects model is used and the regression coefficients \code{beta} when meta-regression is used.}
+
+\item{DIC}{Default is TRUE and nodes required to calculate the DIC and other fit statistics are monitored. Otherwise you may set it to FALSE.}
+
+\item{n.adapt}{Number of adaptations for the mcmc chains.}
+
+\item{n.burnin}{Number of burnin iterations for the mcmc chains.}
+
+\item{n.iter}{Number of iterations for the mcmc chains.}
+
+\item{thin}{Thinning factor for the mcmc chains. Default is 1.}
+
+\item{n.chains}{Number of mcmc chains. Default is 3.}
 }
 \value{
-\code{model} - A long character string containing the model that was run in \code{rjags}.
+\code{model} - The object obtained from \code{nma.model} that was used to run \code{jags}.
 
-\code{data} - The data used in the BUGS code.
+\code{data} - The data used with the BUGS code.
 
 \code{scale} - The scale of the outcome, based on the chosen family and link function.
 
@@ -27,5 +39,5 @@ effect samples ("d"). But you may want to monitor the deviance ("dev") as well.}
 \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
 }
 \description{
-Takes bugs code from an object produced by \code{nma.model} and runs model using \code{rjags}.
+Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 }

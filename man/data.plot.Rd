@@ -4,43 +4,26 @@
 \alias{data.plot}
 \title{Patient Characteristic Plot}
 \usage{
-data.plot(patients.data, treatment.var, trial.var, var.name,
-  errorbar = FALSE, errorbar.min = NULL, errorbar.max = NULL,
-  overall.average = TRUE, fill.str = NULL, y.lab, caption,
-  by = "trial")
+data.plot(data, covariate, half.length = NULL, by = "study",
+  avg.hline = TRUE, fill.str = NULL)
 }
 \arguments{
-\item{patients.data}{A dataset containing patient level data. \code{patients.data = my.slr$patient.data} is a
-convenient way to input this parameter}
+\item{data}{A data object produced by \code{data.prep()}}
 
-\item{treatment.var}{A string indicating the name of the treatment variable}
+\item{covariate}{A string indicating the name of the patient characteristic to be plotted}
 
-\item{trial.var}{A string indicating the name of the study variable}
+\item{by}{If by="study" then data from arms will be grouped by study/trial. If by="treatment" then
+bar graph is grouped by treatment.}
 
-\item{var.name}{A string indicating the name of the patient characteristic to be plotted}
-
-\item{errorbar}{If TRUE, will add error bars to your plot.}
-
-\item{errorbar.min}{Mandatory if errorbar=TRUE. A string indicating how to calculate the minimum of the 
-error bar (see Example 2).}
-
-\item{errorbar.max}{Mandatory if errorbar=TRUE. A string indicating how to calculate the maximum of the 
-error bar (see Example 2).}
-
-\item{overall.average}{If true, adds overall average line to plot.}
+\item{avg.hline}{If TRUE, adds overall average line to plot. Default is TRUE.}
 
 \item{fill.str}{An optional string indicating the variable to categorize measurements. For instance,
-some studies report the mean treatment effect and others may report the median treatment effect. If there 
-is a variable in \code{patients.data} called "type.measure" indicating whether the mean or median is 
+some studies report the mean treatment effect and others may report the median treatment effect. If there
+is a variable in \code{data} called "type.measure" indicating whether the mean or median is
 reported, setting fill.str="type.measure" would colour all studies reporting the mean as red, and all
 the studies reporting the median as turquoise.}
 
-\item{y.lab}{y-label of the plot.}
-
-\item{caption}{Caption of plot.}
-
-\item{by}{If by="trial" then data from arms will be grouped by study/trial. If by="treatment" then
-bar graph is grouped by treatment.}
+\item{half-length}{A string indicating how to calculate the half-length of error bars (optional)}
 }
 \description{
 Plots a particular patient characteristic by study or by treatment. Useful for assessing
@@ -49,26 +32,18 @@ differences in potential effect modifiers.
 \examples{
 # Example containing a fill.str, an overall average, and no error
 
-data.plot(patients.data = my.slr$patient.data, 
-             treatment.var = "trt",
-             trial.var = "studyName",
-             var.name = "Age", 
-             fill.str="type_measure",
-             y.lab = "Age (Years)", 
-             caption = "Johnson study did not report age",
-             by = "trial")
+data(diabetes.sim)
+data.plot(data = diabetes.sim,
+             covariate = "age", 
+             fill.str="age_type",
+             by = "study")
              
 # Example containing no fill.str, no overall average, but contains errorbars
 
-data.plot(patients.data = my.slr$patient.data, 
-             treatment.var = "trt",
-             trial.var = "studyName",
-             var.name = "Age", 
-             errorbar = TRUE,
-             errorbar.min = "Age - Age_sd", 
-             errorbar.max = "Age + Age_sd",
-             overall.average=FALSE,
-             y.lab = "Age (Years)", 
-             caption = "Error bars: Mean +/- sd",
-             by = "trial")
+data(diabetes.sim)
+data.plot(data = diabetes.sim,
+             covariate = "age", 
+             half.length = "age_SD",
+             avg.hline=FALSE,
+             by = "study")
 }

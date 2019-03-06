@@ -25,7 +25,7 @@ a placebo or control drug of some kind.}
 \item{type}{If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 will be built.}
 
-\item{time}{A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable 
+\item{time}{A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable
 indicating person-time followup (e.g person years) or study followup time.}
 
 \item{family}{A string indicating the family of the distribution of the outcome. Options are:
@@ -52,7 +52,7 @@ adjust for via meta regression. By default, covariate=NULL and no covariate adju
 \code{data} - The data used in the BUGS code.
 
 \code{scale} - The scale of the outcome, based on the chosen family and link function
-examples are "RR" (relative risk), "OR" (odds ratio), "MD" (mean difference), "HR" (hazard ratio)
+examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Hazard Ratio"
 
 \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 }
@@ -60,11 +60,11 @@ examples are "RR" (relative risk), "OR" (odds ratio), "MD" (mean difference), "H
 Creates BUGS code which can be ran through \code{nma.run()}.
 }
 \details{
-For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
+For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},â€¦,\beta_{(1,K)}} are
 \describe{
-  \item{Unrelated:}{\deqn{iid N(0, (15u)^2)}}
-  \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ N(0, (15u)^2), \gamma ~ U(0,u)}}
-  \item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ N(0, (15u)^2)}}
+\item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
+\item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
+\item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ t(0, u^2, 1)}}
 }
 where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 }
@@ -108,7 +108,6 @@ nma.model(data = my.slr,
         link = "cloglog",
         effects = "random")
         
-
 }
 \references{
 \insertRef{gemtc}{BUGSnet}
