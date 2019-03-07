@@ -9,10 +9,20 @@
 data(diabetes)
 }
 \description{
-Data from NICE TSD 2. Description and references will be added soon.
+The diabetes dataset has been used to illustrate network meta-analysis
+within the NICE-DSU TSD 2 (examples 3a and 3b). The dataset is comprised
+of information from 22 clinical trials examining the effect of
+antihypertensive drugs (there were six treatments including a placebo arm)
+on the risk of developing diabetes (a binary outcome). This dataset also
+contains information on the years of follow-up within each arm.
 }
 \examples{
 data(diabetes)
 
+}
+\references{
+\insertRef{TSD2}{BUGSnet}
+
+\insertRef{elliott}{BUGSnet}
 }
 \keyword{datasets}

@@ -9,10 +9,25 @@
 data(thrombolytic)
 }
 \description{
-Data from the R package gemtc. Description and references will be added soon.
+The thrombolytic drugs dataset compiled by Boland et al. (2003) has been
+used to demonstrate indirect-treatment comparison methods within previous
+publications and other R packages such as ‘gemtc’.  The dataset consists of
+information on a binary outcome (mortality within 30 or 35 days) and eight
+treatments (eight different thrombolytic drugs used after a patient has
+had an acute myocardial infarction) extracted from 28 clinical trials
+(including two, three-armed trials).
 }
 \examples{
 data(thrombolytic)
 
+}
+\references{
+\insertRef{Boland}{BUGSnet}
+
+\insertRef{Dias2010checking}{BUGSnet}
+
+\insertRef{lu2006assessing}{BUGSnet}
+
+\insertRef{gemtc}{BUGSnet}
 }
 \keyword{datasets}

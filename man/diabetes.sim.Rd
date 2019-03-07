@@ -9,10 +9,17 @@
 data(diabetes.sim)
 }
 \description{
-Data from NICE TSD 2. Description and references will be added soon.
+This is the same as the Diabetes dataset but we have
+added a simulated age variable to this dataset for the purpose of
+demonstrating certain features within BUGSNET.
 }
 \examples{
 data(diabetes.sim)
 
+}
+\references{
+\insertRef{TSD2}{BUGSnet}
+
+\insertRef{elliott}{BUGSnet}
 }
 \keyword{datasets}

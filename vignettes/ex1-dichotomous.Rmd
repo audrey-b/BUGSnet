@@ -65,7 +65,7 @@ dich.slr <- data.prep(arm.data = cbind(thrombolytic, age),
 
 ```{r, results = "hide"}
 network.char <- net.tab(data = dich.slr,
-                        outcome = "responders",
+                        outcome = "events",
                         N = "sampleSize", 
                         type.outcome = "binomial",
                         time = NULL)
@@ -91,7 +91,7 @@ kable(network.char$comparison)
 ```
 
 ```{r, echo=FALSE}
-#pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="responders", type.outcome="binomial", N="sampleSize")
+#pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="events", type.outcome="binomial", N="sampleSize")
  
 #pairwise.dat.with.c <- pairwise.dat %>% 
 #   filter(grepl("SK", comparison)) %>%
@@ -100,11 +100,11 @@ kable(network.char$comparison)
 #  tPA_vs_SK <- pairwise(data.nma = dich.slr,
 #                           name.trt1 = "SK", 
 #                           name.trt2 = "tPA", 
-#                           outcome = "responders",
+#                           outcome = "events",
 #                           N = "sampleSize")
  
 # pairwise.all(data.nma=dich.slr, 
-#             outcome="responders",
+#             outcome="events",
 #             N = "sampleSize",
 #             method.tau="DL",
 #             sm= "RR") 
@@ -114,7 +114,7 @@ kable(network.char$comparison)
 `nma.model()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
 ```{r}
 fixed_effects_model <- nma.model(data=dich.slr,
-                     outcome="responders",
+                     outcome="events",
                      N="sampleSize",
                      reference="SK",
                      family="binomial",
@@ -122,7 +122,7 @@ fixed_effects_model <- nma.model(data=dich.slr,
                      effects="fixed")
 
 random_effects_model <- nma.model(data=dich.slr,
-                     outcome="responders",
+                     outcome="events",
                      N="sampleSize",
                      reference="SK",
                      family="binomial",
@@ -185,7 +185,7 @@ nma.forest(fixed_effects_results,
 ##Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
 fe_inconsistency_model <- nma.model(data=dich.slr,
-                     outcome="responders",
+                     outcome="events",
                      N="sampleSize",
                      reference="SK",
                      family="binomial",
@@ -215,7 +215,7 @@ nma.compare(fe_model_fit, inconsist_model_fit)
 <!-- ```{r, fig.height=8, fig.width = 8} -->
 <!--  inconsistency.PMA(data.nma = dich.slr,  -->
 <!--                    jagsoutput = fixed_effects_results, -->
-<!--                    outcome = "responders", -->
+<!--                    outcome = "events", -->
 <!--                    N = "sampleSize", -->
 <!--                    base.trt = "SK", -->
 <!--                    effects="fixed",  -->
@@ -228,7 +228,7 @@ nma.compare(fe_model_fit, inconsist_model_fit)
 <!--  pairwise <- pairwise(data.nma = dich.slr, -->
 <!--                           name.trt1 = "SK", -->
 <!--                           name.trt2 = "Ret", -->
-<!--                           outcome = "responders", -->
+<!--                           outcome = "events", -->
 <!--                           N = "sampleSize") -->
 <!-- ``` -->
 

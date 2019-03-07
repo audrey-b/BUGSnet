@@ -21,7 +21,7 @@
 #' #Random effects, consistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
 #'afib.re.c <- nma.model(data=afib.slr,
-#'outcome="responders",
+#'outcome="events",
 #'N="sampleSize",
 #'reference="02",
 #'family="binomial",

@@ -89,7 +89,7 @@ dataprep <- data.prep(arm.data = afib,
                       varname.s = "study")
 
 random_effects_model <- nma.model(data=dataprep,
-                                  outcome="responders",
+                                  outcome="events",
                                   N="sampleSize",
                                   reference="02",
                                   family="binomial",
