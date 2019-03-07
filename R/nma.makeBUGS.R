@@ -85,11 +85,11 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       }  else if (family == "binomial" && link=="log"){
         link.str <- "log(p[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
       } else if (family == "normal" && link == "identity"){
-        link.str <- "theta[i,k] <- mu[i] + d[t[i,1],t[i,k]] # model for linear predictor"
+        link.str <- "theta[i,k] <- mu[i] + d[t[i,1],t[i,k]]"
       } else if (family == "poisson" && link=="log"){
-        link.str <- "log(lambda[i,k]) <- mu[i] + d[t[i,1],t[i,k]] # model for linear predictor"
+        link.str <- "log(lambda[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
       } else if (family== "binomial" && link=="cloglog"){
-        link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,1],t[i,k]] # model for linear predictor"
+        link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,1],t[i,k]]"
       }
       
       link.str <- paste0(link.str, metareg.str)
@@ -128,11 +128,11 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     } else if (family == "binomial" && link=="log"){
       link.str <- "log(p[i,k]) <- mu[i] + delta[i,k]"
     } else if (family == "normal"){
-      link.str <- "theta[i,k] <- mu[i] + delta[i,k] # model for linear predictor"
+      link.str <- "theta[i,k] <- mu[i] + delta[i,k]"
     } else if (family == "poisson" && link=="log"){
-      link.str <- "log(lambda[i,k]) <- mu[i] + delta[i,k] # model for linear predictor"
+      link.str <- "log(lambda[i,k]) <- mu[i] + delta[i,k]"
     } else if (family == "binomial" && link=="cloglog"){
-      link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + delta[i,k] # model for linear predictor"
+      link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + delta[i,k]"
     }
     
     link.str <- paste0(link.str, metareg.str)
