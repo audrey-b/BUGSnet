@@ -68,8 +68,8 @@ nma.run <- function(model,
       make.monitor <- "d"
       if(model$effects=="random") make.monitor <- c(make.monitor, "sigma")
       if(!is.null(model$covariate)) make.monitor <- c(make.monitor, "beta")
-    }
-  }else make.monitor <- monitor
+    }else make.monitor <- unique(c(monitor, "d"))
+  }else make.monitor <- unique(c(monitor, "d"))
   
   if(DIC==TRUE){
     if (model$family == "binomial"){

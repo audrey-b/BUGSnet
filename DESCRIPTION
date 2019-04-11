@@ -15,7 +15,7 @@ Description: BUGSnet (Bayesian inference Using Gibbs Sampling to conduct
     characteristics, league tables and league heat plots, SUCRA plots, 
     rankograms, forest plots, leverage plots, traceplots, posterior mean 
     deviance comparison plots.
-Depends: R (>= 3.5.2),
+Depends: R (>= 3.5),
   rjags
 License: file LICENSE
 Encoding: UTF-8

@@ -12,7 +12,7 @@
 #'
 #' where "path/BUGSnet_0.0.0.9000.tar.gz" should be replaced to reflect the location of the .tar.gz file on your computer.
 #' 
-#' How to cite this work? Type citation(BUGSnet).
+#' How to cite this work? Type citation("BUGSnet").
 #' 
 #' @name BUGSnet
 #' @docType package

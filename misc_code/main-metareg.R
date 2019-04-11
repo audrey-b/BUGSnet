@@ -101,12 +101,14 @@ random_effects_model <- nma.model(data=dataprep,
 bugsnet_results <- nma.run(random_effects_model,
                            n.iter=10000,
                            n.adapt=1000,
-                           n.burnin=1000)
+                           n.burnin=1000,
+                           monitor=c("d"))
 
 random_effects_model$bugs %>% cat
 
 #png("bugsnetplots%02d.png", width=2000, height=2000)
-#nma.trace(bugsnet_results)
+par(mar=c(1,1,1,1))
+nma.trace(bugsnet_results, thin=100)
 #graphics.off()
 
 
