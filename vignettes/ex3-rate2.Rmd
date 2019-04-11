@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 ```{r, include = FALSE}
 path <- paste0(dirname(getwd()),"/")
 library(tidyr)
+library(stringr)
 #library(tidyverse)
 library(plyr)
 library(ggplot2)

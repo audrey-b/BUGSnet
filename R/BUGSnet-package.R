@@ -29,7 +29,7 @@
 #' @import extrafont
 #' @import meta
 #' @import purrr
-#' @importFrom scales pretty_breaks
+#' @importFrom scales pretty_breaks rescale
 #' @importFrom rlang quo
 #' @importFrom tibble tibble
 #' @importFrom plyr mapvalues
@@ -39,6 +39,7 @@
 #' @importFrom magrittr %>% %<>%
 #' @import dplyr
 #' @importFrom Rdpack reprompt 
+#' @importFrom stringr str_detect
 #' @importFrom grDevices colorRampPalette
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
 

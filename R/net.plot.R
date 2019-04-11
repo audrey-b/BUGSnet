@@ -71,7 +71,7 @@ net.plot <- function(data,
   
   radian.rescale <- function(x, start=0, direction=1) {
     c.rotate <- function(x) (x + start) %% (2 * pi) * direction
-    c.rotate(scales::rescale(x, c(0, 2 * pi), range(x)))
+    c.rotate(rescale(x, c(0, 2 * pi), range(x)))
   }
   
   lab.locs <- radian.rescale(x=1:nrow(nodes), direction=-1, start=0)
@@ -88,12 +88,12 @@ net.plot <- function(data,
   
   if(!is.null(flag)) {
     
-    inc.edges <- incident(net, V(net)[trt==flag], mode="all")
+    inc.edges <- incident(net, V(net)[flag], mode="all")
     
     ecol <- rep("grey", ecount(net))
     ecol[inc.edges] <- flag.edge.colour
     vcol <- rep("grey", vcount(net))
-    vcol[V(net)$trt==flag] <- node.colour
+    vcol[V(net)[flag]] <- node.colour
     
     plot(net, 
          vertex.size=node.scale*V(net)$node.weight,

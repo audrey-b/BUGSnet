@@ -35,6 +35,7 @@ library(RColorBrewer)
 library(devtools)
 library(roxygen2)
 library(knitr)
+library(stringr)
 load_all(path = paste0(path,"R"))
 ```
  

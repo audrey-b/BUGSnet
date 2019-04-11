@@ -19,9 +19,13 @@ library(BUGSnet)
 
 system("R CMD Rd2pdf . --title=Package BUGSnet --output=./manual.pdf --force --no-clean --internals")
 
+
+
 install.packages("~/BUGSnet_0.0.0.9000.tar.gz", repos = NULL, type = "source")
 library(BUGSnet)
 ??BUGSnet
+
+
 
 
 devtools::document()

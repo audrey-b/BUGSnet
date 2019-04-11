@@ -37,7 +37,8 @@ Imports:
     graphics,
     utils,
     rlang,
-    tibble
+    tibble,
+    stringr
 Suggests: 
     knitr,
     rmarkdown,
