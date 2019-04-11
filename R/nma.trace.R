@@ -3,7 +3,7 @@
 #' @param nma An output produced by \code{nma.run()}
 #' @param n Integer which limits the number of printed variables to the first \code{n}. Default is "all" which plots every variable.
 #' @param thin Thinning factor for the mcmc chains. Default is 1.
-#' @param trace.colors An optional vector of colors, 1 for each chain. 
+#' @param colours An optional vector of colors, one for each chain. 
 #' @export
 #' @seealso \code{\link{nma.run}}
 #' 
@@ -35,7 +35,7 @@
 #'nma.trace(diabetes.re.c.res, n=4, thin=10)
 #'  
 
-nma.trace <- function(nma, n="all", thin = 1, trace.colors = "DEFAULT"){
+nma.trace <- function(nma, n="all", thin = 1, colours = "DEFAULT"){
   samples <- do.call(rbind, nma$samples) %>% data.frame()
   
   n.iter <- nrow(nma$samples[[1]]) 
@@ -57,13 +57,13 @@ nma.trace <- function(nma, n="all", thin = 1, trace.colors = "DEFAULT"){
       num_plots = n
   }
 
-  if (trace.colors=="DEFAULT"){
+  if (colours=="DEFAULT"){
     colors=c("black", "red", "blue", "green", "purple", "yellow", "pink", "grey")#colors to be used in trace.plots
   } else {
-    colors = trace.colors
+    colors = colours
   }
   
-  if(length(colors)<n.chains) stop("length(trace.colors) must be greater than n.chains.")
+  if(length(colors)<n.chains) stop("length(colours) must be no smaller than n.chains.")
   
   par(mfrow = c(num_plots, 2))
   for (i in 1:num_plots){

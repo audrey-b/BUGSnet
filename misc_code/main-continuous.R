@@ -1,6 +1,6 @@
 #source("misc_code/load.packages.R")
 #source("R/functions.R")
-pathA <-"C:/Users/audre/Documents/Compile BUGSnet/BUGSnet/"
+pathA <-"C:/Users/audre/Documents/BUGSnet/"
 sepA <- "/"
 pathJ <- "C:\\Users\\justi\\Desktop\\Lighthouse\\nmapackage\\BUGSnet\\"
 sepJ <- "\\"
