@@ -40,7 +40,8 @@ data.plot(data = rate2.slr,
           half.length = "age_SD",
           by = "treatment",
           fill.str = "age_type", #which value is reported (e.g mean/median)
-          avg.hline=TRUE) #add overall average line?
+          avg.hline=TRUE,
+          text.size=60) #add overall average line?
 graphics.off()
 
 ## ------------------------------------------------------------------------

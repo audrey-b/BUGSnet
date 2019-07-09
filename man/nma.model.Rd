@@ -17,7 +17,7 @@ nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
 \item{N}{A string indicating the name of the variable containing the number of participants in each arm}
 
 \item{sd}{A string (only required for continuous outcomes) indicating variable name
-of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the sample size prior to using this function.}
+of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 a placebo or control drug of some kind.}
@@ -60,7 +60,7 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 Creates BUGS code which can be ran through \code{nma.run()}.
 }
 \details{
-For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},â€¦,\beta_{(1,K)}} are
+For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
 \describe{
 \item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
 \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}

@@ -4,12 +4,16 @@
 \alias{nma.trace}
 \title{Traceplot of MCMC chains}
 \usage{
-nma.trace(nma, n = "all")
+nma.trace(nma, n = "all", thin = 1, colours = "DEFAULT")
 }
 \arguments{
 \item{nma}{An output produced by \code{nma.run()}}
 
 \item{n}{Integer which limits the number of printed variables to the first \code{n}. Default is "all" which plots every variable.}
+
+\item{thin}{Thinning factor for the mcmc chains. Default is 1.}
+
+\item{colours}{An optional vector of colors, one for each chain.}
 }
 \description{
 Produces traceplots of the MCMC chains obtained from \code{nma.run()}
@@ -39,7 +43,7 @@ n.adapt=1000,
 n.burnin=1000,
 n.iter=10000)
 
-nma.trace(diabetes.re.c.res, n=4)
+nma.trace(diabetes.re.c.res, n=4, thin=10)
  
 }
 \seealso{

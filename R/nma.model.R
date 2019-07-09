@@ -5,7 +5,7 @@
 #' @param outcome A string indicating the name of your outcome variable.
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param sd A string (only required for continuous outcomes) indicating variable name
-#' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the sample size prior to using this function.
+#' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
 #' @param family A string indicating the family of the distribution of the outcome. Options are:

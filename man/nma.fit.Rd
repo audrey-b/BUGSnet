@@ -39,8 +39,8 @@ the model and is calculated as the sign of the difference of the observed outcom
 Computes the Deviance Information Criteria (DIC) and produces a leverage plot (as in the NICE Technical Support Document 2)
 for a given model. These can be used to assess and compare the fit of different models (i.e fixed vs random effects, consistency vs
 inconsistency). \code{nma.fit} also produces a plot comparing the leverage of each data point against their contribution to
-the total posterior deviance. Any point lying outside the purple dotted line is considered to be an "outlier";
-contributing to the model's poor fit.
+the total posterior deviance. Points lying outside the purple dotted line are generally identified as contributing to the model's poor fit.
+Points with high leverage are influencial i.e. they have a stong influence on the estimates.
 }
 \examples{
 

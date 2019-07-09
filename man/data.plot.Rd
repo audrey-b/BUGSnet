@@ -5,7 +5,7 @@
 \title{Patient Characteristic Plot}
 \usage{
 data.plot(data, covariate, half.length = NULL, by = "study",
-  avg.hline = TRUE, fill.str = NULL)
+  avg.hline = TRUE, fill.str = NULL, text.size = 20)
 }
 \arguments{
 \item{data}{A data object produced by \code{data.prep()}}
@@ -24,6 +24,8 @@ some studies report the mean treatment effect and others may report the median t
 is a variable in \code{data} called "type.measure" indicating whether the mean or median is
 reported, setting fill.str="type.measure" would colour all studies reporting the mean as red, and all
 the studies reporting the median as turquoise.}
+
+\item{text.size}{Font size of the text. Default is 20.}
 }
 \description{
 Plots a particular patient characteristic by study or by treatment. Useful for assessing

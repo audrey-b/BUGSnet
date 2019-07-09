@@ -13,6 +13,7 @@
 #' reported, setting fill.str="type.measure" would colour all studies reporting the mean as red, and all
 #' the studies reporting the median as turquoise.
 #' @param avg.hline If TRUE, adds overall average line to plot. Default is TRUE.
+#' @param text.size Font size of the text. Default is 20.
 
 #' 
 #' @examples
@@ -46,7 +47,8 @@ data.plot <- function(data,
                           half.length = NULL,
                       by = "study",
                           avg.hline=TRUE,
-                          fill.str=NULL){
+                          fill.str=NULL,
+                      text.size=20){
   
   patients.data <- data$arm.data
   treatment.var <- data$varname.t
@@ -90,7 +92,8 @@ data.plot <- function(data,
     theme(axis.text.x = element_text(angle = 90, hjust = 1),
           legend.title=element_blank(),
           plot.margin=unit(c(25, 5.5, 5.5, 50), "points"),
-          strip.text.x = element_text(angle = 90)) +
+          strip.text.x = element_text(angle = 90),
+          text = element_text(size=text.size)) +
     labs(y = y.lab, x="", caption = caption)+
     facet_grid(. ~ trial,  space="free_x", scales="free_x")
   
@@ -106,7 +109,8 @@ data.plot <- function(data,
     theme(axis.text.x = element_text(angle = 90, hjust = 1),
           legend.title=element_blank(),
          plot.margin=unit(c(10, 4, 4, 20), "points"),
-          strip.text.x = element_text(angle = 90)) +
+          strip.text.x = element_text(angle = 90),
+         text = element_text(size=text.size)) +
     labs(y = y.lab, x="", caption = caption)+
     facet_grid(. ~ trt,  space="free_x", scales="free_x")
   
