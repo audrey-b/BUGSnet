@@ -145,7 +145,8 @@ league.out$table
 nma.forest(random_effects_results,
            central.tdcy="median",
            comparator = "Placebo",
-           log.scale = FALSE)
+           log.scale = FALSE,
+           order=sucra.out$order)
 
 ## ------------------------------------------------------------------------
 cat(random_effects_model$bugs)

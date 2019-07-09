@@ -4,8 +4,8 @@
 \alias{nma.forest}
 \title{Forest plot}
 \usage{
-nma.forest(nma, comparator, central.tdcy = "median", log.scale = FALSE,
-  lwd = 1, x.trans = NULL, cov.value = NULL)
+nma.forest(nma, comparator, central.tdcy = "median", order = NULL,
+  log.scale = FALSE, lwd = 1, x.trans = NULL, cov.value = NULL)
 }
 \arguments{
 \item{nma}{An output produced by \code{nma.run()}}
@@ -13,6 +13,8 @@ nma.forest(nma, comparator, central.tdcy = "median", log.scale = FALSE,
 \item{comparator}{The treatment to use as a comparator}
 
 \item{central.tdcy}{The posterior statistic used in order to measure relative effectiveness. The options are "mean" and "median". Default is median.}
+
+\item{order}{Optional. A vector of strings representing the order in which to display the treatments.}
 
 \item{log.scale}{If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.}
 

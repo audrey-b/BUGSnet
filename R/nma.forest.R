@@ -3,6 +3,7 @@
 #' @param nma An output produced by \code{nma.run()}
 #' @param comparator The treatment to use as a comparator
 #' @param central.tdcy The posterior statistic used in order to measure relative effectiveness. The options are "mean" and "median". Default is median.
+#' @param order Optional. A vector of strings representing the order in which to display the treatments.
 #' @param lwd Line width relative to the default (default=1).
 #' @param x.trans Optional. A string indicating a transformation to apply to the x-axis. Setting this parameter to "log" is useful when there are extreme values or to allow an easier interpretation of odds ratios and relative ratios (if e.g. treatment B is twice as far from the line y=1 then treatment A then it's OR/RR is twice that of treatment A.) 
 #' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.
@@ -45,6 +46,7 @@
 nma.forest <- function(nma, 
                        comparator, 
                        central.tdcy = "median", 
+                       order = NULL,
                        log.scale=FALSE,
                        lwd=1,
                        x.trans=NULL,
@@ -150,10 +152,15 @@ nma.forest <- function(nma,
     cov.str <- paste0(" when ",nma$model$covariate,"=",cov.value)
   }else cov.str <- ""
   
+  #Sys.setlocale("LC_COLLATE","C") #for sorting mix of capital and small cap
+  if(is.null(order)){order <- sort(tmp1$trt, decreasing=TRUE)
+  }else if(comparator %in% order){order <- order[-which(order==comparator)]
+  }
+  
   f.plot <- ggplot(tmp1, aes(x=trt, y=mean, ymin=lci, ymax=uci)) +
     geom_pointrange(size=lwd) +
     geom_hline(yintercept=null.value,lty=2) +
-    scale_x_discrete(limits = sort(tmp1$trt, decreasing=TRUE)) +
+    scale_x_discrete(limits = order) +
     xlab("Treatment") +
     ylab(paste0(log.str, nma$scale, " relative to ",comparator, cov.str,
                 "\n(showing posterior ", central.tdcy," with 95% CrI)")) +

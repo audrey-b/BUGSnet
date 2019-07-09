@@ -8,6 +8,8 @@
 #' @param outcome A string indicating the name of your outcome variable
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-years reported)
+#' @param sm A character string indicating which summary measure ("RR", "OR", "RD", or
+#' ASD") is to be used for pooling of studies.
 #' @param sd A string (only required when type.outcome="continuous") indicating variable name
 #' of the standard deviation of the outcome
 #' @param time A string required when type.outcome = "rate". Name of variable indicating person-time followup (e.g person years).
@@ -15,8 +17,6 @@
 #' documentation.
 #' @param method.tau A character string indicating which method is used to estimate the between study variance. 
 #' Either "DL", "PM", "REML", "ML", "HS", "SJ", "HE", or "EB", can be abbreviated.
-#' @param sm A character string indicating which summary measure ("RR", "OR", "RD", or
-#' ASD") is to be used for pooling of studies.
 #' 
 #' @return A forest plot as produced by the package \code{meta}
 #' @return \code{raw} - dataset containing summary statistics of meta-analysis (effect estimates,

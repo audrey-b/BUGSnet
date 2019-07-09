@@ -17,7 +17,7 @@ net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
 
 \item{edge.scale}{Thickness of the edges (default=2).}
 
-\item{flag}{Used to highlight direct comparisons to a particular treatment (optional.
+\item{flag}{Used to highlight direct comparisons to a particular treatment (optional).
 Set this value to treatment of interest and it will highlight, in red, all of the edges
 going into this treatment.}
 

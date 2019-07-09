@@ -4,12 +4,12 @@
 #' @param data An object produced by \code{data.prep()} containing the data.
 #' @param node.scale Size of the nodes (default=5)
 #' @param edge.scale Thickness of the edges (default=2).
-#' @param flag Used to highlight direct comparisons to a particular treatment (optional.
+#' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
+#' @param flag Used to highlight direct comparisons to a particular treatment (optional).
 #' Set this value to treatment of interest and it will highlight, in red, all of the edges
 #' going into this treatment.
 #' @param label.offset1 Node label location (x-axis) relative to node. Default=0
 #' @param label.offset2 Node label location (y-axis) relative to node. Default=1
-#' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
 #' @param node.lab.cex Size of node labels
 #' @param edge.lab.cex Size of edge labels
 #' @param node.colour Node colour (string)
