@@ -6,7 +6,7 @@
 \usage{
 nma.league(nma, central.tdcy = "median", log.scale = FALSE,
   order = NULL, low.colour = "darkgoldenrod1", mid.colour = "white",
-  high.colour = "cornflowerblue", cov.value = NULL)
+  high.colour = "cornflowerblue", cov.value = NULL, digits = 2)
 }
 \arguments{
 \item{nma}{Results from running \code{nma.analysis()}.}
@@ -24,6 +24,8 @@ nma.league(nma, central.tdcy = "median", log.scale = FALSE,
 \item{high.colour}{A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).}
 
 \item{cov.value}{Must be specified for meta-regression. This is the value of the covariate for which to report the results.}
+
+\item{digits}{Number of digits to display after the decimal point}
 }
 \value{
 \code{table} - A league table. Row names indicate comparator treatments.

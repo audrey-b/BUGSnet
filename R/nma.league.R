@@ -9,6 +9,7 @@
 #' @param mid.colour A string indicating the colour of null relative treatment effects for the heat plot (e.g relative risk of ~1.0). 
 #' @param high.colour A string indicating the colour of high relative treatment effects for the heat plot (e.g relative risk of ~2.0).
 #' @param cov.value  Must be specified for meta-regression. This is the value of the covariate for which to report the results.
+#' @param digits Number of digits to display after the decimal point
 #' 
 #' @return \code{table} - A league table. Row names indicate comparator treatments.
 #' @return \code{longtable} - League table in the long format.
@@ -55,7 +56,8 @@ nma.league <- function(nma,
                        low.colour = "darkgoldenrod1", 
                        mid.colour = "white",
                        high.colour = "cornflowerblue",
-                       cov.value=NULL) {
+                       cov.value=NULL,
+                       digits = 2) {
   
   if(!is.null(nma$model$covariate) & is.null(cov.value)) stop("cov.value must be specified for meta-regression")
   
@@ -143,14 +145,17 @@ nma.league <- function(nma,
       null.value <- 0
     }
     
+    #create C-style formatting string from the digits parameter
+    fmt <- paste0("%.", digits, "f")
+    
     if(paste){
       tmp1 <- left_join(tmp.estimate, tmp.lci, by = "trt") %>%
         left_join(., tmp.uci, by = "trt") %>%
-        mutate(result = paste(format(estimate,drop0Trailing = F), 
+        mutate(result = paste(sprintf(fmt, estimate), 
                               " (", 
-                              format(lci,drop0Trialing = F),
+                              sprintf(fmt, lci),
                               " to ", 
-                              format(uci,drop0Triailing = F), 
+                              sprintf(fmt, uci), 
                               ")", sep="")) %>%
         select(trt, result)
       
@@ -213,7 +218,8 @@ nma.league <- function(nma,
                                                                                   low.colour = low.colour, 
                                                                                   mid.colour = mid.colour,
                                                                                   high.colour = high.colour,
-                                                                                  midpoint = null.value)))
+                                                                                  midpoint = null.value,
+                                                                                  digits = digits)))
 }
 
 
@@ -226,31 +232,26 @@ league.heat.plot <- function(leaguetable,
                              low.colour = "red", 
                              mid.colour = "white",
                              high.colour = "springgreen4",
-                             midpoint){
+                             midpoint,
+                             digits){
   
   #if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
   
   league.tmp <- leaguetable%>%filter(Treatment != Comparator)
   
-  if(central.tdcy=="mean"){
-    heatplot <- ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=mean)) + 
-      geom_tile()+
-      #coord_flip()+
-      geom_text(aes(label = 
-                      ifelse(((midpoint<lci & midpoint< uci) | (midpoint>lci & midpoint> uci)),
-                             ifelse(Treatment!=Comparator, paste0("**", formatC(mean, 2), "**", "\n", "(",formatC(lci, 2), ", ", formatC(uci, 2),")"), " "),
-                             ifelse(Treatment!=Comparator, paste0(formatC(mean, 2), "\n", "(",formatC(lci, 2), ", ", formatC(uci, 2),")"), " "))),
-                size=3)
-  } else if(central.tdcy=="median"){
-    heatplot <- ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=median)) + 
-      geom_tile()+
-      #coord_flip()+
-      geom_text(aes(label = 
-                      ifelse(((midpoint<lci & midpoint< uci) | (midpoint>lci & midpoint> uci)),
-                             ifelse(Treatment!=Comparator, paste0("**", formatC(median, 2), "**", "\n", "(",formatC(lci, 2), ", ", formatC(uci, 2),")"), " "),
-                             ifelse(Treatment!=Comparator, paste0(formatC(median,2), "\n", "(",formatC(lci, 2), ", ", formatC(uci, 2),")"), " "))),
-                size=3)
-  }
+  #rename central tendancy statistic to ct.stat
+  names(league.tmp)[names(league.tmp) == central.tdcy] <- "ct.stat"
+  #create C-style formatting string from the digits parameter
+  fmt <- paste0("%.", digits, "f")
+  
+  heatplot <- ggplot(data = league.tmp, aes(x=Treatment, y=Comparator, fill=ct.stat)) + 
+    geom_tile()+
+    #coord_flip()+
+    geom_text(aes(label = 
+                    ifelse(((midpoint<lci & midpoint< uci) | (midpoint>lci & midpoint> uci)),
+                           ifelse(Treatment!=Comparator, paste0("**", sprintf(fmt, ct.stat), "**", "\n", "(",sprintf(fmt, lci), ", ", sprintf(fmt, uci),")"), " "),
+                           ifelse(Treatment!=Comparator, paste0(sprintf(fmt, ct.stat), "\n", "(",sprintf(fmt, lci), ", ", sprintf(fmt, uci),")"), " "))),
+              size=3)
   
   heatplot <- heatplot +
     scale_fill_gradient2(low = low.colour, high = high.colour, mid = mid.colour, midpoint = midpoint)+

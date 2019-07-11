@@ -275,11 +275,12 @@ league.out <- nma.league(random_effects_results,
                          log.scale = FALSE,
                          low.colour = "springgreen4",
                          mid.colour = "white",
-                         high.colour = "red")
+                         high.colour = "red",
+                         digits = 2)
 league.out$heatplot
 ```
 
-Because we used the option `log.scale = FALSE`, the values reported are on the hazard ratio scale as opposed to the log hazard ratio scale. In this example, a green cell indicates that a treatment performed better than its comparator (estimate smaller than 1), while a red cell indicates that the treatment performed worst than its comparator (estimate greater than 1). The symbols (**) are used to highlight credible intervals that do not contain the neutral value 1, meaning that there is evidence of a statistically significant difference between the treatment and its comparator at the 95% confidence level. The exact values can be outputted in a table via the command `league.out$table`
+Because we used the option `log.scale = FALSE`, the values reported are on the hazard ratio scale as opposed to the log hazard ratio scale. In this example, a green cell indicates that a treatment performed better than its comparator (estimate smaller than 1), while a red cell indicates that the treatment performed worst than its comparator (estimate greater than 1). The symbols (**) are used to highlight credible intervals that do not contain the neutral value 1, meaning that there is evidence of a statistically significant difference between the treatment and its comparator at the 95% confidence level. The values can also be outputted in a table via the command `league.out$table`.
 
 ```{r, echo = FALSE}
 kable(league.out$table)
