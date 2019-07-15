@@ -84,9 +84,9 @@ data.plot <- function(data,
   
   if (by == "study"){
   if(is.null(fill.str)) {p <- ggplot(patients.data, aes_string(x=treatment.var, y=covariate))}
-  else p <- ggplot(patients.data, aes_string(x=treatment.var, y=covariate, fill=fill.str))
+  else p <- ggplot(patients.data, aes_string(x=treatment.var, y=covariate, color=fill.str))
   
-  p <- p + geom_bar(stat = "identity") +
+  p <- p + geom_point() +
     eb +
     om + 
     theme(axis.text.x = element_text(angle = 90, hjust = 1),
@@ -101,9 +101,9 @@ data.plot <- function(data,
   else if (by == "treatment"){
     
   if(is.null(fill.str)) {p <- ggplot(patients.data, aes_string(x=trial.var, y=covariate))}
-  else p <- ggplot(patients.data, aes_string(x=trial.var, y=covariate, fill=fill.str))
+  else p <- ggplot(patients.data, aes_string(x=trial.var, y=covariate, color=fill.str))
   
-  p <- p + geom_bar(stat = "identity") +
+  p <- p + geom_point() +
     eb +
     om + 
     theme(axis.text.x = element_text(angle = 90, hjust = 1),

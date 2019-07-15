@@ -116,7 +116,8 @@ data.plot(data = rate2.slr,
               half.length = "age_SD",
               by = "treatment",
               fill.str = "age_type", #which value is reported (e.g mean/median)
-              avg.hline=TRUE) #add overall average line?
+              avg.hline=TRUE, #add overall average line?
+              text.size = 12) 
 ```
 
 If there are any imbalances in effect modifiers between trials, subgroup analysis or meta-regression can be employed. For this example, we will assume that there is no significant imbalance in effect modifiers.
