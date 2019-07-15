@@ -4,8 +4,8 @@
 \alias{nma.run}
 \title{Run NMA model}
 \usage{
-nma.run(model, monitor = "DEFAULT", DIC = TRUE, n.adapt,
-  n.burnin = 0, n.iter, thin = 1, n.chains = 3)
+nma.run(model, monitor = "DEFAULT", DIC = TRUE, n.adapt = 1000,
+  n.burnin = floor(n.iter/2), n.iter, thin = 1, n.chains = 3)
 }
 \arguments{
 \item{model}{Object produced by running \code{nma.model}.}

@@ -49,12 +49,11 @@
 nma.run <- function(model,
                     monitor="DEFAULT",
                     DIC=TRUE,
-                    n.adapt, 
-                    n.burnin=0, 
+                    n.adapt = 1000, 
+                    n.burnin = floor(n.iter / 2), 
                     n.iter, 
                     thin=1,
                     n.chains=3){
-  
   
   jagsmodel <- jags.model(textConnection(model$bugs),
                           model$data,

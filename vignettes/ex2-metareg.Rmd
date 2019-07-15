@@ -120,13 +120,13 @@ The next step is to run the NMA model using `nma.run()`. Since we are working in
 ```{r, results = "hide"}
 fixed_effects_results <- nma.run(fixed_effects_model,
                            n.adapt=1000,
-                           n.burnin=1000,
-                           n.iter=10000)
+                           n.burnin=20000,
+                           n.iter=40000)
 
 random_effects_results <- nma.run(random_effects_model,
                            n.adapt=1000,
-                           n.burnin=1000,
-                           n.iter=10000)
+                           n.burnin=20000,
+                           n.iter=40000)
 
 ```
 
