@@ -40,7 +40,7 @@
 #' @import dplyr
 #' @importFrom Rdpack reprompt 
 #' @importFrom stringr str_detect
-#' @importFrom grDevices colorRampPalette
+#' @importFrom grDevices colorRampPalette dev.off
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))

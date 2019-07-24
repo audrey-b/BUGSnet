@@ -21,10 +21,14 @@
 #' 
 #' @examples 
 #' data(thrombolytic)
-#' dich.slr <- data.prep(arm.data = cbind(thrombolytic, age), varname.t = "treatment", varname.s = "study")
-#' random_effects_model <- nma.model(data=dich.slr, outcome="events", N="sampleSize", reference="SK",
-#'                                   family="binomial", link="log", effects="random")
-#' random_effects_results <- nma.run(random_effects_model, n.adapt=1000, n.burnin=1000, n.iter=10000)
+#' dich.slr <- data.prep(arm.data = thrombolytic, varname.t = "treatment", 
+#'                       varname.s = "study")
+#' random_effects_model <- nma.model(data=dich.slr, outcome="events", 
+#'                                   N="sampleSize", reference="SK",
+#'                                   family="binomial", link="log", 
+#'                                   effects="random")
+#' random_effects_results <- nma.run(random_effects_model, n.adapt=1000, 
+#'                                   n.burnin=1000, n.iter=10000)
 #' nma.diag(random_effects_results)
 #' @export
 #' @seealso \code{\link{nma.run}}, \code{\link{gelman.diag}}, \code{\link{geweke.diag}}
