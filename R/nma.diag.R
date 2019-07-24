@@ -80,9 +80,9 @@ nma.diag <- function(nma,
     n.iter <- nrow(mcmc.obj[[1]]) 
     n.chains <- nrow(samples)/n.iter
     
-    if (params=="all"){
+    if (is.character(params) && length(params) == 1 && params=="all"){
       params = 1:ncol(samples)
-    } else if (!is.integer(params) || min(params) < 1 || max(params) > ncol(samples)) {
+    } else if (!is.numeric(params) || !all(params == as.integer(params)) || min(params) < 1 || max(params) > ncol(samples)) {
       stop(paste0("\'params\' argument must be \"all\" or an integer vector containing values from 1 to K ", 
                   "where K = [# treatment params] - 1 + [1 if random effects model]"))
     }
