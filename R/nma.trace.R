@@ -36,6 +36,7 @@
 #'  
 
 nma.trace <- function(nma, n="all", thin = 1, colours = "DEFAULT"){
+  .Deprecated("nma.diag")
   samples <- do.call(rbind, nma$samples) %>% data.frame()
   
   n.iter <- nrow(nma$samples[[1]]) 
