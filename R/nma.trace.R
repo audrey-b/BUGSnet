@@ -36,7 +36,7 @@
 #'  
 
 nma.trace <- function(nma, n="all", thin = 1, colours = "DEFAULT"){
-  .Deprecated("nma.diag")
+  .Deprecated("nma.convergence")
   samples <- do.call(rbind, nma$samples) %>% data.frame()
   
   n.iter <- nrow(nma$samples[[1]]) 
@@ -66,7 +66,7 @@ nma.trace <- function(nma, n="all", thin = 1, colours = "DEFAULT"){
   
   if(length(colors)<n.chains) stop("length(colours) must be no smaller than n.chains.")
   
-  par(mfrow = c(num_plots, 2))
+  par(mfrow = c(num_plots, 2), mar=c(1,1,1,1))
   for (i in 1:num_plots){
     plot(seq(thin, n.iter, thin), #ensures x-axis labels correspond to correct iteration
          samples[seq(thin, n.iter, thin),i], 

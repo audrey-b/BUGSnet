@@ -31,7 +31,7 @@ indicating person-time followup (e.g person years) or study followup time.}
 \item{family}{A string indicating the family of the distribution of the outcome. Options are:
 "binomial", "normal", "poisson".}
 
-\item{link}{The link function for the nma model. Options are "logit", "log", "cloglog", "identity".}
+\item{link}{The link function for the nma model. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).}
 
 \item{effects}{A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".}
 

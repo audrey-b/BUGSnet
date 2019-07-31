@@ -2,15 +2,13 @@
 #' Trace plots and convergence diagnostics for MCMC chains
 #' @description Produces trace plots and Gelman-Rubin and Geweke convergence diagnostics for the MCMC chains obtained from 
 #' \code{nma.run()}. The Gelman-Rubin and Geweke diagnostics are implemented using functions from the \code{coda} package. 
-#' See \code{\link{gelman.diag}} and \code{\link{geweke.diag}} for more details.
 #' @param nma An output produced by \code{nma.run()}
 #' @param trace If TRUE, outputs trace plots. Default is TRUE.
-#' @param gelman.rubin If TRUE, runs Gelman-Rubin diagnostic. Default is TRUE.
-#' @param geweke If TRUE, runs Geweked diagnostic. Default is TRUE.
-#' @param params Integer vector which specifies which parameters to produce trace plots for. Default is "all" which plots every parameter.
+#' @param gelman.rubin (EXPERIMENTAL feature - in progress) If TRUE, runs Gelman-Rubin diagnostic. Default is TRUE.
+#' @param geweke (EXPERIMENTAL feature - in progress) If TRUE, runs Geweke diagnostic. Default is TRUE.
+#' @param n Integer vector which specifies which parameters to produce trace plots for. Default is "all" which plots every monitored parameter.
 #' @param thin Thinning factor for the mcmc chains. Default is 1.
-#' @param colours An optional vector of colors, one for each chain. 
-#' @param plot_prompt If true, prompts the user to hit enter before plotting each additional batch of trace plots. Default is TRUE.
+#' @param colours An optional vector of colors for the trace plot, one for each chain. 
 #' @param geweke_frac1 Fraction to use from beginning of chain. Default is 0.1.
 #' @param geweke_frac2 Fraction to use from end of chain. Default is 0.5.
 #' 
@@ -29,18 +27,18 @@
 #'                                   effects="random")
 #' random_effects_results <- nma.run(random_effects_model, n.adapt=1000, 
 #'                                   n.burnin=1000, n.iter=10000)
-#' nma.diag(random_effects_results)
+#' nma.convergence(random_effects_results)
 #' @export
-#' @seealso \code{\link{nma.run}}, \code{\link{gelman.diag}}, \code{\link{geweke.diag}}
+#' @seealso \code{\link{nma.run}}
 
-nma.diag <- function(nma, 
+nma.convergence <- function(nma, 
                      trace = TRUE,
                      gelman.rubin = TRUE, 
                      geweke = TRUE,
-                     params = "all", 
+                     n = "all", 
                      thin = 1, 
                      colours = "DEFAULT",
-                     plot_prompt = TRUE,
+                     #plot_prompt = TRUE,
                      geweke_frac1 = 0.1,
                      geweke_frac2 = 0.5)
 {
@@ -50,11 +48,14 @@ nma.diag <- function(nma,
   #pull out column indices for the 'd' and 'sigma' parameters
   clist <- grep("(^d\\[[0-9]+\\])|(^sigma$)", colnames(nma$samples[[1]]))
   clist <- clist[-which(clist == grep("d\\[1\\]", colnames(nma$samples[[1]])))]
-  mcmc.obj <- nma$samples[, clist, drop = FALSE]
-  pnames <- colnames(mcmc.obj[[1]])
+  
+  if(!length(clist)==0){
+    mcmc.obj <- nma$samples[, clist, drop = FALSE]
+    pnames <- colnames(mcmc.obj[[1]])
+  }
   
   #run gelman.diag from the coda package and produced formatted output
-  if (gelman.rubin == TRUE)
+  if (gelman.rubin == TRUE & !length(clist)==0)
   {
     gr <- gelman.diag(mcmc.obj)
     gr.obj <- structure(list(psrf = gr$psrf,
@@ -62,7 +63,7 @@ nma.diag <- function(nma,
   }
 
   #run geweke.diag from the coda package and produced formatted output
-  if (geweke == TRUE)
+  if (geweke == TRUE & !length(clist)==0)
   {
     gw <- geweke.diag(mcmc.obj, frac1 = geweke_frac1, frac2 = geweke_frac2)
     
@@ -80,15 +81,25 @@ nma.diag <- function(nma,
   #produce trace plots
   if (trace == TRUE)
   {
-    samples <- do.call(rbind, mcmc.obj) %>% data.frame()
-    n.iter <- nrow(mcmc.obj[[1]]) 
+    samples <- do.call(rbind, nma$samples) %>% data.frame()
+    
+    n.iter <- nrow(nma$samples[[1]]) 
     n.chains <- nrow(samples)/n.iter
     
-    if (is.character(params) && length(params) == 1 && params=="all"){
-      params = 1:ncol(samples)
-    } else if (!is.numeric(params) || !all(params == as.integer(params)) || min(params) < 1 || max(params) > ncol(samples)) {
-      stop(paste0("\'params\' argument must be \"all\" or an integer vector containing values from 1 to K ", 
-                  "where K = [# treatment params] - 1 + [1 if random effects model]"))
+    # samples.vars <- colnames(samples)
+    # scalars <- vars[which(vars %in% samples.vars)]
+    # samples.matr <- setdiff(samples.vars, scalars)
+    # 
+    # samples %<>% select(starts_with("d."), scalars)
+    
+    
+    if("sigma" %in% colnames(samples)) {samples %<>% select(starts_with("d."), "sigma")
+    } else {samples %<>% select(starts_with("d."))}
+    
+    if (n=="all"){
+      num_plots = ncol(samples)
+    } else {
+      num_plots = n
     }
     
     if (colours=="DEFAULT"){
@@ -99,20 +110,8 @@ nma.diag <- function(nma,
     
     if(length(colors)<n.chains) stop("length(colours) must be no smaller than n.chains.")
     
-    if (plot_prompt == TRUE)
-      par(mfrow = c(min(4, length(params)), 2))
-    else
-      par(mfrow = c(length(params), 2))
-    row_count <- 0
-    for (i in params){
-      if (plot_prompt == TRUE && row_count >= 4)
-      {
-        readline(prompt = "Press [ENTER] to continue plotting trace plots")
-        dev.off()
-        par(mfrow = c(min(4, length(params)), 2))
-        row_count <- 0
-      }
-      
+    par(mfrow = c(num_plots, 2), mar=c(1,1,1,1))
+    for (i in 1:num_plots){
       plot(seq(thin, n.iter, thin), #ensures x-axis labels correspond to correct iteration
            samples[seq(thin, n.iter, thin),i], 
            type="l", 
@@ -129,11 +128,17 @@ nma.diag <- function(nma,
         }
       }  
       plot(density(samples[,i]), main = paste(names(samples[i])))
-      row_count <- row_count + 1
-    }
+    } 
   }
   
-  return(list(gelman.rubin = gr.obj, geweke = gw.obj))
+  if(gelman.rubin == TRUE & geweke == TRUE & !length(clist)==0){
+    return(list(gelman.rubin = gr.obj, geweke = gw.obj))
+  }else if(gelman.rubin == TRUE & !length(clist)==0){
+    return(list(gelman.rubin = gr.obj))
+  }else if(geweke == TRUE & !length(clist)==0){
+    return(list(geweke = gw.obj))
+  }
+
 }
 
 print.gelman.rubin.results <- function(obj, gelman.rubin.threshold = 1.2)

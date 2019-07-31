@@ -199,7 +199,7 @@ fe_inconsistency_results <- nma.run(fe_inconsistency_model,
                            n.burnin=1000,
                            n.iter=10000)
 
-nma.trace(fe_inconsistency_results, n=5)
+nma.convergence(fe_inconsistency_results, n=5)
 
 ```
 
