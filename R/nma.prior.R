@@ -1,9 +1,15 @@
 nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
-  if (scale =="Odds Ratio" ){type.outcome = "binomial"}
-  else if (scale =="Risk Ratio"){type.outcome = "binomial"}
-  else if (scale =="Mean Difference"){type.outcome = "continuous"}
-  else if (scale =="Rate Ratio"){type.outcome = "rate"}
-  else if (scale =="Hazard Ratio"){type.outcome = "rate2"}
+  if (scale =="Odds Ratio" ){
+    type.outcome = "binomial"
+  } else if (scale =="Risk Ratio"){
+    type.outcome = "binomial"
+  } else if (scale =="Mean Difference"){
+    type.outcome = "continuous"
+  } else if (scale =="Rate Ratio"){
+    type.outcome = "rate"
+  } else if (scale =="Hazard Ratio"){
+    type.outcome = "rate2"
+  }
   
   table <- by.comparison(data.nma, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
   names(table)[names(table) == paste0(outcome,".e")] <- "outcome.e"

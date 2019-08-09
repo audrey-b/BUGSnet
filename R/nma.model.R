@@ -5,7 +5,7 @@
 #' @param outcome A string indicating the name of your outcome variable.
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param sd A string (only required for continuous outcomes) indicating variable name
-#' of the standard deviation of the outcome. You MUST name that variable sd in your dataset for this to work - this is a bug which will be corrected in a further release of BUGSnet. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
+#' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
 #' @param family A string indicating the family of the distribution of the outcome. Options are:
@@ -129,181 +129,59 @@ nma.model <- function(data,
   
   data1 <- data$arm.data
   
-  # rename variables as appropriate
-  names(data1)[names(data1) == data$varname.t] <- "trt"
-  names(data1)[names(data1) == data$varname.s] <- "trial"
-  names(data1)[names(data1) == outcome] <- "r1"
-  names(data1)[names(data1) == N] <- "N"
-  if (family == "normal"){names(data1)[names(data1) == sd] <- "sd"}
-  if (!is.null(time)){names(data1)[names(data1) == time] <- "timevar"}
-  if (!is.null(covariate)){names(data1)[names(data1) == covariate] <- "covariate"}
+  #pull relevant fields from the data and apply naming convention
+  varlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate)
+  data1 <- data$arm.data[, varlist]
+  names(data1) <- names(varlist)
   
   #Trt mapping
-  trt.key <- data1$trt %>%
-    unique %>% 
-    sort  %>%
-    tibble(trt.ini=.) %>%
-    filter(trt.ini!=reference) %>%
-    add_row(trt.ini=reference, .before=1) %>%
+  trt.key <- data1$trt %>% unique %>% sort %>% tibble(trt.ini=.) %>%
+    filter(trt.ini!=reference) %>% add_row(trt.ini=reference, .before=1) %>%
     mutate(trt.jags = 1:dim(.)[1])
-  
+  #add treatment mapping to data
   data1 %<>% mutate(trt.jags=mapvalues(trt,
                                        from=trt.key$trt.ini,
                                        to=trt.key$trt.jags) %>% as.integer)
   
-  nt = data$treatments %>% nrow()
-  ns = data$studies %>% nrow()
-  na = data$n.arms %>% select(n.arms) %>% t() %>% as.vector
+  #generate BUGS data object
+  bugstemp <- data1 %>% arrange(trial, trt.jags) %>% group_by(trial) %>% mutate(arm = row_number()) %>% 
+    ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
+  bugsdata2 <- list()
+  for (v in unique(bugstemp$variable))
+    bugsdata2[[v]] <- as.matrix(bugstemp %>% filter(variable == v) %>% select(-trial, -variable))
   
-  
-  
-  sorted.data <- data1 
-  
-  # rename variables as appropriate
-  names(sorted.data)[names(sorted.data) == data$varname.t] <- "trt"
-  names(sorted.data)[names(sorted.data) == data$varname.s] <- "trial"
-  names(sorted.data)[names(sorted.data) == outcome] <- "r1"
-  names(sorted.data)[names(sorted.data) == N] <- "N"
-  if (family == "normal"){names(sorted.data)[names(sorted.data) == sd] <- "sd"}
-  if (!is.null(time)){names(sorted.data)[names(sorted.data) == time] <- "timevar"}
-  if (!is.null(covariate)){names(sorted.data)[names(sorted.data) == covariate] <- "covariate"}
-  
-  sorted.data %<>% arrange(trial, trt.jags)
-  
+  #modify BUGS object for the various family/link combinations
+  names(bugsdata2)[names(bugsdata2) == "trt.jags"] <- "t"
+  names(bugsdata2)[names(bugsdata2) == "N"] <- "n"
+  names(bugsdata2)[names(bugsdata2) == "covariate"] <- "x"
   if (family == "binomial" && link %in% c("log","logit")){
-    r <- matrix(NA, ns, max(na))
-    n <- matrix(NA, ns, max(na))
-    t <- matrix(NA, ns, max(na))
-    x <- matrix(NA, ns, max(na))
-    
-    line <- 1
-    
-    for(i in 1:ns){
-      for(a in 1:na[i]){
-        r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
-        n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
-        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
-        if (!is.null(covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()} #fix
-      }
-      line <- line + na[i]
-    }
-    
-    if (!is.null(covariate)) {
-      mean.cov <- mean(x[,1], na.rm=TRUE)
-      x <- x-mean.cov
-    } else{mean.cov <- NULL}
-    
-    bugsdata2 <- list(ns=ns,
-                      nt=nt,
-                      #meanA=0,
-                      #precA=0.5,
-                      r=r,
-                      n=n,
-                      t=t,
-                      na=na,
-                      x=x) 
+    names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
+    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x")]
   } else if (family == "normal" && link=="identity"){
-    y <- matrix(NA, ns, max(na))
-    n <- matrix(NA, ns, max(na))
-    sd<- matrix(NA, ns, max(na))
-    se<- matrix(NA, ns, max(na))
-    t <- matrix(NA, ns, max(na))
-    x <- matrix(NA, ns, max(na))
-    
-    line <- 1
-    
-    for(i in 1:ns){
-      for(a in 1:na[i]){
-        y[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
-        sd[i,a]<- sorted.data %>% select(sd) %>% slice(line+a-1) %>% as.numeric()
-        n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
-        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
-        if (!is.null(covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()}        
-      }
-      line <- line + na[i]
-    }
-    se <- sd/sqrt(n)
-    if (!is.null(covariate)) {
-      mean.cov <- mean(x, na.rm=TRUE)
-      x <- x-mean.cov
-    } else{mean.cov <- NULL}
-    
-    bugsdata2 <- list(ns=ns,
-                      nt=nt,
-                      #meanA=0,
-                      #precA=0.5,
-                      y=y,
-                      se=se,
-                      t=t,
-                      na=na,
-                      x = x)
-    
+    names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
+    bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
+    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se", "t", "x")]
   } else if (family == "poisson" && link == "log"){
-    E <- matrix(NA, ns, max(na))
-    r <- matrix(NA, ns, max(na))
-    t <- matrix(NA, ns, max(na))
-    x <- matrix(NA, ns, max(na))
-    
-    line <- 1
-    
-    for(i in 1:ns){
-      for(a in 1:na[i]){
-        E[i,a] <- sorted.data %>% select(timevar) %>% slice(line+a-1) %>% as.numeric()
-        r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
-        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
-        if (!is.null(covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()}
-      }
-      line <- line + na[i]
-    }
-    if (!is.null(covariate)) {
-      mean.cov <- mean(x, na.rm=TRUE)
-      x <- x-mean.cov
-    } else{mean.cov <- NULL}
-    
-    bugsdata2 <- list(ns=ns,
-                      nt=nt,
-                      #meanA=0,
-                      #precA=0.5,
-                      E=E,
-                      r=r,
-                      t=t,
-                      na=na,
-                      x=x) 
+    names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
+    names(bugsdata2)[names(bugsdata2) == "timevar"] <- "E"
+    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "E", "t", "x")]
   } else if (family == "binomial" && link == "cloglog"){
-    time.mat <- matrix(NA, ns, max(na))
-    n <- matrix(NA, ns, max(na))
-    r <- matrix(NA, ns, max(na))
-    t <- matrix(NA, ns, max(na))
-    x <- matrix(NA, ns, max(na))
+    names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
+    names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
+    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x", "time")]
+  }
+  
+  #de-mean covariate
+  if (!is.null(covariate)) {
+    mean.cov <- mean(bugsdata2$x, na.rm=TRUE)
+    bugsdata2$x <- bugsdata2$x-mean.cov
+  } else{mean.cov <- NULL}
     
-    line <- 1
-    
-    for(i in 1:ns){
-      for(a in 1:na[i]){
-        time.mat[i,a] <- sorted.data %>% select(timevar) %>% slice(line+a-1) %>% as.numeric()
-        n[i,a] <- sorted.data %>% select(N) %>% slice(line+a-1) %>% as.numeric()
-        r[i,a] <- sorted.data %>% select(r1) %>% slice(line+a-1) %>% as.numeric()
-        t[i,a] <- sorted.data %>% select(trt.jags) %>% slice(line+a-1) %>% as.numeric()
-        if (!is.null(covariate)){x[i,a] <- sorted.data %>% select(covariate) %>% slice(line+a-1) %>% as.numeric()}        
-      }
-      line <- line + na[i]
-    }
-    if (!is.null(covariate)) {
-      mean.cov <- mean(x, na.rm=TRUE)
-      x <- x-mean.cov
-    } else{mean.cov <- NULL}
-    
-    bugsdata2 <- list(ns=ns,
-                      nt=nt,
-                      #meanA=0,
-                      #precA=0.5,
-                      "time"=time.mat,
-                      n=n,
-                      r=r,
-                      t=t,
-                      na=na,
-                      x=x) 
-  } 
+  #add number of treatments, studies, and arms to BUGS data object
+  bugsdata2$nt <- data$treatments %>% nrow()
+  bugsdata2$ns <- data$studies %>% nrow()
+  bugsdata2$na <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
+  
   add.to.model <- trt.key %>% 
     transmute(Treatments = paste0("# ", trt.jags, ": ", trt.ini, "\n")) %>% 
     t() %>% 
@@ -402,32 +280,16 @@ nma.model <- function(data,
   #remove covariate from bugsdata2 if unused
   if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
-  
-  
-  
-  if(type=="inconsistency"){     
-    model <- makeBUGScode(family=family,
-                          link=link,
-                          effects=effects,
-                          inconsistency=TRUE,
-                          prior.mu.str,
-                          prior.d.str,
-                          prior.sigma2.str,
-                          covariate,
-                          prior.meta.reg) %>%
-      paste0(add.to.model)
-  } else if(type=="consistency"){
-    model <- makeBUGScode(family=family, 
-                          link=link, 
-                          effects=effects, 
-                          inconsistency=FALSE, 
-                          prior.mu.str,
-                          prior.d.str, 
-                          prior.sigma2.str, 
-                          covariate, 
-                          prior.meta.reg) %>%
-      paste0(add.to.model)
-  }
+  model <- makeBUGScode(family=family,
+                        link=link,
+                        effects=effects,
+                        inconsistency=(type=="inconsistency"),
+                        prior.mu.str,
+                        prior.d.str,
+                        prior.sigma2.str,
+                        covariate,
+                        prior.meta.reg) %>%
+    paste0(add.to.model)
   
   return(model=list(bugs=model,
                     data=bugsdata2, 
