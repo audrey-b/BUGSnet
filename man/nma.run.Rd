@@ -5,7 +5,8 @@
 \title{Run NMA model}
 \usage{
 nma.run(model, monitor = "DEFAULT", DIC = TRUE, n.adapt = 1000,
-  n.burnin = floor(n.iter/2), n.iter, thin = 1, n.chains = 3)
+  n.burnin = floor(n.iter/2), n.iter, thin = 1, n.chains = 3,
+  inits = "DEFAULT")
 }
 \arguments{
 \item{model}{Object produced by running \code{nma.model}.}
@@ -24,6 +25,10 @@ as well as \code{sigma} when a random effects model is used and the regression c
 \item{thin}{Thinning factor for the mcmc chains. Default is 1.}
 
 \item{n.chains}{Number of mcmc chains. Default is 3.}
+
+\item{inits}{Specifies initial values and random number generator options for each chain. The "DEFAULT" option uses the R random seed to set the JAGS random
+seeds. Non-default options are passed directly to \code{\link{jags.model}}. In order to use the JAGS default initialization, set inits to NULL.
+See \code{\link{jags.model}} for more info.}
 }
 \value{
 \code{model} - The object obtained from \code{nma.model} that was used to run \code{jags}.
@@ -68,5 +73,5 @@ n.iter=10000)
        
 }
 \seealso{
-\code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}
+\code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}, \code{\link{jags.model}}
 }
