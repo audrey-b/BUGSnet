@@ -38,13 +38,14 @@ Imports:
     utils,
     rlang,
     tibble,
-    stringr
+    stringr,
+    gridExtra
 Suggests: 
     knitr,
     rmarkdown,
     devtools,
-    roxygen2
+    roxygen2,
+    testthat
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace", "collate"))
 RdMacros: Rdpack
-

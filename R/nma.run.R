@@ -61,10 +61,7 @@ nma.run <- function(model,
   
   if (!is.null(inits) && inits == "DEFAULT")
   {
-    seed <- sample(.Machine$integer.max, 1)
-    seeds <- seed:(seed + min(.Machine$integer.max - seed, n.chains - 1))
-    if (length(seeds) < n.chains)
-      seeds <- c(seeds, 1:(n.chains - length(seeds)))
+    seeds <- sample(.Machine$integer.max, n.chains, replace = FALSE)
     inits <- list()
     for (i in 1:n.chains)
       inits[[i]] <- list(.RNG.seed = seeds[i], .RNG.name = "base::Mersenne-Twister")

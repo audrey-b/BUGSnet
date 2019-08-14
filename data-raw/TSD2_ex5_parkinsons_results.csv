@@ -1,0 +1,9 @@
+source,model,d,mean,sd,median,p2.5,p97.5
+"TSD2 Apr. 2014 Update, Table A9, Example 5",FE,2,-1.81,0.33,-1.81,-2.46,-1.16
+"TSD2 Apr. 2014 Update, Table A9, Example 5",FE,3,-0.47,0.49,-0.47,-1.43,0.49
+"TSD2 Apr. 2014 Update, Table A9, Example 5",FE,4,-0.52,0.48,-0.52,-1.46,0.43
+"TSD2 Apr. 2014 Update, Table A9, Example 5",FE,5,-0.82,0.52,-0.82,-1.84,0.22
+"TSD2 Apr. 2014 Update, Table A9, Example 5",RE,2,-1.85,0.54,-1.84,-2.91,-0.85
+"TSD2 Apr. 2014 Update, Table A9, Example 5",RE,3,-0.5,0.66,-0.5,-1.78,0.75
+"TSD2 Apr. 2014 Update, Table A9, Example 5",RE,4,-0.53,0.65,-0.53,-1.77,0.71
+"TSD2 Apr. 2014 Update, Table A9, Example 5",RE,5,-0.83,0.8,-0.83,-2.35,0.69
