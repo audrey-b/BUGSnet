@@ -4,11 +4,14 @@
 #' \code{nma.run()}. The Gelman-Rubin and Geweke diagnostics are implemented using functions from the \code{coda} package. 
 #' @param nma An output produced by \code{nma.run()}
 #' @param trace If TRUE, outputs trace plots. Default is TRUE.
-#' @param gelman.rubin (EXPERIMENTAL feature - in progress) If TRUE, runs Gelman-Rubin diagnostic. Default is TRUE.
-#' @param geweke (EXPERIMENTAL feature - in progress) If TRUE, runs Geweke diagnostic. Default is TRUE.
-#' @param n Integer vector which specifies which parameters to produce trace plots for. Default is "all" which plots every monitored parameter.
-#' @param thin Thinning factor for the mcmc chains. Default is 1.
-#' @param colours An optional vector of colors for the trace plot, one for each chain. 
+#' @param gelman.rubin If TRUE, runs Gelman-Rubin diagnostic. Default is TRUE.
+#' @param geweke If TRUE, runs Geweke diagnostic. Default is TRUE.
+#' @param params Integer or character vector which specifies which parameters to produce trace plots for when trace is set to TRUE. 
+#' Default is "all" which plots every monitored parameter.
+#' @param thin Thinning factor for the mcmc chains when producing trace plots. Default is 1.
+#' @param nrow Number rows in each batch of trace plots
+#' @param ncol Number of columns in each batch of trace plots
+#' @param plot_prompt If TRUE, prompts the user to hit enter before plotting each additional batch of trace plots. Default is TRUE.
 #' @param geweke_frac1 Fraction to use from beginning of chain. Default is 0.1.
 #' @param geweke_frac2 Fraction to use from end of chain. Default is 0.5.
 #' 
@@ -35,10 +38,11 @@ nma.convergence <- function(nma,
                      trace = TRUE,
                      gelman.rubin = TRUE, 
                      geweke = TRUE,
-                     n = "all", 
+                     params = "all",
                      thin = 1, 
-                     colours = "DEFAULT",
-                     #plot_prompt = TRUE,
+                     ncol = 1,
+                     nrow = 3,
+                     plot_prompt = TRUE,
                      geweke_frac1 = 0.1,
                      geweke_frac2 = 0.5)
 {
@@ -46,16 +50,26 @@ nma.convergence <- function(nma,
     stop("At least one of the \'trace\', \'gelman_rubin\' or \'geweke\' parameters must be set to TRUE")
   
   #pull out column indices for the 'd' and 'sigma' parameters
-  clist <- grep("(^d\\[[0-9]+\\])|(^sigma$)", colnames(nma$samples[[1]]))
-  clist <- clist[-which(clist == grep("d\\[1\\]", colnames(nma$samples[[1]])))]
-  
-  if(!length(clist)==0){
+  if ((length(params) == 1 && params == "all") || is.numeric(params) == TRUE) {
+    clist <- grep("(^d\\[[0-9,]+\\])|(^sigma$)", colnames(nma$samples[[1]]))
+    clist <- clist[colnames((nma$samples[[1]])[,clist]) != "d[1]"]
+    #quick fix for inconsistency model
+    if (nma$model$type == "inconsistency")
+    {
+      i1 <- str_sub(str_extract(colnames((nma$samples[[1]])[,clist]), "d\\[[0-9]+"), 3, -1)
+      i2 <- str_sub(str_extract(colnames((nma$samples[[1]])[,clist]), ",[0-9]+\\]"), 2, -2)
+      clist <- clist[is.na(i1) | (i1 != i2)]
+    }
+    if (is.numeric(params) == TRUE) 
+      clist <- clist[params]
     mcmc.obj <- nma$samples[, clist, drop = FALSE]
-    pnames <- colnames(mcmc.obj[[1]])
+  } else {
+    mcmc.obj <- nma$samples[, params, drop = FALSE]
   }
+  pnames <- colnames(mcmc.obj[[1]])
   
   #run gelman.diag from the coda package and produced formatted output
-  if (gelman.rubin == TRUE & !length(clist)==0)
+  if (gelman.rubin == TRUE)
   {
     gr <- gelman.diag(mcmc.obj)
     gr.obj <- structure(list(psrf = gr$psrf,
@@ -63,7 +77,7 @@ nma.convergence <- function(nma,
   }
 
   #run geweke.diag from the coda package and produced formatted output
-  if (geweke == TRUE & !length(clist)==0)
+  if (geweke == TRUE)
   {
     gw <- geweke.diag(mcmc.obj, frac1 = geweke_frac1, frac2 = geweke_frac2)
     
@@ -81,61 +95,45 @@ nma.convergence <- function(nma,
   #produce trace plots
   if (trace == TRUE)
   {
-    samples <- do.call(rbind, nma$samples) %>% data.frame()
-    
-    n.iter <- nrow(nma$samples[[1]]) 
+    samples <- do.call(rbind, mcmc.obj) %>% data.frame()
+    n.iter <- nrow(mcmc.obj[[1]]) 
     n.chains <- nrow(samples)/n.iter
+    samples$chain <- as.factor(rep(1:n.chains, rep(n.iter, n.chains)))
+    samples$iteration <- rep(1:n.iter, n.chains)
     
-    # samples.vars <- colnames(samples)
-    # scalars <- vars[which(vars %in% samples.vars)]
-    # samples.matr <- setdiff(samples.vars, scalars)
-    # 
-    # samples %<>% select(starts_with("d."), scalars)
+    thinned_index <- NULL
+    for (i in 1:n.chains)
+      thinned_index <- c(thinned_index, (i-1) * n.iter + seq(1, n.iter, thin))
+    samples <- samples[thinned_index,]
     
-    
-    if("sigma" %in% colnames(samples)) {samples %<>% select(starts_with("d."), "sigma")
-    } else {samples %<>% select(starts_with("d."))}
-    
-    if (n=="all"){
-      num_plots = ncol(samples)
-    } else {
-      num_plots = n
+    traceplots <- list()
+    for (i in 1:length(pnames))
+    {
+      traceplots[[2*i-1]] <- ggplot(samples, aes_string(x = "iteration", y = make.names(pnames)[i], col = "chain")) +
+        geom_line() + xlab("") + ylab("") + ggtitle(pnames[i]) + 
+        theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
+      traceplots[[2*i]] <- ggplot(samples, aes_string(x = make.names(pnames)[i], col = "chain")) +
+        geom_density() + xlab("") + ggtitle(pnames[i]) + 
+        theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
     }
     
-    if (colours=="DEFAULT"){
-      colors=c("black", "red", "blue", "green", "purple", "yellow", "pink", "grey")#colors to be used in trace.plots
-    } else {
-      colors = colours
+    for (i in 1:(ceiling(length(pnames) / (nrow * ncol))))
+    {
+      if (plot_prompt == TRUE && i > 1)
+      {
+        pstr <- readline(prompt = "Press [ENTER] to continue plotting trace plots (or type \'stop\' to end plotting)> ")
+        if (trimws(tolower(pstr), which = "both") == "stop")
+          break
+      }
+      gridExtra::grid.arrange(grobs = traceplots[((i-1)*2*nrow*ncol+1):min((i*2*nrow*ncol),length(traceplots))], ncol = 2 * ncol)
     }
-    
-    if(length(colors)<n.chains) stop("length(colours) must be no smaller than n.chains.")
-    
-    par(mfrow = c(num_plots, 2), mar=c(1,1,1,1))
-    for (i in 1:num_plots){
-      plot(seq(thin, n.iter, thin), #ensures x-axis labels correspond to correct iteration
-           samples[seq(thin, n.iter, thin),i], 
-           type="l", 
-           main = paste(names(samples[i])), 
-           ylab="",
-           xlab="iteration",
-           col = colors[1],
-           ylim=c(min(samples[seq(thin, nrow(samples), thin),i]), 
-                  max(samples[seq(thin, nrow(samples), thin),i]))) #ensure that each chain fits in plot
-      
-      if (n.chains>1){ 
-        for (j in 2:n.chains){
-          lines(seq(thin, n.iter, thin), samples[seq((j-1)*n.iter+thin, j*n.iter, thin), i ], col=colors[j])
-        }
-      }  
-      plot(density(samples[,i]), main = paste(names(samples[i])))
-    } 
   }
   
-  if(gelman.rubin == TRUE & geweke == TRUE & !length(clist)==0){
+  if(gelman.rubin == TRUE && geweke == TRUE){
     return(list(gelman.rubin = gr.obj, geweke = gw.obj))
-  }else if(gelman.rubin == TRUE & !length(clist)==0){
+  }else if(gelman.rubin == TRUE){
     return(list(gelman.rubin = gr.obj))
-  }else if(geweke == TRUE & !length(clist)==0){
+  }else if(geweke == TRUE){
     return(list(geweke = gw.obj))
   }
 
