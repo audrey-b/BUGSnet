@@ -2,7 +2,7 @@
 #' Trace plots and convergence diagnostics for MCMC chains
 #' @description Produces trace plots and Gelman-Rubin and Geweke convergence diagnostics for the MCMC chains obtained from 
 #' \code{nma.run()}. The Gelman-Rubin and Geweke diagnostics are implemented using functions from the \code{coda} package. 
-#' @param nma An output produced by \code{nma.run()}
+#' @param nma A BUGSnetRun object produced by \code{nma.run()}
 #' @param trace If TRUE, outputs trace plots. Default is TRUE.
 #' @param gelman.rubin If TRUE, runs Gelman-Rubin diagnostic. Default is TRUE.
 #' @param geweke If TRUE, runs Geweke diagnostic. Default is TRUE.
@@ -46,6 +46,9 @@ nma.convergence <- function(nma,
                      geweke_frac1 = 0.1,
                      geweke_frac2 = 0.5)
 {
+  if (class(nma) != "BUGSnetRun")
+    stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
+  
   if (trace == FALSE && gelman.rubin == FALSE && geweke == FALSE)
     stop("At least one of the \'trace\', \'gelman_rubin\' or \'geweke\' parameters must be set to TRUE")
   

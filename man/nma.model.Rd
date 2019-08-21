@@ -10,7 +10,7 @@ nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
   covariate = NULL)
 }
 \arguments{
-\item{data}{A data object produced by \code{data.prep()}}
+\item{data}{A BUGSnetData object produced by \code{data.prep()}}
 
 \item{outcome}{A string indicating the name of your outcome variable.}
 
@@ -47,7 +47,9 @@ indicating person-time followup (e.g person years) or study followup time.}
 adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. The covariate will be centered for the analysis.}
 }
 \value{
-\code{model} - A long character string containing BUGS code that will be run in \code{jags}.
+\code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
+
+\code{bugs} - A long character string containing BUGS code that will be run in \code{jags}.
 
 \code{data} - The data used in the BUGS code.
 
@@ -55,6 +57,8 @@ adjust for via meta regression. By default, covariate=NULL and no covariate adju
 examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Hazard Ratio"
 
 \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
+
+...
 }
 \description{
 Creates BUGS code which can be ran through \code{nma.run()}.

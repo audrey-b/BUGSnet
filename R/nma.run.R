@@ -1,7 +1,7 @@
 #' Run NMA model
 #' @description Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 #' 
-#' @param model Object produced by running \code{nma.model}.
+#' @param model A BUGSnetModel object produced by running \code{nma.model}.
 #' @param monitor A vector of all variables that you would like to monitor. Default is "DEFAULT" which will monitor the relative treatment effects \code{d} 
 #' as well as \code{sigma} when a random effects model is used and the regression coefficients \code{beta} when meta-regression is used.
 #' @param DIC Default is TRUE and nodes required to calculate the DIC and other fit statistics are monitored. Otherwise you may set it to FALSE. 
@@ -14,8 +14,9 @@
 #' seeds. Non-default options are passed directly to \code{\link{jags.model}}. In order to use the JAGS default initialization, set inits to NULL. 
 #' See \code{\link{jags.model}} for more info.
 #' 
-#' @return \code{model} - The object obtained from \code{nma.model} that was used to run \code{jags}.
-#' @return \code{data} - The data used with the BUGS code.
+#' @return \code{nma.run} returns an object of class \code{BUGSnetRun} which is a list containing the following components:
+#' @return \code{samples} - The MCMC samples produced by running the BUGS model.
+#' @return \code{model} - The BUGSnetModel object obtained from \code{nma.model} which was used to run \code{jags}.
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function.
 #' @return \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 #' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
@@ -58,6 +59,9 @@ nma.run <- function(model,
                     thin=1,
                     n.chains=3,
                     inits = "DEFAULT"){
+  
+  if(class(model) != "BUGSnetModel")
+    stop("\'model\' must be a valid BUGSnetModel object created using the nma.model function.")
   
   if (!is.null(inits) && inits == "DEFAULT")
   {
@@ -104,11 +108,13 @@ nma.run <- function(model,
   
   # print("The baseline treatment was ...")
   
-  return(list(samples=jagssamples,
-              model=model, 
-              scale=model$scale,
-              family=model$family,
-              link =model$link,
-              "trt.key"=as.character(t(model$trt.key[1]))))
+  brun <- structure(list(samples=jagssamples,
+                         model=model, 
+                         scale=model$scale,
+                         family=model$family,
+                         link =model$link,
+                         "trt.key"=as.character(t(model$trt.key[1]))),
+                    class = "BUGSnetRun")
+  return(brun)
   
 }

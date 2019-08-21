@@ -1,7 +1,7 @@
 #' Plot of relative treatment effects vs covariate values for meta-regression.
 #' @description Produces a plot of relative treatment effects on the linear scale vs covariate values for meta-regression.
 #' 
-#' @param nma Resulting output from running \code{nma.run()}.
+#' @param nma A BUGSnetRun object produced by running \code{nma.run()}.
 #' @param x.range The range of the x axis (covariate values). By default, the range will be the same as in the data.
 #' @param lwd Line width relative to the default (default=1).
 #' @param palette A string indicating the colour set from RcolorBrewer for the plot. "set1" is great, but you may need a different colour set if 
@@ -38,6 +38,9 @@
 #'nma.regplot(afib.re.c.res)
 
 nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
+  
+  if (class(nma) != "BUGSnetRun")
+    stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
   if(is.null(x.range)){
     x.min=min(nma$model$data$x, na.rm=TRUE) + nma$model$mean.cov

@@ -14,6 +14,8 @@ data.prep(arm.data, varname.t, varname.s)
 \item{varname.s}{A string indicating the name of the study variable.}
 }
 \value{
+\code{data.prep} returns an object of class \code{BUGSnetData} which is a list containing the following components:
+
 \code{arm.data} - A tibble containing the arm level study data
 
 \code{treatments} - A list of all treatments in the network

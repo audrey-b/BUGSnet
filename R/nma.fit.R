@@ -5,7 +5,7 @@
 #' the total posterior deviance. Points lying outside the purple dotted line are generally identified as contributing to the model's poor fit.
 #' Points with high leverage are influencial i.e. they have a stong influence on the estimates.
 #' 
-#' @param nma Resulting output from running \code{nma.analysis()}. 
+#' @param nma A BUGSnetRun object produced by running \code{nma.run()}. 
 #' @param plot.pD Whether to include pD on the plot. Default is TRUE.
 #' @param plot.DIC Whether to include DIC on the plot. Default is TRUE.
 #' @param plot.Dres Whether to include Dres on the plot. Default is TRUE.
@@ -76,6 +76,10 @@
 #' @seealso \code{\link{nma.run}}
 
 nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
+  
+  if (class(nma) != "BUGSnetRun")
+    stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
+  
   jagssamples <- nma$samples
   
   if (class(jagssamples) != "mcmc.list"){stop('Object jagssamples must be of class mcmc.list')}

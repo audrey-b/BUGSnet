@@ -2,7 +2,7 @@
 
 #' Pairwise meta-analysis
 #' @description implements pairwise meta-analysis via the package \code{meta}
-#' @param data An object produced by \code{data.prep()}
+#' @param data A BUGSnetData object produced by \code{data.prep()}
 #' @param name.trt1 A string indicating the name of the comparator treatment (often Placebo)
 #' @param name.trt2 A string indicating the name of the experimental treatment
 #' @param outcome A string indicating the name of your outcome variable
@@ -57,6 +57,9 @@ pma <- function(data,
                      method = "MH",
                      method.tau="DL",
                      sm){
+  
+  if(class(data) != "BUGSnetData")
+    stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   if(type.outcome=="continuous" & is.null(sd)) stop("sd must be specified for continuous outcomes")
   

@@ -1,6 +1,6 @@
 #' Traceplot of MCMC chains
 #' @description Produces traceplots of the MCMC chains obtained from \code{nma.run()}
-#' @param nma An output produced by \code{nma.run()}
+#' @param nma A BUGSnetRun object produced by running \code{nma.run()}.
 #' @param n Integer which limits the number of printed variables to the first \code{n}. Default is "all" which plots every variable.
 #' @param thin Thinning factor for the mcmc chains. Default is 1.
 #' @param colours An optional vector of colors, one for each chain. 
@@ -37,6 +37,10 @@
 
 nma.trace <- function(nma, n="all", thin = 1, colours = "DEFAULT"){
   .Deprecated("nma.convergence")
+  
+  if (class(nma) != "BUGSnetRun")
+    stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
+  
   samples <- do.call(rbind, nma$samples) %>% data.frame()
   
   n.iter <- nrow(nma$samples[[1]]) 

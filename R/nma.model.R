@@ -1,7 +1,7 @@
 #' Create Bugs Model
 #' @description Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
-#' @param data A data object produced by \code{data.prep()}
+#' @param data A BUGSnetData object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable.
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param sd A string (only required for continuous outcomes) indicating variable name
@@ -23,11 +23,13 @@
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
 #' 
-#' @return \code{model} - A long character string containing BUGS code that will be run in \code{jags}.
+#' @return \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
+#' @return \code{bugs} - A long character string containing BUGS code that will be run in \code{jags}.
 #' @return \code{data} - The data used in the BUGS code.
 #' @return \code{scale} - The scale of the outcome, based on the chosen family and link function
 #' examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Hazard Ratio"
 #' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
+#' @return ...
 #' 
 #' @details 
 #' For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
@@ -100,6 +102,9 @@ nma.model <- function(data,
                       prior.sigma = "DEFAULT",
                       prior.beta = NULL,
                       covariate = NULL){
+  
+  if(class(data) != "BUGSnetData")
+    stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
   if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
@@ -291,26 +296,26 @@ nma.model <- function(data,
                         prior.meta.reg) %>%
     paste0(add.to.model)
   
-  return(model=list(bugs=model,
-                    data=bugsdata2, 
-                    scale=scale, 
-                    trt.key=trt.key, 
-                    family=family, 
-                    link=link,
-                    type=type,
-                    effects=effects,
-                    covariate=covariate,
-                    prior.mu=prior.mu,
-                    prior.d=prior.d,
-                    prior.sigma=prior.sigma,
-                    prior.beta=prior.beta,
-                    reference=reference,
-                    time=time,
-                    outcome=outcome,
-                    N=N,
-                    sd=sd,
-                    mean.cov=mean.cov))
-  
-  
+  bmodel <- structure(list(bugs=model,
+                           data=bugsdata2, 
+                           scale=scale, 
+                           trt.key=trt.key, 
+                           family=family, 
+                           link=link,
+                           type=type,
+                           effects=effects,
+                           covariate=covariate,
+                           prior.mu=prior.mu,
+                           prior.d=prior.d,
+                           prior.sigma=prior.sigma,
+                           prior.beta=prior.beta,
+                           reference=reference,
+                           time=time,
+                           outcome=outcome,
+                           N=N,
+                           sd=sd,
+                           mean.cov=mean.cov),
+                      class = "BUGSnetModel")
+  return(bmodel)
 }
 

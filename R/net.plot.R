@@ -1,7 +1,7 @@
 #' Network Plot
 #' @description Produces network plot where nodes represent treatments and edges represent direct
 #' evidence (e.g an RCT) comparing treatments.
-#' @param data An object produced by \code{data.prep()} containing the data.
+#' @param data A BUGSnetData object produced by \code{data.prep()}.
 #' @param node.scale Size of the nodes (default=5)
 #' @param edge.scale Thickness of the edges (default=2).
 #' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
@@ -56,6 +56,8 @@ net.plot <- function(data,
                      flag.edge.colour = "lightpink",
                      ...) {
   
+  if(class(data) != "BUGSnetData")
+    stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   edgesANDnodes <- network.structure(data)
   edges <- edgesANDnodes[[1]]

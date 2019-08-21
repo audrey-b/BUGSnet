@@ -7,7 +7,7 @@
 nma.regplot(nma, x.range = NULL, lwd = 1, palette = "Set1")
 }
 \arguments{
-\item{nma}{Resulting output from running \code{nma.run()}.}
+\item{nma}{A BUGSnetRun object produced by running \code{nma.run()}.}
 
 \item{x.range}{The range of the x axis (covariate values). By default, the range will be the same as in the data.}
 

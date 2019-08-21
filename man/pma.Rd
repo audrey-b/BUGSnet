@@ -8,7 +8,7 @@ pma(data, name.trt1, name.trt2, outcome, N, sd = NULL, time = NULL,
   type.outcome, method = "MH", method.tau = "DL", sm)
 }
 \arguments{
-\item{data}{An object produced by \code{data.prep()}}
+\item{data}{A BUGSnetData object produced by \code{data.prep()}}
 
 \item{name.trt1}{A string indicating the name of the comparator treatment (often Placebo)}
 

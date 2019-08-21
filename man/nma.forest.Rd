@@ -8,7 +8,7 @@ nma.forest(nma, comparator, central.tdcy = "median", order = NULL,
   log.scale = FALSE, lwd = 1, x.trans = NULL, cov.value = NULL)
 }
 \arguments{
-\item{nma}{An output produced by \code{nma.run()}}
+\item{nma}{A BUGSnetRun object produced by running \code{nma.run()}.}
 
 \item{comparator}{The treatment to use as a comparator}
 

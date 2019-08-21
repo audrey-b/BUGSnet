@@ -11,7 +11,7 @@ net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
   flag.edge.colour = "lightpink", ...)
 }
 \arguments{
-\item{data}{An object produced by \code{data.prep()} containing the data.}
+\item{data}{A BUGSnetData object produced by \code{data.prep()}.}
 
 \item{node.scale}{Size of the nodes (default=5)}
 

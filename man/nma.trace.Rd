@@ -7,7 +7,7 @@
 nma.trace(nma, n = "all", thin = 1, colours = "DEFAULT")
 }
 \arguments{
-\item{nma}{An output produced by \code{nma.run()}}
+\item{nma}{A BUGSnetRun object produced by running \code{nma.run()}.}
 
 \item{n}{Integer which limits the number of printed variables to the first \code{n}. Default is "all" which plots every variable.}
 

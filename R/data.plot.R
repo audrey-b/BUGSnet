@@ -2,7 +2,7 @@
 #' @description Plots a particular patient characteristic by study or by treatment. Useful for assessing
 #' differences in potential effect modifiers.
 #' 
-#' @param data A data object produced by \code{data.prep()}
+#' @param data A BUGSnetData object produced by \code{data.prep()}
 #' @param covariate A string indicating the name of the patient characteristic to be plotted
 #' @param half.length A string indicating how to calculate the half-length of error bars (optional)
 #' @param by If by="study" then data from arms will be grouped by study/trial. If by="treatment" then
@@ -49,6 +49,9 @@ data.plot <- function(data,
                           avg.hline=TRUE,
                           fill.str=NULL,
                       text.size=20){
+  
+  if(class(data) != "BUGSnetData")
+    stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   patients.data <- data$arm.data
   treatment.var <- data$varname.t

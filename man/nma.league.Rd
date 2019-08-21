@@ -9,7 +9,7 @@ nma.league(nma, central.tdcy = "median", log.scale = FALSE,
   high.colour = "cornflowerblue", cov.value = NULL, digits = 2)
 }
 \arguments{
-\item{nma}{Results from running \code{nma.analysis()}.}
+\item{nma}{A BUGSnetRun object produced by running \code{nma.run()}.}
 
 \item{central.tdcy}{The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".}
 
