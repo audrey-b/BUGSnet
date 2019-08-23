@@ -19,7 +19,9 @@
 #' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param prior.beta Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.
 #' @param covariate Optional string indicating the name of the variable in your data set that you would like to
-#' adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. The covariate will be centered for the analysis.
+#' adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
+#' it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
+#' with fewer than 3 levels are supported.
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
 #' 
@@ -148,6 +150,28 @@ nma.model <- function(data,
                                        from=trt.key$trt.ini,
                                        to=trt.key$trt.jags) %>% as.integer)
   
+  #pre-process the covariate if specified
+  if (!is.null(covariate)) {
+    if (is.numeric(data1$covariate) == TRUE) {
+      #issue warning if covariate appears to be categorical
+      if (length(unique(data1$covariate)) < 5) {
+        warning(paste0("The specified covariate is being treated as continuous. Ignore this warning if this is the intended behaviour. ", 
+                       "For the covariate to be treated as a categorical variable it must be converted to a factor in the data that is ",
+                       "passed to data.prep."))
+      }
+      #de-mean covariate if continuous
+      mean.cov <- mean(data1$covariate, na.rm=TRUE)
+      data1$covariate <- data1$covariate-mean.cov
+    } else if (is.factor(data1$covariate) == TRUE || is.character(data1$covariate) == TRUE) {
+      #check that covariate has fewer than 3 levels and convert strings and factors to binary covariates
+      if (length(unique(data1$covariate)) > 2)
+        stop("BUGSnet does not currently support meta-regression with categorical variables that have more than two levels.")
+      if (is.character(data1$covariate) == TRUE)
+        data1$covariate <- as.factor(data1$covariate)
+      data1$covariate <- as.numeric(data1$covariate != levels(data1$covariate)[1])
+    }
+  } else{mean.cov <- NULL}
+  
   #generate BUGS data object
   bugstemp <- data1 %>% arrange(trial, trt.jags) %>% group_by(trial) %>% mutate(arm = row_number()) %>% 
     ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
@@ -175,12 +199,6 @@ nma.model <- function(data,
     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x", "time")]
   }
-  
-  #de-mean covariate
-  if (!is.null(covariate)) {
-    mean.cov <- mean(bugsdata2$x, na.rm=TRUE)
-    bugsdata2$x <- bugsdata2$x-mean.cov
-  } else{mean.cov <- NULL}
     
   #add number of treatments, studies, and arms to BUGS data object
   bugsdata2$nt <- data$treatments %>% nrow()
