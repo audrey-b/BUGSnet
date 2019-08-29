@@ -9,7 +9,7 @@ nma.diag(nma, trace = TRUE, gelman.rubin = TRUE, geweke = TRUE,
   plot_prompt = TRUE, geweke_frac1 = 0.1, geweke_frac2 = 0.5)
 }
 \arguments{
-\item{nma}{A BUGSnetRun object produced by \code{nma.run()}}
+\item{nma}{A \code{BUGSnetRun} object produced by \code{nma.run()}}
 
 \item{trace}{If TRUE, outputs trace plots. Default is TRUE.}
 

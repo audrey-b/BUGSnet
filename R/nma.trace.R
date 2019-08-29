@@ -1,6 +1,6 @@
 #' Traceplot of MCMC chains
 #' @description Produces traceplots of the MCMC chains obtained from \code{nma.run()}
-#' @param nma A BUGSnetRun object produced by running \code{nma.run()}.
+#' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
 #' @param n Integer which limits the number of printed variables to the first \code{n}. Default is "all" which plots every variable.
 #' @param thin Thinning factor for the mcmc chains. Default is 1.
 #' @param colours An optional vector of colors, one for each chain. 

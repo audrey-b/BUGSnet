@@ -1,6 +1,6 @@
 #' Forest plot
 #' @description Produces a forest plot of point estimates and 95% credible intervals obtained with the quantile method.
-#' @param nma A BUGSnetRun object produced by running \code{nma.run()}.
+#' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
 #' @param comparator The treatment to use as a comparator
 #' @param central.tdcy The posterior statistic used in order to measure relative effectiveness. The options are "mean" and "median". Default is median.
 #' @param order Optional. A vector of strings representing the order in which to display the treatments.

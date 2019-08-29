@@ -7,7 +7,7 @@
 net.tab(data, outcome, N, type.outcome, time = NULL)
 }
 \arguments{
-\item{data}{A data object produced by \code{data.prep()}}
+\item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}}
 
 \item{outcome}{A string indicating the name of the outcome variable}
 
