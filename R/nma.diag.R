@@ -30,11 +30,11 @@
 #'                                   effects="random")
 #' random_effects_results <- nma.run(random_effects_model, n.adapt=1000, 
 #'                                   n.burnin=1000, n.iter=10000)
-#' nma.convergence(random_effects_results)
+#' nma.diag(random_effects_results)
 #' @export
 #' @seealso \code{\link{nma.run}}
 
-nma.convergence <- function(nma, 
+nma.diag <- function(nma, 
                      trace = TRUE,
                      gelman.rubin = TRUE, 
                      geweke = TRUE,

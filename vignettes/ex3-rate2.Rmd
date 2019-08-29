@@ -36,6 +36,7 @@ library(RColorBrewer)
 library(devtools)
 library(roxygen2)
 library(knitr)
+library(gridExtra)
 load_all(path = paste0(path,"R"))
 ```
  
@@ -107,7 +108,7 @@ kable(network.char$intervention)
 kable(network.char$comparison)
 ```
 
-##Patient Characteristics
+## Patient Characteristics
 **Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `data.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies, which BUGSnet automatically highlights in red.
 
 ```{r, fig.width=8, fig.height = 5, fig.align="centre"}
@@ -126,7 +127,7 @@ For a guide on how to perform meta-regression in BUGSnet, consult BUGSnet's docu
 
 ## Main analysis
 
-###Model Choice
+### Model Choice
 In the case where study followup time is reported along with the number of events we need to employ the "binomial" family along with the complementary log-log (cloglog) link function. We will run both random and fixed effects models and compare their fit statistics using BUGSnet. Note that both of these models assume a constant hazard ratio for the duration of follow up. A mathematical description of the models follows.
 
 Let $i=1,...,M$ be labels for the $M$ studies in the data and let $t_{ik}\in\{1,…,T\}$ denote the treatment used in arm $k$ of study $i$. The set $\{1,…,T\}$ represents the set of treatments that were assessed across the $M$ studies, where treatment 1 is chosen to represent the reference treatment. Let $R_{ik}$ be the measured aggregate response in arm $k$ of study $i$. Let $\mathbf R = (R_{11}, ..., R_{(1a_1)}, ..., R_{M1}, ..., R_{(Ma_M)})\top$ be the vector of responses across all study arms, where $a_1,...,a_M$ represent the number of arms in studies $1,...,M$. The data is modeled using the **binomial family**: $R_{ik} \sim Binomial(n_{ik},\phi_{ik})$, where $\phi_{ik}$ is the probability of experiencing the event in arm $k$ of study $i$ and $n_{ik}$ is the sample size in arm $k$ of study $i$. The latent parameters $\phi_{ik}$ are transformed using a **cloglog link** function and modeled with the following linear model:
@@ -170,6 +171,7 @@ If you want to review the BUGS code that was created, you can use the commands `
 Once the NMA models have been specified, the next step is to run the models using `nma.run()` which will analyse the data with the BUGS model through the JAGS software [@JAGS]. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
 ```{r, results = "hide"}
+set.seed(20190828)
 fixed_effects_results <- nma.run(fixed_effects_model,
                            n.adapt=1000,
                            n.burnin=1000,
@@ -192,7 +194,7 @@ re_model_fit <- nma.fit(random_effects_results, main= "Random Effects Model")
 
 The random effects model is obviously the better choice here. The DIC is considerably lower in the random effects model. The fixed effects model shows that 8 points are largely contributing to the model's poor fit. The random effects model appears to have only 1 outlier, which should be investigated. We can see which arm/study is reponsible for this datapoint by using the command `re_model_fit$w`. From this we can see that Placebo arm from the "MRC-E" study is contributing to the model's poor fit. This may call for a reconsideration of including this study in our evidence base, or to investigate potential effect modifiers. But for the sake of this example, we will assume that this study arm should remain in the evidence base and that there are no imbalanced effect modifiers.
 
-###Check inconsistency
+### Check inconsistency
 Next, we will assess consistency in the network by fitting a random effects inconsistency model and comparing it to our random effects consistency model [@lu2006assessing]. If our inconsistency model shows a better fit than the consistency model, then it is likely that there is inconsistency in the network.
 
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8, fig.align="centre"}
@@ -230,7 +232,7 @@ nma.compare(re_model_fit, inconsist_model_fit)
 
 With the exception of 1 or 2 points, the data lies on or near the $y=x$ line, indicating a general agreement between the two models. This suggests that we proceed with the more parsimonious (consistency) model.
 
-##Results
+## Results
 
 ### Treatment Rankings
 Simulaneous comparison of every treatment based on the results of the NMA analysis can be achieved by comparing the posterior probabilities of being the best, second best,..., worst treatment. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and `FALSE` otherwise.
@@ -304,18 +306,18 @@ nma.forest(random_effects_results,
 
 A random effects model showed to be adequate in modelling the treatment effects across the evidence network. Both the SUCRA plot and league table suggest that all treatments are effective when compared diuretic, with the exception of Beta Blockers. ARB's seem to be the most effective treatment, followed by ACE inhibitors and Placebo.
 
-##Appendix
-###BUGS code for final model
+## Appendix
+### BUGS code for final model
 The following BUGS code is produced by the `nma.model()` function.
 ```{r}
 cat(random_effects_model$bugs)
 ```
 
-###Assessment of convergence of final model
+### Assessment of convergence of final model
 
 After a model is fit to the evidence, check the trace plots of the model using `nma.diag()`. Look for spikes or general irregularities in the posterior distributions of the $d$'s. Irregularities in these distributions suggest that the model never converged, and will likely require you to run more have a longer burn-in period, and more iterations. If you wish to know which treatments are causing irregularities, you can use the command `random_effects_model$trt.key` to see which treatment correspond to which integer number on the traceplot. Here, the model shows strong signs of convergence.
 ```{r, fig.height = 15, fig.width=8}
-nma.convergence(random_effects_results)
+nma.diag(random_effects_results, plot_prompt = FALSE)
 ```
 
 # References
