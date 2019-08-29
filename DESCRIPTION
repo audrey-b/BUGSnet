@@ -1,10 +1,11 @@
 Package: BUGSnet
 Title: Bayesian network meta-analyses in compliance with best practice and reporting guidelines
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: c(
   person("Audrey", "Beliveau", email = "audrey.beliveau@uwaterloo.ca", role = c("aut","cph", "cre")),
   person("Justin", "Slater", email = "jslater@lighthouseoutcomes.com", role = c("aut")),
   person("Devon", "Boyne", email = "devonjboyne@gmail.com", role = c("aut", "cph")),
+  person("Eric", "Mackay", email = "emackay@lighthouseoutcomes.com", role = c("ctb")),
   person("Lighthouse Outcomes Inc.", role=c("cph"))
   )
 Description: BUGSnet (Bayesian inference Using Gibbs Sampling to conduct 

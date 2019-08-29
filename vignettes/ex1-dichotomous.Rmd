@@ -36,6 +36,7 @@ library(devtools)
 library(roxygen2)
 library(knitr)
 library(stringr)
+library(gridExtra)
 load_all(path = paste0(path,"R"))
 ```
 
@@ -53,7 +54,7 @@ dich.slr <- data.prep(arm.data = cbind(thrombolytic, age),
                      varname.s = "study")
 ```
 
-##Feasibility Assessment
+## Feasibility Assessment
 
 ### Network Plot
 
@@ -136,6 +137,7 @@ If you want to review or modify the BUGS code, you can review it by outputting `
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
 ```{r, results = "hide"}
+set.seed(20190829)
 fixed_effects_results <- nma.run(fixed_effects_model,
                            n.adapt=1000,
                            n.burnin=1000,
@@ -148,7 +150,7 @@ random_effects_results <- nma.run(random_effects_model,
 
 ```
 
-#Assess model fit
+# Assess model fit
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
 nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
@@ -158,7 +160,7 @@ nma.fit(random_effects_results, main= "Random Effects Model")
 
 
 
-##Results
+## Results
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
 sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
@@ -183,7 +185,7 @@ nma.forest(fixed_effects_results,
 ```
 
 
-##Check inconsistency
+## Check inconsistency
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
 fe_inconsistency_model <- nma.model(data=dich.slr,
                      outcome="events",
@@ -198,9 +200,6 @@ fe_inconsistency_results <- nma.run(fe_inconsistency_model,
                            n.adapt=1000,
                            n.burnin=1000,
                            n.iter=10000)
-
-nma.convergence(fe_inconsistency_results, n=5)
-
 ```
 
 ```{r, fig.height=4, fig.width=7}

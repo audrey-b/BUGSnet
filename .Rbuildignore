@@ -5,3 +5,5 @@
 ^misc_code$
 ^BUGSnet\.Rproj$
 ^\.Rproj\.user$
+^tests
+^R/sysdata\.rda$

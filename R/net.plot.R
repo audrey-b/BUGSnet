@@ -5,9 +5,9 @@
 #' @param node.scale Size of the nodes (default=5)
 #' @param edge.scale Thickness of the edges (default=2).
 #' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
-#' @param flag Used to highlight direct comparisons to a particular treatment (optional).
-#' Set this value to treatment of interest and it will highlight, in red, all of the edges
-#' going into this treatment.
+#' @param flag Used to highlight direct comparisons to particular treatments (optional).
+#' Set this value to treatment(s) of interest and it will highlight, in red, all of the edges
+#' going into the specified treatment(s).
 #' @param label.offset1 Node label location (x-axis) relative to node. Default=0
 #' @param label.offset2 Node label location (y-axis) relative to node. Default=1
 #' @param node.lab.cex Size of node labels
@@ -88,9 +88,23 @@ net.plot <- function(data,
   # star layout with a single var in the middle
   # layout=layout_as_star(net, center = V(net)$trt==center.trt),
   
+  if (graph.scale == TRUE) {
+    vsize <- node.scale * V(net)$node.weight
+    ewidth <- edge.scale * E(net)$edge.weight
+    rscl <- TRUE
+  } else {
+    vsize <- node.scale
+    ewidth <- edge.scale
+    rscl <- FALSE
+  }
+  
   if(!is.null(flag)) {
     
-    inc.edges <- incident(net, V(net)[flag], mode="all")
+    inc.edges <- incident(net, V(net)[flag[1]], mode="all")
+    if (length(flag) > 1) {
+      for (i in 2:length(flag))
+        inc.edges <- c(inc.edges, inc.edges <- incident(net, V(net)[flag[i]], mode="all"))
+    }
     
     ecol <- rep("grey", ecount(net))
     ecol[inc.edges] <- flag.edge.colour
@@ -98,15 +112,15 @@ net.plot <- function(data,
     vcol[V(net)[flag]] <- node.colour
     
     plot(net, 
-         vertex.size=node.scale*V(net)$node.weight,
-         edge.width=edge.scale*E(net)$edge.weight,
+         vertex.size=vsize,
+         edge.width=ewidth,
          
          vertex.color=vcol,
          vertex.frame.color=vcol,
          vertex.label.cex = node.lab.cex,
          edge.color=ecol,
          
-         vertex.label=V(net)$trt,
+         vertex.label=names(V(net)),
          vertex.label.color="black",
          vertex.label.family="sans",
          
@@ -120,12 +134,14 @@ net.plot <- function(data,
          edge.label.deg=0,
          
          vertex.label.dist=lab.offset,
-         vertex.label.degree=lab.locs) 
-  }else if (graph.scale==FALSE) {
+         vertex.label.degree=lab.locs,
+         
+         rescale = rscl) 
+  } else {
     plot(net, 
-         vertex.size=node.scale,
-         edge.width=edge.scale,
-         vertex.label=V(net)$trt, 
+         vertex.size=vsize,
+         edge.width=ewidth,
+         vertex.label=names(V(net)), 
          vertex.label.color="black",
          vertex.color=node.colour,
          vertex.frame.color=node.colour,
@@ -138,29 +154,8 @@ net.plot <- function(data,
          layout= layout_in_circle(net),
          vertex.label.dist=lab.offset,
          vertex.label.degree=lab.locs,
-         rescale = FALSE)
-    
-  }else{
-    
-    plot(net, 
-         vertex.label=V(net)$trt, 
-         edge.width=edge.scale*E(net)$edge.weight,
-         vertex.size=node.scale*V(net)$node.weight,
-         
-         vertex.label.color="black",
-         vertex.color=node.colour,
-         vertex.frame.color=node.colour,
-         edge.color=edge.colour,
-         
-         vertex.label.family="sans",
-         
-         layout= layout_in_circle(net),
-         vertex.label.dist=lab.offset,
-         vertex.label.degree=lab.locs,
-         
-         vertex.label.cex = node.lab.cex)
+         rescale = rscl)
   }
-  
 }
 
 

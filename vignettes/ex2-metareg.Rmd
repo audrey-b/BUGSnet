@@ -36,6 +36,7 @@ library(devtools)
 library(roxygen2)
 library(knitr)
 library(stringr)
+library(gridExtra)
 load_all(path = paste0(path,"R"))
 ```
  
@@ -48,7 +49,7 @@ dataprep <- data.prep(arm.data = afib,
                       varname.s = "study")
 ```
 
-##Feasibility Assessment
+## Feasibility Assessment
 
 ### Network Plot
 
@@ -120,17 +121,17 @@ The next step is to run the NMA model using `nma.run()`. Since we are working in
 ```{r, results = "hide"}
 fixed_effects_results <- nma.run(fixed_effects_model,
                            n.adapt=1000,
-                           n.burnin=20000,
-                           n.iter=40000)
+                           n.burnin=1000,
+                           n.iter=5000)
 
 random_effects_results <- nma.run(random_effects_model,
                            n.adapt=1000,
-                           n.burnin=20000,
-                           n.iter=40000)
+                           n.burnin=1000,
+                           n.iter=5000)
 
 ```
 
-#Model Choice
+# Model Choice
 Compare fixed vs random effects models by comparing leverage plots and the DIC
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
@@ -180,7 +181,7 @@ The random effects model seems to be more appropriate here due to a lower DIC, a
 
 <!-- Seeing as that all the points lie close to the $y=x$ line, there is very little evidence of inconsistency. -->
 
-##Results
+## Results
 
 ### Regression plot
 We can see the effect of the covariate on the log odds ratio on the following plot
