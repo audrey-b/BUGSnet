@@ -10,7 +10,7 @@ nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
   covariate = NULL)
 }
 \arguments{
-\item{data}{A BUGSnetData object produced by \code{data.prep()}}
+\item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}}
 
 \item{outcome}{A string indicating the name of your outcome variable.}
 

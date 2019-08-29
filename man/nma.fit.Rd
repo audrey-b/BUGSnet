@@ -7,7 +7,7 @@
 nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, ...)
 }
 \arguments{
-\item{nma}{A BUGSnetRun object produced by running \code{nma.run()}.}
+\item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}
 
 \item{plot.pD}{Whether to include pD on the plot. Default is TRUE.}
 

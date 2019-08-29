@@ -1,7 +1,7 @@
 #' League Table and Heat Plot
 #' @description Produces a league table and a league heat plot that contain point estimates of relative effectiveness 
 #' for all possible pairs of treatments point estimates along with 95% credible intervals obtained with the quantile method.
-#' @param nma A BUGSnetRun object produced by running \code{nma.run()}.
+#' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
 #' @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
 #' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.
 #' @param order A vector of strings representing the order in which to display the treatments.

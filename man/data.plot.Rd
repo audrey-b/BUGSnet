@@ -8,7 +8,7 @@ data.plot(data, covariate, half.length = NULL, by = "study",
   avg.hline = TRUE, fill.str = NULL, text.size = 20)
 }
 \arguments{
-\item{data}{A BUGSnetData object produced by \code{data.prep()}}
+\item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}}
 
 \item{covariate}{A string indicating the name of the patient characteristic to be plotted}
 

@@ -6,12 +6,6 @@
 #' 
 #' To be able to use this package, you must have installed JAGS (Just Another Gibbs Sampler) on your computer.
 #' 
-#' BUGSnet is not distributed on CRAN but rather in the form of a .tar.gz source file. To install BUGSnet, run
-#' 
-#' install.packages("path/BUGSnet_1.0.1.tar.gz", repos = NULL, type = "source")
-#'
-#' where "path/BUGSnet_1.0.1.tar.gz" should be replaced to reflect the location of the .tar.gz file on your computer.
-#' 
 #' How to cite this work? Type citation("BUGSnet").
 #' 
 #' @name BUGSnet

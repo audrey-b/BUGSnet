@@ -9,7 +9,7 @@ nma.run(model, monitor = "DEFAULT", DIC = TRUE, n.adapt = 1000,
   inits = "DEFAULT")
 }
 \arguments{
-\item{model}{A BUGSnetModel object produced by running \code{nma.model}.}
+\item{model}{A \code{BUGSnetModel} object produced by running \code{nma.model}.}
 
 \item{monitor}{A vector of all variables that you would like to monitor. Default is "DEFAULT" which will monitor the relative treatment effects \code{d}
 as well as \code{sigma} when a random effects model is used and the regression coefficients \code{beta} when meta-regression is used.}
@@ -35,7 +35,7 @@ See \code{\link{jags.model}} for more info.}
 
 \code{samples} - The MCMC samples produced by running the BUGS model.
 
-\code{model} - The BUGSnetModel object obtained from \code{nma.model} which was used to run \code{jags}.
+\code{model} - The \code{BUGSnetModel} object obtained from \code{nma.model} which was used to run \code{jags}.
 
 \code{scale} - The scale of the outcome, based on the chosen family and link function.
 

@@ -306,7 +306,7 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 
 #' Generate Network Characteristics
 #' @description Generates tables of network characteristics
-#' @param data A data object produced by \code{data.prep()}
+#' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of the outcome variable
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-time reported), 
@@ -337,6 +337,9 @@ net.tab <- function(data, outcome, N, type.outcome, time=NULL){
   return(list(network = network.charac(data, outcome, N, type.outcome,time),
               intervention = intervention.charac(data, outcome, N, type.outcome, time),
               comparison = comparison.charac(data, outcome, N, type.outcome, time)))
+  
+  if(class(data) != "BUGSnetData")
+    stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
 }
 
 

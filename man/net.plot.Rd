@@ -8,10 +8,11 @@ net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
   label.offset1 = 0, label.offset2 = 1, graph.scale = T,
   node.lab.cex = 1, edge.lab.cex = 1, node.colour = "#f69c54",
   edge.colour = "#4a5b71", edge.lab.colour = "blue",
-  flag.edge.colour = "lightpink", ...)
+  flag.edge.colour = "lightpink", layout = "layout_in_circle",
+  layout.params = NULL, ...)
 }
 \arguments{
-\item{data}{A BUGSnetData object produced by \code{data.prep()}.}
+\item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}.}
 
 \item{node.scale}{Size of the nodes (default=5)}
 
@@ -39,6 +40,11 @@ going into the specified treatment(s).}
 
 \item{flag.edge.colour}{Color of flagged edges (string)}
 
+\item{layout}{Specifies how the nodes should be layed out in the graph. Default is "layout_in_circle". See \code{igraph::layout_}
+for layout options}
+
+\item{layout.params}{Additional parameters to be passed to the chosen 'layout' function. See \code{igraph::layout_} more information}
+
 \item{...}{extra parameters for plotting}
 }
 \description{
@@ -65,5 +71,5 @@ label.offset1=0,
 label.offset2=0)
 }
 \seealso{
-\code{\link{data.prep}}
+\code{\link{data.prep}}, \code{igraph::layout_}
 }

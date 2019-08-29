@@ -5,7 +5,7 @@
 #' the total posterior deviance. Points lying outside the purple dotted line are generally identified as contributing to the model's poor fit.
 #' Points with high leverage are influencial i.e. they have a stong influence on the estimates.
 #' 
-#' @param nma A BUGSnetRun object produced by running \code{nma.run()}. 
+#' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}. 
 #' @param plot.pD Whether to include pD on the plot. Default is TRUE.
 #' @param plot.DIC Whether to include DIC on the plot. Default is TRUE.
 #' @param plot.Dres Whether to include Dres on the plot. Default is TRUE.

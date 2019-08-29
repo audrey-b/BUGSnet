@@ -8,7 +8,7 @@ nma.rank(nma, largerbetter, sucra.lwd = 1, sucra.palette = "Set1",
   ranko.palette = "Blues", cov.value = NULL)
 }
 \arguments{
-\item{nma}{A BUGSnetRun object produced by running \code{nma.run()}.}
+\item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}
 
 \item{largerbetter}{A boolean variable indicating whether a larger probability should indicate a more effective treatment (TRUE) or
 if a smaller probability should indicate a more effective treatment (FALSE).}

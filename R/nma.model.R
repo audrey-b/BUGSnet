@@ -1,7 +1,7 @@
 #' Create Bugs Model
 #' @description Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
-#' @param data A BUGSnetData object produced by \code{data.prep()}
+#' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable.
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
 #' @param sd A string (only required for continuous outcomes) indicating variable name

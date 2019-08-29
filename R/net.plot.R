@@ -1,7 +1,7 @@
 #' Network Plot
 #' @description Produces network plot where nodes represent treatments and edges represent direct
 #' evidence (e.g an RCT) comparing treatments.
-#' @param data A BUGSnetData object produced by \code{data.prep()}.
+#' @param data A \code{BUGSnetData} object produced by \code{data.prep()}.
 #' @param node.scale Size of the nodes (default=5)
 #' @param edge.scale Thickness of the edges (default=2).
 #' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
@@ -16,6 +16,9 @@
 #' @param edge.colour Edge colour (string)
 #' @param edge.lab.colour Edge label colour (string)
 #' @param flag.edge.colour Color of flagged edges (string)
+#' @param layout Specifies how the nodes should be layed out in the graph. Default is "layout_in_circle". See \code{igraph::layout_} 
+#' for layout options
+#' @param layout.params Additional parameters to be passed to the chosen 'layout' function. See \code{igraph::layout_} more information
 #' @param ... extra parameters for plotting
 #' @examples
 #' 
@@ -36,7 +39,7 @@
 #' label.offset1=0, 
 #' label.offset2=0)
 #' @export
-#' @seealso \code{\link{data.prep}}
+#' @seealso \code{\link{data.prep}}, \code{igraph::layout_}
 
 
 
@@ -54,6 +57,8 @@ net.plot <- function(data,
                      edge.colour = "#4a5b71",
                      edge.lab.colour = "blue",
                      flag.edge.colour = "lightpink",
+                     layout = "layout_in_circle",
+                     layout.params = NULL,
                      ...) {
   
   if(class(data) != "BUGSnetData")
@@ -125,7 +130,7 @@ net.plot <- function(data,
          vertex.label.family="sans",
          
          
-         layout= layout_in_circle(net),
+         layout=do.call(layout, c(list(net), layout.params)),
          edge.label= ifelse(ecol==flag.edge.colour, E(net)$study, NA),
          edge.label.family="sans",
          edge.label.cex=edge.lab.cex,
@@ -151,7 +156,7 @@ net.plot <- function(data,
          
          vertex.label.family="sans",
          
-         layout= layout_in_circle(net),
+         layout= do.call(layout, c(list(net), layout.params)),
          vertex.label.dist=lab.offset,
          vertex.label.degree=lab.locs,
          rescale = rscl)

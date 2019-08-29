@@ -2,7 +2,7 @@
 #' @description Plots a particular patient characteristic by study or by treatment. Useful for assessing
 #' differences in potential effect modifiers.
 #' 
-#' @param data A BUGSnetData object produced by \code{data.prep()}
+#' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
 #' @param covariate A string indicating the name of the patient characteristic to be plotted
 #' @param half.length A string indicating how to calculate the half-length of error bars (optional)
 #' @param by If by="study" then data from arms will be grouped by study/trial. If by="treatment" then
