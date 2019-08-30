@@ -8,6 +8,7 @@
 #' @param flag Used to highlight direct comparisons to particular treatments (optional).
 #' Set this value to treatment(s) of interest and it will highlight, in red, all of the edges
 #' going into the specified treatment(s).
+#' @param study.counts If TRUE, prints the number of studies on each edge.
 #' @param label.offset1 Node label location (x-axis) relative to node. Default=0
 #' @param label.offset2 Node label location (y-axis) relative to node. Default=1
 #' @param node.lab.cex Size of node labels
@@ -48,13 +49,14 @@ net.plot <- function(data,
                      node.scale=5, 
                      edge.scale=2, 
                      flag=NULL, 
+                     study.counts = FALSE,
                      label.offset1=0, 
                      label.offset2=1, 
-                     graph.scale=T,
+                     graph.scale=TRUE,
                      node.lab.cex = 1,
                      edge.lab.cex = 1,
                      node.colour = "#f69c54",
-                     edge.colour = "#4a5b71",
+                     edge.colour = "grey",
                      edge.lab.colour = "blue",
                      flag.edge.colour = "lightpink",
                      layout = "layout_in_circle",
@@ -64,14 +66,14 @@ net.plot <- function(data,
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
+  if (!is.character(layout) || length(layout) != 1)
+    stop("\'layout\' must be a character vector of length 1 specifying the name of an igraph layout function")
+  
   edgesANDnodes <- network.structure(data)
   edges <- edgesANDnodes[[1]]
   nodes <- edgesANDnodes[[2]]
   
-  names(nodes)[names(nodes) == data$varname.t] <- "trt"
-  
   net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
-  
   
   ## Source for function to offset node labels...
   ## https://stackoverflow.com/questions/23209802/placing-vertex-label-outside-a-circular-layout-in-igraph
@@ -87,12 +89,6 @@ net.plot <- function(data,
     mutate(offset = ifelse(x < pi/6 | x > 5*pi/6 & x < 7*pi/6 | x > 11*pi/6, y, y/z)) %>%
     select(offset) %>% pull 
   
-  
-  ## -----------------------------------------------------------------
-  # following can be used in the future to specify a 
-  # star layout with a single var in the middle
-  # layout=layout_as_star(net, center = V(net)$trt==center.trt),
-  
   if (graph.scale == TRUE) {
     vsize <- node.scale * V(net)$node.weight
     ewidth <- edge.scale * E(net)$edge.weight
@@ -103,18 +99,31 @@ net.plot <- function(data,
     rscl <- FALSE
   }
   
-  if(!is.null(flag)) {
+  if (!is.null(flag) || study.counts == TRUE) {
     
-    inc.edges <- incident(net, V(net)[flag[1]], mode="all")
-    if (length(flag) > 1) {
-      for (i in 2:length(flag))
-        inc.edges <- c(inc.edges, inc.edges <- incident(net, V(net)[flag[i]], mode="all"))
+    if (!is.null(flag)) {
+      inc.edges <- incident(net, V(net)[flag[1]], mode="all")
+      if (length(flag) > 1) {
+        for (i in 2:length(flag))
+          inc.edges <- c(inc.edges, inc.edges <- incident(net, V(net)[flag[i]], mode="all"))
+      }
+      
+      ecol <- rep("grey", ecount(net))
+      ecol[inc.edges] <- flag.edge.colour
+      vcol <- rep("grey", vcount(net))
+      vcol[V(net)[flag]] <- node.colour
+    } else {
+      ecol <- edge.colour
+      vcol <- node.colour
     }
     
-    ecol <- rep("grey", ecount(net))
-    ecol[inc.edges] <- flag.edge.colour
-    vcol <- rep("grey", vcount(net))
-    vcol[V(net)[flag]] <- node.colour
+    if (study.counts == TRUE) {
+      elab <- as.character(E(net)$edge.weight)
+    } else if (!is.null(flag)) {
+      elab <- ifelse((1:length(E(net))) %in% inc.edges, as.character(E(net)$study), NA)
+    } else {
+      elab <- NA
+    }
     
     plot(net, 
          vertex.size=vsize,
@@ -130,8 +139,8 @@ net.plot <- function(data,
          vertex.label.family="sans",
          
          
-         layout=do.call(layout, c(list(net), layout.params)),
-         edge.label= ifelse(ecol==flag.edge.colour, E(net)$study, NA),
+         layout=do.call(get(layout, asNamespace("igraph")), c(list(net), layout.params)),
+         edge.label= elab,
          edge.label.family="sans",
          edge.label.cex=edge.lab.cex,
          edge.label.color=edge.lab.colour,
@@ -156,7 +165,7 @@ net.plot <- function(data,
          
          vertex.label.family="sans",
          
-         layout= do.call(layout, c(list(net), layout.params)),
+         layout= do.call(get(layout, asNamespace("igraph")), c(list(net), layout.params)),
          vertex.label.dist=lab.offset,
          vertex.label.degree=lab.locs,
          rescale = rscl)

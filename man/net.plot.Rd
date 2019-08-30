@@ -5,11 +5,11 @@
 \title{Network Plot}
 \usage{
 net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
-  label.offset1 = 0, label.offset2 = 1, graph.scale = T,
-  node.lab.cex = 1, edge.lab.cex = 1, node.colour = "#f69c54",
-  edge.colour = "#4a5b71", edge.lab.colour = "blue",
-  flag.edge.colour = "lightpink", layout = "layout_in_circle",
-  layout.params = NULL, ...)
+  study.counts = FALSE, label.offset1 = 0, label.offset2 = 1,
+  graph.scale = TRUE, node.lab.cex = 1, edge.lab.cex = 1,
+  node.colour = "#f69c54", edge.colour = "grey",
+  edge.lab.colour = "blue", flag.edge.colour = "lightpink",
+  layout = "layout_in_circle", layout.params = NULL, ...)
 }
 \arguments{
 \item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}.}
@@ -21,6 +21,8 @@ net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
 \item{flag}{Used to highlight direct comparisons to particular treatments (optional).
 Set this value to treatment(s) of interest and it will highlight, in red, all of the edges
 going into the specified treatment(s).}
+
+\item{study.counts}{If TRUE, prints the number of studies on each edge.}
 
 \item{label.offset1}{Node label location (x-axis) relative to node. Default=0}
 

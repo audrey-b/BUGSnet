@@ -109,14 +109,13 @@ kable(network.char$comparison)
 ```
 
 ## Patient Characteristics
-**Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `data.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies, which BUGSnet automatically highlights in red.
+**Within** an RCT, patient characteristics between arms should be well balanced. But **between** RCTs, patient characteristics can vary quite a bit. All potential effect modifiers should be assessed prior to running network meta-analysis. BUGSnet allows for a visual display of potential effect modifiers using `data.plot()`. Here we can see that `age` is well balanced between trials and treatments. Note that an error will be produced due to the fact that standard deviation was not reported in 2 studies (hence the missing error bars in the plot).
 
 ```{r, fig.width=8, fig.height = 5, fig.align="centre"}
 data.plot(data = rate2.slr,
               covariate = "age", 
               half.length = "age_SD",
               by = "treatment",
-              fill.str = "age_type", #which value is reported (e.g mean/median)
               avg.hline=TRUE, #add overall average line?
               text.size = 12) 
 ```
