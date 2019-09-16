@@ -91,8 +91,9 @@
 
 nma.model <- function(data,
                       outcome, 
-                      N,
+                      N=NULL,
                       sd=NULL,
+                      V=NULL,
                       reference,
                       type="consistency",
                       time=NULL,
@@ -103,8 +104,11 @@ nma.model <- function(data,
                       prior.d = "DEFAULT",
                       prior.sigma = "DEFAULT",
                       prior.beta = NULL,
-                      covariate = NULL){
+                      covariate = NULL,
+                      study.level.data = F,
+                      study.level.exp = F){
   
+  # error messages
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
@@ -119,6 +123,7 @@ nma.model <- function(data,
   if(family=="normal" & link!="identity") stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
+  
   
   if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
     scale <- "Odds Ratio"
@@ -137,7 +142,7 @@ nma.model <- function(data,
   data1 <- data$arm.data
   
   #pull relevant fields from the data and apply naming convention
-  varlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate)
+  varlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate, V=V)
   data1 <- data$arm.data[, varlist]
   names(data1) <- names(varlist)
   
@@ -183,10 +188,14 @@ nma.model <- function(data,
   names(bugsdata2)[names(bugsdata2) == "trt.jags"] <- "t"
   names(bugsdata2)[names(bugsdata2) == "N"] <- "n"
   names(bugsdata2)[names(bugsdata2) == "covariate"] <- "x"
+  
+  #estimate max number of arms to specify variables for study.level.data==T
+  max.arm = data$n.arms %>% summarise(max(n.arms)) %>% pull
+  
   if (family == "binomial" && link %in% c("log","logit")){
     names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x")]
-  } else if (family == "normal" && link=="identity"){
+  } else if (family == "normal" && link=="identity" && study.level.data==F){
     names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
     bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se", "t", "x")]
@@ -198,13 +207,32 @@ nma.model <- function(data,
     names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x", "time")]
+  } else if (family == "normal" && link=="identity" && study.level.data==T && max.arm == 2){
+    names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
+    bugsdata2$se <- bugsdata2$sd
+    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "y", "se", "t", "x")]
+  } else if (family == "normal" && link=="identity" && study.level.data==T && max.arm == 3){
+    names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
+    bugsdata2$se <- bugsdata2$sd
+    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns2", "ns3", "nt", "na", "y", "se", "t", "x", "V")]
   }
-    
-  #add number of treatments, studies, and arms to BUGS data object
-  bugsdata2$nt <- data$treatments %>% nrow()
-  bugsdata2$ns <- data$studies %>% nrow()
-  bugsdata2$na <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
   
+  
+  #add number of treatments, studies, and arms to BUGS data object
+  if(study.level.data==F){
+    bugsdata2$nt <- data$treatments %>% nrow()
+    bugsdata2$na <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
+    bugsdata2$ns <- data$studies %>% nrow()
+  } else if(study.level.data==T & max.arm==2) {
+    bugsdata2$nt <- data$treatments %>% nrow()
+    bugsdata2$ns <- data$studies %>% nrow()
+  } else if(study.level.data==T & max.arm==3) {
+    bugsdata2$nt <- data$treatments %>% nrow()
+    bugsdata2$na <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
+    bugsdata2$ns2 <- data$n.arms %>% filter(n.arms == 2) %>% nrow()
+    bugsdata2$ns3 <- data$n.arms %>% filter(n.arms == 3) %>% nrow()
+  }
+
   add.to.model <- trt.key %>% 
     transmute(Treatments = paste0("# ", trt.jags, ": ", trt.ini, "\n")) %>% 
     t() %>% 
@@ -216,7 +244,11 @@ nma.model <- function(data,
   ###Priors###
   ############
   
+  if (study.level.data==F) {
   max.delta <- paste0(nma.prior(data, outcome=outcome, scale=scale, N=N, sd=sd, time = time))
+  } else {
+  max.delta <- data$arm.data %>% select(outcome) %>% summarise(max(abs(.), na.rm=T)) %>% paste0
+  }
   
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){
@@ -303,6 +335,7 @@ nma.model <- function(data,
   #remove covariate from bugsdata2 if unused
   if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
+  if(study.level.data==F) {
   model <- makeBUGScode(family=family,
                         link=link,
                         effects=effects,
@@ -313,6 +346,19 @@ nma.model <- function(data,
                         covariate,
                         prior.meta.reg) %>%
     paste0(add.to.model)
+  } else {
+    model <- makeBUGScode2(max.arm=max.arm,
+                          family=family,
+                          link=link,
+                          effects=effects,
+                          inconsistency=(type=="inconsistency"),
+                          prior.mu.str,
+                          prior.d.str,
+                          prior.sigma2.str,
+                          covariate,
+                          prior.meta.reg) %>%
+      paste0(add.to.model)
+  }
   
   bmodel <- structure(list(bugs=model,
                            data=bugsdata2, 
@@ -332,7 +378,9 @@ nma.model <- function(data,
                            outcome=outcome,
                            N=N,
                            sd=sd,
-                           mean.cov=mean.cov),
+                           mean.cov=mean.cov,
+                           study.level.data=study.level.data,
+                           study.level.exp=study.level.exp),
                       class = "BUGSnetModel")
   return(bmodel)
 }

@@ -72,7 +72,7 @@ nma.league <- function(nma,
   trt.names <- nma$trt.key
   colnames(dmat) <- trt.names
   
-  if(!is.null(cov.value)){#meta-regression
+  if(!is.null(cov.value)){ #meta-regression
     
     betamat <- do.call(rbind, nma$samples) %>% data.frame() %>% select(starts_with("beta."))
     trt.names <- nma$trt.key
@@ -100,7 +100,7 @@ nma.league <- function(nma,
     dmat2 %<>% select(new.vars)
     colnames(dmat2) <- trt.names
     
-    if(central.tdcy=="mean" & log.scale==FALSE & nma$link!="identity"){
+    if((central.tdcy=="mean" & log.scale==FALSE) & (nma$link!="identity" | nma$model$study.level.exp==T)){
       tmp.estimate <- dmat2 %>%  
         summarise_all(list(estimate = exp.mean)) %>% gather() %>%
         rename(trt = key, estimate = value) %>%
@@ -110,7 +110,7 @@ nma.league <- function(nma,
         summarise_all(list(estimate = id.mean)) %>% gather() %>%
         rename(trt = key, estimate = value) %>%
         mutate(trt = sub("_estimate", "", trt))}
-    if(central.tdcy=="median" & log.scale==FALSE  & nma$link!="identity"){
+    if((central.tdcy=="median" & log.scale==FALSE) & (nma$link!="identity" | nma$model$study.level.exp==T)){
       tmp.estimate <- dmat2 %>%  
         summarise_all(list(estimate = exp.median)) %>% gather() %>%
         rename(trt = key, estimate = value) %>%
@@ -122,7 +122,7 @@ nma.league <- function(nma,
         mutate(trt = sub("_estimate", "", trt))
     }
     
-    if(log.scale==FALSE & nma$link!="identity"){
+    if(log.scale==FALSE & (nma$link!="identity" | nma$model$study.level.exp==T)){
       tmp.lci <- dmat2 %>%  
         summarise_all(list(lci = exp.lci)) %>% gather() %>%
         rename(trt = key, lci = value) %>%
@@ -207,7 +207,7 @@ nma.league <- function(nma,
            Comparator = rep(trt.names, each=length(trt.names))) %>%
     select(Treatment, Comparator, everything(), -trt)
   
-  if(log.scale==FALSE & nma$link!="identity"){
+  if(log.scale==FALSE & (nma$link!="identity" | nma$model$study.level.exp==T)){
     null.value <- 1
   } else{
     null.value <- 0
