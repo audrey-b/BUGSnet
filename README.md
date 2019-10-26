@@ -17,7 +17,8 @@ mean deviance comparison plots.
 
 ### 1\. Install JAGS
 
-Go to [Sourceforge.net](https://sourceforge.net/projects/mcmc-jags/)
+Go to the [Sourceforge](https://sourceforge.net/projects/mcmc-jags/)
+page.
 
 Click on Files \> JAGS \> 4.x
 
@@ -26,7 +27,7 @@ Select your operating system and download JAGS-4.3.0, then install.
 ### 2\. Install R
 
 Download and install the most recent version of base R from
-[CRAN](cran.r-project.org).
+[CRAN](https://cran.r-project.org/).
 
 ### 3\. Install Rstudio
 
