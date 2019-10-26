@@ -46,9 +46,9 @@
 #'        )
 #'  
 #'diabetes.re.c.res <- nma.run(diabetes.re.c,
-#'n.adapt=1000,
-#'n.burnin=1000,
-#'n.iter=10000)
+#'n.adapt=100,
+#'n.burnin=0,
+#'n.iter=100)
 #'
 #' #Fixed effects, consistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
@@ -64,9 +64,9 @@
 #'        )
 #'  
 #'diabetes.fe.c.res <- nma.run(diabetes.fe.c,
-#'n.adapt=1000,
-#'n.burnin=1000,
-#'n.iter=10000)  
+#'n.adapt=100,
+#'n.burnin=0,
+#'n.iter=100)  
 #' 
 #' #Compare fixed vs random effects via leverage plots and DIC 
 #' par(mfrow=c(1,2))
@@ -197,9 +197,9 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #'        )
 #'  
 #'diabetes.re.c.res <- nma.run(diabetes.re.c,
-#'n.adapt=1000,
-#'n.burnin=1000,
-#'n.iter=10000)
+#'n.adapt=100,
+#'n.burnin=0,
+#'n.iter=100)
 #'
 #' #Random effects, inconsistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
@@ -215,9 +215,9 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #'        )
 #'  
 #'diabetes.re.i.res <- nma.run(diabetes.re.i,
-#'n.adapt=1000,
-#'n.burnin=1000,
-#'n.iter=10000)  
+#'n.adapt=100,
+#'n.burnin=0,
+#'n.iter=100)  
 #' 
 #' # Assess model fit for a both an inconsistency model and consistency model using nma.fit()
 #' assess.consistency <- nma.fit(diabetes.re.c.res)

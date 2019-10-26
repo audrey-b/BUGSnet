@@ -44,9 +44,9 @@
 #'        )
 #'  
 #'diabetes.re.c.res <- nma.run(diabetes.re.c,
-#'n.adapt=1000,
-#'n.burnin=1000,
-#'n.iter=10000)
+#'n.adapt=100,
+#'n.burnin=0,
+#'n.iter=100)
 #'        
 
 

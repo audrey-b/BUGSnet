@@ -1,12 +1,13 @@
-citHeader("To cite the BUGSnet package in publications use:")
+citHeader("To cite BUGSnet in publications, use:")
 
-bibentry(bibtype="Manual",
-  title = "BUGSnet: Bayesian network meta-analysis in compliance with best practice guidelines",
-  author = c(person("Audrey", "B\'eliveau"), 
-            person("Justin", "Slater"), 
-            person("Devon", "Boyne")),
-  year = 2019,
-  note = "R package licensed under CC BY-NC-ND 4.0",
-  textVersion = paste("Béliveau A., Slater J and Boyne D. (2019)", 
-    "BUGSnet: Bayesian network meta-analysis in compliance with best practice guidelines",
-    "R package licensed under CC BY-NC-ND 4.0."))
+bibentry(bibtype="Article",
+  title = "{BUGSnet}: an {R} package to facilitate the conduct and reporting of {Bayesian} network {Meta}-analyses}",
+  author = c(person("Audrey", "B\'eliveau"),
+            person("Devon J.", "Boyne"),
+            person("Justin", "Slater"),
+            person("Darren", "Brenner"),
+            person("Paul", "Arora")),
+  journal = "{BMC} {Medical} {Research} {Methodology}",
+	year = {2019},
+	volume = {19},
+	number = {196})

@@ -7,3 +7,5 @@
 ^\.Rproj\.user$
 ^tests
 ^R/sysdata\.rda$
+^LICENSE\.md$
+^README\.Rmd$

@@ -28,8 +28,8 @@
 #'                                   N="sampleSize", reference="SK",
 #'                                   family="binomial", link="log", 
 #'                                   effects="random")
-#' random_effects_results <- nma.run(random_effects_model, n.adapt=1000, 
-#'                                   n.burnin=1000, n.iter=10000)
+#' random_effects_results <- nma.run(random_effects_model, n.adapt=100, 
+#'                                   n.burnin=0, n.iter=100)
 #' nma.diag(random_effects_results)
 #' @export
 #' @seealso \code{\link{nma.run}}

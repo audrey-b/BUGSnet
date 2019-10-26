@@ -64,9 +64,9 @@ diabetes.re.c <- nma.model(data = diabetes.slr,
        )
  
 diabetes.re.c.res <- nma.run(diabetes.re.c,
-n.adapt=1000,
-n.burnin=1000,
-n.iter=10000)
+n.adapt=100,
+n.burnin=0,
+n.iter=100)
 
 #Fixed effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
@@ -82,9 +82,9 @@ diabetes.fe.c <- nma.model(data = diabetes.slr,
        )
  
 diabetes.fe.c.res <- nma.run(diabetes.fe.c,
-n.adapt=1000,
-n.burnin=1000,
-n.iter=10000)  
+n.adapt=100,
+n.burnin=0,
+n.iter=100)  
 
 #Compare fixed vs random effects via leverage plots and DIC 
 par(mfrow=c(1,2))

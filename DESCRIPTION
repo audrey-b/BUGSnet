@@ -18,7 +18,7 @@ Description: BUGSnet (Bayesian inference Using Gibbs Sampling to conduct
     deviance comparison plots.
 Depends: R (>= 3.5),
   rjags
-License: file LICENSE
+License: CC BY-NC-SA 4.0
 Encoding: UTF-8
 LazyData: yes
 RoxygenNote: 6.1.1
