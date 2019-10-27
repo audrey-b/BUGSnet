@@ -1,0 +1,209 @@
+---
+title: "NMA for Dichotomous Outcomes"
+author: "Justin Slater, Audrey Beliveau"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{NMA for Dichotomous Outcomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>")
+
+```
+
+### Data Preparation
+
+``` {r}
+library(BUGSnet)
+
+data(thrombolytic)
+age <- rnorm(nrow(thrombolytic), 60, 10)
+dich.slr <- data.prep(arm.data = cbind(thrombolytic, age),
+                     varname.t = "treatment",
+                     varname.s = "study")
+```
+
+## Feasibility Assessment
+
+### Network Plot
+
+```{r, net.plot, echo=TRUE, fig.width=6, fig.height=6}
+ net.plot(dich.slr, node.scale = 1.5, edge.scale=0.5)
+```
+
+### Generate Network Characteristics via `net.tab()`
+
+```{r, results = "hide"}
+network.char <- net.tab(data = dich.slr,
+                        outcome = "events",
+                        N = "sampleSize", 
+                        type.outcome = "binomial",
+                        time = NULL)
+```
+
+#### Network Characteristics
+`network.char$network` generates characteristics about the network, such as connectedness, number of treatments in the network, and in the case of a binomial outcome, the number of events in the network.
+```{r, echo = FALSE}
+knitr::kable(network.char$network)
+```
+
+#### Intervention Characteristics
+`network.char$intervention` generates outcome and sample size data broken down by treatment.
+
+```{r, echo=FALSE}
+knitr::kable(network.char$intervention)
+```
+
+#### Comparison Characteristics
+`network.char$comparison` generates outcome and sample size data broken down by treatment **comparison**.
+```{r, echo=FALSE}
+knitr::kable(network.char$comparison)
+```
+
+```{r, echo=FALSE}
+#pairwise.dat <- by.comparison(data.nma=dich.slr, outcome="events", type.outcome="binomial", N="sampleSize")
+ 
+#pairwise.dat.with.c <- pairwise.dat %>% 
+#   filter(grepl("SK", comparison)) %>%
+#   filter((trt.e == "tPA"| trt.c == "tPA"))
+ 
+#  tPA_vs_SK <- pairwise(data.nma = dich.slr,
+#                           name.trt1 = "SK", 
+#                           name.trt2 = "tPA", 
+#                           outcome = "events",
+#                           N = "sampleSize")
+ 
+# pairwise.all(data.nma=dich.slr, 
+#             outcome="events",
+#             N = "sampleSize",
+#             method.tau="DL",
+#             sm= "RR") 
+```
+
+## Main analysis
+`nma.model()` creates BUGS code and that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, it is streptokinase ("SK"). Since our outcome is dichotomous, and we are not interested in event rates, we are using the "binomial" family. In our case, we want to compare relative risks, so we are using the $log$ link. If you are interested in using an odds ratio, set `link="logit"`.
+```{r}
+fixed_effects_model <- nma.model(data=dich.slr,
+                     outcome="events",
+                     N="sampleSize",
+                     reference="SK",
+                     family="binomial",
+                     link="log",
+                     effects="fixed")
+
+random_effects_model <- nma.model(data=dich.slr,
+                     outcome="events",
+                     N="sampleSize",
+                     reference="SK",
+                     family="binomial",
+                     link="log",
+                     effects="random")
+
+```
+If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. 
+
+The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
+
+```{r, results = "hide"}
+set.seed(20190829)
+fixed_effects_results <- nma.run(fixed_effects_model,
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+
+random_effects_results <- nma.run(random_effects_model,
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+
+```
+
+# Assess model fit
+```{r, fig.width=7, fig.height=4, results = "hide"}
+par(mfrow = c(1,2))
+nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+nma.fit(random_effects_results, main= "Random Effects Model")
+
+```
+
+
+## Results
+### Sucra Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
+sucra.out <- nma.rank(fixed_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
+sucra.out$sucraplot
+```
+
+
+### League Heat Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4}
+league.out <- nma.league(fixed_effects_results,  
+                         central.tdcy="median",
+                         order = sucra.out$order)
+league.out$heatplot
+```
+
+
+### Forest Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4}
+nma.forest(fixed_effects_results,
+           central.tdcy="median",
+           comparator = "SK")
+```
+
+
+## Check inconsistency
+```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8}
+fe_inconsistency_model <- nma.model(data=dich.slr,
+                     outcome="events",
+                     N="sampleSize",
+                     reference="SK",
+                     family="binomial",
+                     link="log",
+                     type = "inconsistency",
+                     effects="fixed")
+
+fe_inconsistency_results <- nma.run(fe_inconsistency_model,
+                           n.adapt=1000,
+                           n.burnin=1000,
+                           n.iter=10000)
+```
+
+```{r, fig.height=4, fig.width=7}
+par(mfrow = c(1,2))
+fe_model_fit <- nma.fit(fixed_effects_results)
+inconsist_model_fit <- nma.fit(fe_inconsistency_results)
+```
+
+```{r, fig.height=6, fig.width = 6}
+nma.compare(fe_model_fit, inconsist_model_fit)
+```
+
+<!-- ```{r, fig.height=8, fig.width = 8} -->
+<!--  inconsistency.PMA(data.nma = dich.slr,  -->
+<!--                    jagsoutput = fixed_effects_results, -->
+<!--                    outcome = "events", -->
+<!--                    N = "sampleSize", -->
+<!--                    base.trt = "SK", -->
+<!--                    effects="fixed",  -->
+<!--                    central.tdcy="median",  -->
+<!--                    line.size=1, -->
+<!--                    x.trans=NULL) -->
+<!-- ``` -->
+
+<!-- ```{r, fig.width = 8, fig.height=6} -->
+<!--  pairwise <- pairwise(data.nma = dich.slr, -->
+<!--                           name.trt1 = "SK", -->
+<!--                           name.trt2 = "Ret", -->
+<!--                           outcome = "events", -->
+<!--                           N = "sampleSize") -->
+<!-- ``` -->
+
+
+# References
