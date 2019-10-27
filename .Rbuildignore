@@ -9,3 +9,5 @@
 ^R/sysdata\.rda$
 ^LICENSE\.md$
 ^README\.Rmd$
+^WHATSNEW\.md$
+^manual\.pdf$
