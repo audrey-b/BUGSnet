@@ -9,7 +9,7 @@ net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
   graph.scale = TRUE, node.lab.cex = 1, edge.lab.cex = 1,
   node.colour = "#f69c54", edge.colour = "grey",
   edge.lab.colour = "blue", flag.edge.colour = "lightpink",
-  layout = "layout_in_circle", layout.params = NULL, ...)
+  layout = "layout_in_circle", layout.params = NULL)
 }
 \arguments{
 \item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}.}
@@ -45,9 +45,7 @@ going into the specified treatment(s).}
 \item{layout}{Specifies how the nodes should be layed out in the graph. Default is "layout_in_circle". See \code{igraph::layout_}
 for layout options}
 
-\item{layout.params}{Additional parameters to be passed to the chosen 'layout' function. See \code{igraph::layout_} more information}
-
-\item{...}{extra parameters for plotting}
+\item{layout.params}{Additional parameters to be passed to the chosen 'layout' function. See \code{igraph::layout_} for more information}
 }
 \description{
 Produces network plot where nodes represent treatments and edges represent direct

@@ -13,7 +13,7 @@ network.structure <- function(data.nma) {
   
   studytrt <- data.nma$arm.data %>%
     select(data.nma$varname.s, data.nma$varname.t) %>%
-    nest(data.nma$varname.t)
+    nest(data=c(data.nma$varname.t))
   
   cnt <- data.nma$arm.data %>%
     select(data.nma$varname.s, data.nma$varname.t) %>%
@@ -48,7 +48,7 @@ network.structure <- function(data.nma) {
                            stringr::str_detect(trt, to), 1, 0)) %>%
     filter(flag == 1) %>%
     select(-c(mtchvar, flag, trt)) %>%
-    nest(!! trial) %>%
+    nest(data=c(!! trial)) %>%
     group_by(from, to) %>%
     mutate(study = paste(unlist(data), collapse=', \n')) %>%
     select(-data)

@@ -2,6 +2,7 @@
 #' @description Produces network plot where nodes represent treatments and edges represent direct
 #' evidence (e.g an RCT) comparing treatments.
 #' @param data A \code{BUGSnetData} object produced by \code{data.prep()}.
+# @param outcome A string of the outcome variable to use for the plot (missing values are discarded).
 #' @param node.scale Size of the nodes (default=5)
 #' @param edge.scale Thickness of the edges (default=2).
 #' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
@@ -19,8 +20,8 @@
 #' @param flag.edge.colour Color of flagged edges (string)
 #' @param layout Specifies how the nodes should be layed out in the graph. Default is "layout_in_circle". See \code{igraph::layout_} 
 #' for layout options
-#' @param layout.params Additional parameters to be passed to the chosen 'layout' function. See \code{igraph::layout_} more information
-#' @param ... extra parameters for plotting
+#' @param layout.params Additional parameters to be passed to the chosen 'layout' function. See \code{igraph::layout_} for more information
+# @param ... extra parameters for plotting
 #' @examples
 #' 
 #' data(diabetes.sim)
@@ -46,6 +47,7 @@
 
 
 net.plot <- function(data,
+                     #outcome,
                      node.scale=5, 
                      edge.scale=2, 
                      flag=NULL, 
@@ -60,14 +62,18 @@ net.plot <- function(data,
                      edge.lab.colour = "blue",
                      flag.edge.colour = "lightpink",
                      layout = "layout_in_circle",
-                     layout.params = NULL,
-                     ...) {
+                     layout.params = NULL) {
   
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   if (!is.character(layout) || length(layout) != 1)
     stop("\'layout\' must be a character vector of length 1 specifying the name of an igraph layout function")
+  
+  #To specify the outcome
+  # data %<>% data.prep(arm.data=filter(data$arm.data, !is.na(outcome)), 
+  #                     varname.t=data$varname.t, 
+  #                     varname.s=data$varname.s)
   
   edgesANDnodes <- network.structure(data)
   edges <- edgesANDnodes[[1]]

@@ -25,7 +25,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
     
     tmp1 <- data.nma$arm.data %>% 
       select(data.nma$varname.s, data.nma$varname.t) %>% 
-      nest(data.nma$varname.t)
+      nest(data=c(data.nma$varname.t))
     
     cnt <- data.nma$arm.data %>% 
       select(data.nma$varname.s, data.nma$varname.t) %>% 

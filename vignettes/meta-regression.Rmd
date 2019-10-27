@@ -17,33 +17,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, include = FALSE}
-path <- paste0(dirname(getwd()),"/")
-library(tidyr)
-#library(tidyverse)
-library(plyr)
-library(ggplot2)
-library(igraph)
-library(extrafont)
-library(rjags)
-library(magrittr)
-library(dplyr)
-library(meta)
-library(purrr)
-library(scales)
-library(RColorBrewer)
-library(devtools)
-library(roxygen2)
-library(knitr)
-library(stringr)
-library(gridExtra)
-load_all(path = paste0(path,"R"))
-```
- 
-
 ``` {r}
-data(afib)
+library(BUGSnet)
 
+data(afib)
 dataprep <- data.prep(arm.data = afib,
                       varname.t = "treatment",
                       varname.s = "study")
@@ -73,20 +50,20 @@ network.char <- net.tab(data = dataprep,
 #### Network Characteristics
 `network.char$network` generates characteristics about the network, such as connectedness, number of treatments in the network, and in the case of a binomial outcome, the number of events in the network.
 ```{r, echo = FALSE}
-kable(network.char$network)
+knitr::kable(network.char$network)
 ```
 
 #### Intervention Characteristics
 `network.char$intervention` generates outcome and sample size data broken down by treatment.
 
 ```{r, echo=FALSE}
-kable(network.char$intervention)
+knitr::kable(network.char$intervention)
 ```
 
 #### Comparison Characteristics
 `network.char$comparison` generates outcome and sample size data broken down by treatment **comparison**.
 ```{r, echo=FALSE}
-kable(network.char$comparison)
+knitr::kable(network.char$comparison)
 ```
 
 ## Main analysis

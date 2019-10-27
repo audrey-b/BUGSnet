@@ -11,11 +11,11 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     
     data %<>% select(trial, trt, outcome, N, sd)
     data.st <- select(data, trial, trt)
-    data.st %<>% nest(trt, .key="treatments")
+    data.st %<>% nest(treatments=c(trt))
     data.st %<>%
       mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
       select(-treatments) %>%
-      unnest() %>%
+      unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
       left_join(data %>% select(trial, outcome, N, trt, sd), by = c("trial", "trt.e" = "trt")) %>%
       left_join(data %>% select(trial, outcome, N, trt, sd), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
@@ -27,11 +27,11 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     
     data %<>% select(trial, trt, outcome, N)
     data.st <- select(data, trial, trt) 
-    data.st %<>% nest(trt, .key="treatments")
+    data.st %<>% nest(treatments=c(trt))
     data.st %<>% 
       mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
       select(-treatments) %>% 
-      unnest() %>%
+      unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
       left_join(data %>% select(trial, outcome, N, trt), by = c("trial", "trt.e" = "trt")) %>%
       left_join(data %>% select(trial, outcome, N, trt), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
@@ -45,11 +45,11 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     
     data %<>% select(trial, trt, outcome, N, time)
     data.st <- select(data, trial, trt)
-    data.st %<>% nest(trt, .key="treatments")
+    data.st %<>% nest(treatments=c(trt))
     data.st %<>%
       mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
       select(-treatments) %>%
-      unnest() %>%
+      unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
       left_join(data %>% select(trial, outcome, N, trt, time), by = c("trial", "trt.e" = "trt")) %>%
       left_join(data %>% select(trial, outcome, N, trt, time), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%

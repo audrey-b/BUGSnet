@@ -1,7 +1,7 @@
-citHeader("To cite BUGSnet in publications, use:")
+citHeader("To cite BUGSnet in publications use:")
 
 bibentry(bibtype="Article",
-  title = "{BUGSnet}: an {R} package to facilitate the conduct and reporting of {Bayesian} network {Meta}-analyses}",
+  title = "{BUGSnet}: an {R} package to facilitate the conduct and reporting of {Bayesian} network meta-analyses}",
   author = c(person("Audrey", "B\'eliveau"),
             person("Devon J.", "Boyne"),
             person("Justin", "Slater"),
@@ -10,4 +10,7 @@ bibentry(bibtype="Article",
   journal = "{BMC} {Medical} {Research} {Methodology}",
 	year = {2019},
 	volume = {19},
-	number = {196})
+	number = {196},
+	textVersion = paste("Béliveau A., Boyne DJ, Slater J, Brenner D and Arora P. (2019)", 
+                    "BUGSnet: an R package to facilitate the conduct and reporting of Bayesian network meta-analyses",
+                    "BMC Medical Research Methodology, 19:196."))

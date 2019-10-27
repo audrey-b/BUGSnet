@@ -15,7 +15,7 @@ pairwise.all <- function(slr,
   
   data %<>% select(trial, trt, outcome, N)
   data.st <- select(data, trial, trt) 
-  data.st %<>% nest(trt, .key="treatments")
+  data.st %<>% nest(treatments=c(trt))
   data.st %<>% 
     mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
     select(-treatments) %>% 

@@ -2,10 +2,10 @@
 title: "NMA for Survival Outcomes"
 author: "Justin Slater, Audrey Beliveau"
 date: "`r Sys.Date()`"
-output: html_document
+output: rmarkdown::html_vignette
 bibliography: references.bib
 vignette: >
-  %\VignetteIndexEntry{NMA for rate2 Outcomes}
+  %\VignetteIndexEntry{NMA for Survival Outcomes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,26 +18,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, include = FALSE}
-path <- paste0(dirname(getwd()),"/")
-library(tidyr)
-library(stringr)
-#library(tidyverse)
-library(plyr)
-library(ggplot2)
-library(igraph)
-library(extrafont)
-library(rjags)
-library(magrittr)
-library(dplyr)
-library(meta)
-library(purrr)
-library(scales)
-library(RColorBrewer)
-library(devtools)
-library(roxygen2)
-library(knitr)
-library(gridExtra)
-load_all(path = paste0(path,"R"))
+library(BUGSnet)
 ```
  
 The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2 [@TSD2], page 66. The results of our package are concordant with those reported in the TSD.
@@ -45,11 +26,12 @@ The purpose of this example is to demonstrate how to use BUGSnet to perform netw
 The Diabetes data has 22 studies and 6 treatments, each study has a follow up time between 1 and 6.1 years. The outcome for this data (`diabetes.sim`) is the number of new diabetes cases observed during the trial period. An age variable, including its standard deviation, was simulated for demonstration purposes. This data contains multi-arm trials, which can easily be accomodated using BUGSnet. The data is shown here:
 ```{r, echo = FALSE}
 data(diabetes.sim)
-kable(diabetes.sim)
+knitr::kable(diabetes.sim)
 ```
 
 Before any analysis is done, we need to put our data in a form that BUGSnet can easily handle. This is done by simple running the `data.prep()` function and specifying the name of the treatment, study, and sample size variables:
 ``` {r}
+library(BUGSnet)
 data(diabetes.sim)
 rate2.slr <- data.prep(arm.data = diabetes.sim,
                      varname.t = "Treatment",
@@ -65,14 +47,14 @@ To generate a network plot, simply input the `data.prep` object into the `net.pl
 
 ```{r, net.plot, echo=TRUE, fig.width=6, fig.height=5, fig.align="centre"}
 par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
-net.plot(rate2.slr, outcome = "diabetes", node.scale = 3, edge.scale=1.5)
+net.plot(rate2.slr, node.scale = 3, edge.scale=1.5)
 ```
 
 Our network has 6 treatments and a high degree of connectedness. If a user wants to highlight a specific node and its direct evidence, this can be done using the `flag` option.
 
 ```{r, echo=TRUE, fig.width=6, fig.height=5, fig.align="centre"}
 par(mar=c(1,1,1,1)) #reduce margins for nicer plotting
-net.plot(rate2.slr, outcome = "diabetes", node.scale = 3, edge.scale=1.5, flag = "ARB")
+net.plot(rate2.slr, node.scale = 3, edge.scale=1.5, flag = "ARB")
 ```
 
 This gives us the names of the 5 trials connecting the ARB node to 4 treatments.
@@ -92,20 +74,20 @@ network.char <- net.tab(data = rate2.slr,
 #### Network Characteristics
 `network.char$network` generates characteristics about the network, such as connectedness, number of treatments in the network, and in the case of a binomial outcome, the number of events in the network.
 ```{r, echo = FALSE}
-kable(network.char$network)
+knitr::kable(network.char$network)
 ```
 
 #### Intervention Characteristics
 `network.char$intervention` generates outcome and sample size data broken down by treatment.
 
 ```{r, echo=FALSE}
-kable(network.char$intervention)
+knitr::kable(network.char$intervention)
 ```
 
 #### Comparison Characteristics
 `network.char$comparison` generates outcome and sample size data broken down by treatment **comparison**.
 ```{r, echo=FALSE}
-kable(network.char$comparison)
+knitr::kable(network.char$comparison)
 ```
 
 ## Patient Characteristics
@@ -245,7 +227,7 @@ sucra.out$rankogram
 
 From this rankogram, we can see that there is a $\sim$ 77% probability that ARB's are the best treatments, and a $\sim$ 80% probability that diuretics are the worst treatment. If you want the exact ranking percentages, these results are also available in tabular form via `sucra.out$ranktable`.
 ```{r, echo = FALSE}
-kable(sucra.out$ranktable)
+knitr::kable(sucra.out$ranktable)
 ```
 
 A surface under the cumulative ranking curve (SUCRA) plot can also be displayed via `sucra.out$sucraplot`.
@@ -256,13 +238,13 @@ sucra.out$sucraplot
 
 If you want the exact percentages, these results are also available in tabular form via `sucra.out$sucratable`. The last row contains the SUCRA percentages calculated as the average of the cumulative percentages for ranks 1 to 5.
 ```{r, echo = FALSE}
-kable(sucra.out$sucratable)
+knitr::kable(sucra.out$sucratable)
 ```
 
 Since those plots were produced using ggplot2, one can easily customize the plots using ggplot2 commands, for instance via `sucra.out$sucraplot + theme_gray()`:
 
 ```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
-sucra.out$sucraplot + theme_gray()
+sucra.out$sucraplot + ggplot2::theme_gray()
 ```
 
 
@@ -285,7 +267,7 @@ league.out$heatplot
 Because we used the option `log.scale = FALSE`, the values reported are on the hazard ratio scale as opposed to the log hazard ratio scale. In this example, a green cell indicates that a treatment performed better than its comparator (estimate smaller than 1), while a red cell indicates that the treatment performed worst than its comparator (estimate greater than 1). The symbols (**) are used to highlight credible intervals that do not contain the neutral value 1, meaning that there is evidence of a statistically significant difference between the treatment and its comparator at the 95% confidence level. The values can also be outputted in a table via the command `league.out$table`.
 
 ```{r, echo = FALSE}
-kable(league.out$table)
+knitr::kable(league.out$table)
 ```
 
 
