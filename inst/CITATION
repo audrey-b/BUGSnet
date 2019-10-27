@@ -12,5 +12,5 @@ bibentry(bibtype="Article",
 	volume = {19},
 	number = {196},
 	textVersion = paste("Béliveau A., Boyne DJ, Slater J, Brenner D and Arora P. (2019)", 
-                    "BUGSnet: an R package to facilitate the conduct and reporting of Bayesian network meta-analyses",
+                    "BUGSnet: an R package to facilitate the conduct and reporting of Bayesian network meta-analyses.",
                     "BMC Medical Research Methodology, 19:196."))
