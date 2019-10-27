@@ -1,42 +1,14 @@
-#' Traceplot of MCMC chains
-#' @description Produces traceplots of the MCMC chains obtained from \code{nma.run()}
+#' Deprecated. Please use \code{nma.diag} instead.
+#' @description Deprecated. Produces traceplots of the MCMC chains obtained from \code{nma.run()}
 #' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
 #' @param n Integer which limits the number of printed variables to the first \code{n}. Default is "all" which plots every variable.
 #' @param thin Thinning factor for the mcmc chains. Default is 1.
 #' @param colours An optional vector of colors, one for each chain. 
 #' @export
-#' @seealso \code{\link{nma.run}}
-#' 
-#' @examples 
-#' data(diabetes.sim)
-#' 
-#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-#' varname.t = "Treatment", 
-#' varname.s = "Study")
-#' 
-#' #Random effects, consistency model.
-#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#'diabetes.re.c <- nma.model(data = diabetes.slr,
-#'        outcome = "diabetes", 
-#'        N = "n",
-#'        reference = "Placebo",
-#'        family = "binomial",
-#'        link = "cloglog",
-#'        effects = "random",
-#'        type="consistency",
-#'        time="followup"
-#'        )
-#'  
-#'diabetes.re.c.res <- nma.run(diabetes.re.c,
-#'n.adapt=100,
-#'n.burnin=0,
-#'n.iter=100)
-#'
-#'nma.trace(diabetes.re.c.res, n=4, thin=10)
-#'  
+#' @seealso \code{\link{nma.diag}}
 
 nma.trace <- function(nma, n="all", thin = 1, colours = "DEFAULT"){
-  .Deprecated("nma.convergence")
+  .Deprecated("nma.diag")
   
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")

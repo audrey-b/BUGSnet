@@ -51,7 +51,7 @@ To start using BUGSnet, follow the vignettes available [here](https://bugsnetsof
 
 ## License
 
-BUGSnet is available under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0). Kindly review the LICENSE file. You are responsible for conforming to the terms of this license. BUGSnet is provided as-is and comes with absolutely no warranty. Commercial use is prohibited; please contact the authors for more information.
+BUGSnet is available under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0). Kindly review the LICENSE file. You are responsible for conforming to the terms of this license. BUGSnet is provided as-is and comes with absolutely no warranties. Commercial use is prohibited; please contact the authors for more information.
 
 
 ## How to cite BUGSnet?
