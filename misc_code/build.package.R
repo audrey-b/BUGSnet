@@ -1,4 +1,5 @@
 #change version
+#change Depends: R (>= 3.6)
 
 #change WHATSNEW file
 
