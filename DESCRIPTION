@@ -4,7 +4,7 @@ Version: 1.0.3
 Authors@R: c(
   person("Audrey", "Beliveau", email = "audrey.beliveau@uwaterloo.ca", role = c("aut","cph", "cre")),
   person("Justin", "Slater", email = "jslater@lighthouseoutcomes.com", role = c("aut")),
-  person("Devon", "Boyne", email = "devonjboyne@gmail.com", role = c("aut", "cph")),
+  person("Devon", "Boyne", email = "devon.boyne1@ucalgary.ca", role = c("aut", "cph")),
   person("Eric", "Mackay", email = "emackay@lighthouseoutcomes.com", role = c("ctb")),
   person("Lighthouse Outcomes Inc.", role=c("cph"))
   )
@@ -17,36 +17,36 @@ Description: BUGSnet (Bayesian inference Using Gibbs Sampling to conduct
     rankograms, forest plots, leverage plots, traceplots, posterior mean 
     deviance comparison plots.
 Depends: R (>= 3.6),
-  rjags
+  rjags (>= 4.9)
 License: CC BY-NC-SA 4.0
 Encoding: UTF-8
 LazyData: yes
 RoxygenNote: 6.1.1
 Imports:
     tidyr (>= 1.0),
-    plyr,
-    ggplot2,
-    igraph,
-    extrafont,
-    magrittr,
-    dplyr,
-    meta,
-    purrr,
-    scales,
-    RColorBrewer,
-    Rdpack,
-    graphics,
-    utils,
-    rlang,
-    tibble,
-    stringr,
-    gridExtra
+    plyr (>= 1.8.4),
+    ggplot2 (>= 3.2.1),
+    igraph (>= 1.2.4.1),
+    extrafont (>= 0.17),
+    magrittr (>= 1.5),
+    dplyr (>= 0.8.3),
+    meta (>= 4.9.7),
+    purrr (>= 0.3.3),
+    scales (>= 1.0.0),
+    RColorBrewer (>= 1.1.2),
+    Rdpack (>= 0.11.0),
+    graphics (>= 3.6.1),
+    utils (>= 3.6.1),
+    rlang (>= 0.4.1),
+    tibble (>= 2.1.3),
+    stringr (>= 1.4.0),
+    gridExtra (>= 2.3)
 Suggests: 
-    knitr,
-    rmarkdown,
-    devtools,
-    roxygen2,
-    testthat
+    knitr (>= 1.25),
+    rmarkdown (>= 1.16),
+    devtools (>= 2.2.1),
+    roxygen2 (>= 6.1.1),
+    testthat (>= 2.2.1)
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace", "collate"))
 RdMacros: Rdpack

@@ -1,7 +1,7 @@
 #change version
 #change Depends: R (>= 3.6)
 
-#change WHATSNEW file
+#change NEWS file
 
 #build vignettes for website
 devtools::build_vignettes()
