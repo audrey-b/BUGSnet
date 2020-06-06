@@ -24,6 +24,7 @@
 #' with fewer than 3 levels are supported.
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
+#' @param auto Flag indicating if the model code that is built should be compatible with the automatic \code{nma.run()} function which uses the \code{simanalyse} package
 #' 
 #' @return \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
 #' @return \code{bugs} - A long character string containing BUGS code that will be run in \code{jags}.
@@ -103,7 +104,8 @@ nma.model <- function(data,
                       prior.d = "DEFAULT",
                       prior.sigma = "DEFAULT",
                       prior.beta = NULL,
-                      covariate = NULL){
+                      covariate = NULL,
+                      auto = FALSE){
   
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
@@ -311,7 +313,8 @@ nma.model <- function(data,
                         prior.d.str,
                         prior.sigma2.str,
                         covariate,
-                        prior.meta.reg) %>%
+                        prior.meta.reg,
+                        auto = auto) %>% # might need to add ifelse to get change this pipe
     paste0(add.to.model)
   
   bmodel <- structure(list(bugs=model,

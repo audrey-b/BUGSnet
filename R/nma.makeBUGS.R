@@ -1,6 +1,6 @@
 #add warning messages for incompatible link and family
 
-makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg){
+makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg, auto){
   
   if (family=="binomial"){
     family.str <- "r[i,k] ~ dbin(p[i,k],n[i,k]) # binomial likelihood"
@@ -52,8 +52,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
                           
     # fixed effects model for multi-arm trials
                           
-    model{                               # *** PROGRAM STARTS
-
+    %s
+    
       for(i in 1:ns){                      # LOOP THROUGH STUDIES
       for (k in 1:na[i]) {             # LOOP THROUGH ARMS
         %s
@@ -70,12 +70,14 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
       
       %s               
-    }", monitor.str,
+    %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
+        monitor.str,
         link.str,
         family.str,
         prior.mu.str,
         prior.d.str,
-        prior.meta.reg)
+        prior.meta.reg,
+        paste0(ifelse(auto, "", "}")))
     }
     
     if(inconsistency){
@@ -96,7 +98,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       
       code.str <- sprintf("# inconsistency model
     # fixed effects model
-    model{                      # *** PROGRAM STARTS
+    
+    %s
                           
       for(i in 1:ns){             # LOOP THROUGH STUDIES
         for (k in 1:na[i])  {   # LOOP THROUGH ARMS
@@ -112,12 +115,14 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
 
         %s  
 
-      }
-      ", monitor.str,
+      %s
+      ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
+        monitor.str,
         link.str,
         family.str,
         prior.mu.str,
-        prior.d.str)
+        prior.d.str,
+        paste0(ifelse(auto, "", "}")))
     } 
   } 
   
@@ -143,7 +148,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
      
       # Random effects model for multi-arm trials
     
-      model{                               # *** PROGRAM STARTS
+      %s
   
       for(i in 1:ns){                      # LOOP THROUGH STUDIES
         w[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
@@ -175,13 +180,15 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
       tau <- pow(sigma,-2)
       %s
-    }", monitor.str,
+    %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
+        monitor.str,
         link.str,
         family.str,
         prior.mu.str,
         prior.d.str,
         prior.sigma2.str,
-        prior.meta.reg)
+        prior.meta.reg,
+        paste0(ifelse(auto, "", "}")))
       
     }
     
@@ -189,7 +196,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       
       code.str <- sprintf("# Binomial likelihood, inconsistency model
       # Random effects model
-      model{                      # *** PROGRAM STARTS
+      %s
     
       for(i in 1:ns){             # LOOP THROUGH STUDIES
         delta[i,1]<-0           # treatment effect is zero in control arm
@@ -209,13 +216,15 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
       tau <- 1/sigma2
 
-    }
-    ",monitor.str,
+    %s
+    ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
+      monitor.str,
       link.str,
       family.str,
       prior.mu.str,
       prior.d.str,
-      prior.sigma2.str)
+      prior.sigma2.str,
+      paste0(ifelse(auto, "", "}")))
     }
   }
 return(code.str)
