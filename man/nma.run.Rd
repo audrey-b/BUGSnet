@@ -4,9 +4,17 @@
 \alias{nma.run}
 \title{Run NMA model}
 \usage{
-nma.run(model, monitor = "DEFAULT", DIC = TRUE, n.adapt = 1000,
-  n.burnin = floor(n.iter/2), n.iter, thin = 1, n.chains = 3,
-  inits = "DEFAULT")
+nma.run(
+  model,
+  monitor = "DEFAULT",
+  DIC = TRUE,
+  n.adapt = 1000,
+  n.burnin = floor(n.iter/2),
+  n.iter,
+  thin = 1,
+  n.chains = 3,
+  inits = "DEFAULT"
+)
 }
 \arguments{
 \item{model}{A \code{BUGSnetModel} object produced by running \code{nma.model}.}

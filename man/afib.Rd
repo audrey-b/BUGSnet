@@ -4,7 +4,9 @@
 \name{afib}
 \alias{afib}
 \title{Atrial Fibrillation data}
-\format{A dataset.}
+\format{
+A dataset.
+}
 \usage{
 data(afib)
 }

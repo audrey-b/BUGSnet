@@ -4,10 +4,23 @@
 \alias{nma.model}
 \title{Create Bugs Model}
 \usage{
-nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
-  time = NULL, family, link, effects, prior.mu = "DEFAULT",
-  prior.d = "DEFAULT", prior.sigma = "DEFAULT", prior.beta = NULL,
-  covariate = NULL)
+nma.model(
+  data,
+  outcome,
+  N,
+  sd = NULL,
+  reference,
+  type = "consistency",
+  time = NULL,
+  family,
+  link,
+  effects,
+  prior.mu = "DEFAULT",
+  prior.d = "DEFAULT",
+  prior.sigma = "DEFAULT",
+  prior.beta = NULL,
+  covariate = NULL
+)
 }
 \arguments{
 \item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}}

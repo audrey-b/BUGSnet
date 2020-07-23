@@ -4,8 +4,15 @@
 \alias{data.plot}
 \title{Patient Characteristic Plot}
 \usage{
-data.plot(data, covariate, half.length = NULL, by = "study",
-  avg.hline = TRUE, fill.str = NULL, text.size = 20)
+data.plot(
+  data,
+  covariate,
+  half.length = NULL,
+  by = "study",
+  avg.hline = TRUE,
+  fill.str = NULL,
+  text.size = 20
+)
 }
 \arguments{
 \item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}}

@@ -4,7 +4,9 @@
 \name{thrombolytic}
 \alias{thrombolytic}
 \title{Thrombolytic data}
-\format{A dataset.}
+\format{
+A dataset.
+}
 \usage{
 data(thrombolytic)
 }
