@@ -9,11 +9,15 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
     type.outcome = "rate"
   } else if (scale =="Hazard Ratio"){
     type.outcome = "rate2"
+  } else if (scale == "Treatment Differences") {
+    type.outcome = "continuous difference"
   }
   
+  if(!(scale == "Treatment Differences")) {
   table <- by.comparison(data.nma, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
   names(table)[names(table) == paste0(outcome,".e")] <- "outcome.e"
   names(table)[names(table) == paste0(outcome,".c")] <- "outcome.c"
+  }
   
   if (scale == "Odds Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
@@ -44,6 +48,10 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
     deltas <- table %>% 
       mutate(delta = as.numeric(outcome.e)-as.numeric(outcome.c)) %>%
       select(delta)
+    
+  } else if (scale == "Treatment Differences") {
+    
+    deltas <- data.nma$arm.data %>% select(outcome) # deltas is the list of MLE of differences in outcomes. SInce the differences are already reported, we just need to select the outcome column
     
   } else if (scale == "Hazard Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
