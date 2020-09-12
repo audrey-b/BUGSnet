@@ -4,13 +4,16 @@
 #' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable.
 #' @param N A string indicating the name of the variable containing the number of participants in each arm
-#' @param sd A string (only required for continuous outcomes) indicating variable name
+#' @param sd A string (only required for continuous outcomes with arm-level data) indicating variable name
 #' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
+#' @param se.diffs A string (only required for contrast-based continuous data) indicating the variable name of the 
+#' standard errors of the differences.
+#' @param var.ref A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
 #' @param family A string indicating the family of the distribution of the outcome. Options are:
-#' "binomial", "normal", "poisson".
-#' @param link The link function for the nma model. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).
+#' "binomial", "normal", "poisson", "contrast" (for use with contrast-based data that is continuous, a multi-variate normal likelihood is used). 
+#' @param link The link function for the nma model. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family and "contrast" family).
 #' @param time A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable 
 #'   indicating person-time followup (e.g person years) or study followup time.
 #' @param effects A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".
@@ -94,6 +97,8 @@ nma.model <- function(data,
                       outcome, 
                       N,
                       sd=NULL,
+                      se.diffs = NULL,
+                      var.ref = NULL,
                       reference,
                       type="consistency",
                       time=NULL,
@@ -118,7 +123,7 @@ nma.model <- function(data,
     }
   }
   if(family=="normal" & is.null(sd)) stop("sd must be specified for continuous outcomes")
-  if(family=="normal" & link!="identity") stop("This combination of family and link is currently not supported in BUGSnet.")
+  if(family=="normal" & !(link%in% c("identity", "contrast"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   
@@ -134,12 +139,20 @@ nma.model <- function(data,
   }else if(link == "log" & family =="poisson"){
     if(is.null(time)) stop("time must be specified when using a poisson family with the log link")
     scale <- "Rate Ratio"
+  } else if (link == "identity" & family == "contrast") {
+    if(is.null(se.diffs)) stop("se.diffs must be specified when using contrast-based continuous data")
+    if(max(data$n.arms$n.arms) > 2 & is.null(var.ref)) stop("var.ref must be specified when using contrast-based data in networks with multi-arm trials")
+    if(max(data$n.arms$n.arms) == 2) {
+      var.ref <- "var.ref"
+      data$arm.data$var.ref <- 0 # add dummy column for var.ref
+    }
+    scale <- "Treatment Differences"
   }
   
   data1 <- data$arm.data
   
   #pull relevant fields from the data and apply naming convention
-  varlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate)
+  varlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, se.diffs = se.diffs, var.ref = var.ref, timevar = time, covariate = covariate)
   data1 <- data$arm.data[, varlist]
   names(data1) <- names(varlist)
   
@@ -181,6 +194,8 @@ nma.model <- function(data,
   for (v in unique(bugstemp$variable))
     bugsdata2[[v]] <- as.matrix(bugstemp %>% filter(variable == v) %>% select(-trial, -variable))
   
+  #TODO start from here down Aug
+  
   #modify BUGS object for the various family/link combinations
   names(bugsdata2)[names(bugsdata2) == "trt.jags"] <- "t"
   names(bugsdata2)[names(bugsdata2) == "N"] <- "n"
@@ -192,6 +207,9 @@ nma.model <- function(data,
     names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
     bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se", "t", "x")]
+  }  else if (family == "comparison" && link == "identity") { 
+    names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
+    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se.diffs", "var.ref", "t", "x")]
   } else if (family == "poisson" && link == "log"){
     names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "E"
