@@ -95,7 +95,7 @@
 
 nma.model <- function(data,
                       outcome, 
-                      N,
+                      N = NULL,
                       sd=NULL,
                       se.diffs = NULL,
                       var.ref = NULL,
@@ -194,8 +194,6 @@ nma.model <- function(data,
   for (v in unique(bugstemp$variable))
     bugsdata2[[v]] <- as.matrix(bugstemp %>% filter(variable == v) %>% select(-trial, -variable))
   
-  #TODO start from here down Aug
-  
   #modify BUGS object for the various family/link combinations
   names(bugsdata2)[names(bugsdata2) == "trt.jags"] <- "t"
   names(bugsdata2)[names(bugsdata2) == "N"] <- "n"
@@ -239,11 +237,15 @@ nma.model <- function(data,
   max.delta <- paste0(nma.prior(data, outcome=outcome, scale=scale, N=N, sd=sd, time = time))
   
   # BASELINE EFFECTS PRIOR
-  if (prior.mu == "DEFAULT"){
+  if (prior.mu == "DEFAULT" && family != "contrast"){
     prior.mu.str <- sprintf("for(i in 1:ns){
                                mu[i] ~ dnorm(0,(%s*15)^(-2))
                                }", max.delta)
-  } else {
+  } else  if (prior.mu == "DEFAULT" && family == "contrast")  { 
+    
+    prior.mu.str <- "" # For contrast-based method there is no mu parameter
+    
+   } else {
     prior.mu.str <- sprintf("for(i in 1:ns){
                                mu[i] ~ %s
   }", prior.mu)
@@ -266,7 +268,7 @@ nma.model <- function(data,
   } else {
     if(type=="consistency"){
       prior.d.str <- sprintf("for(k in 2:nt){
-                             d[k] ~ %s)
+                             d[k] ~ %s
     }", prior.d)
       
     }else if(type=="inconsistency"){

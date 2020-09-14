@@ -21,6 +21,30 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     dev[i,k] <- 2*((theta[i,k]-r[i,k]) + r[i,k]*log(r[i,k]/theta[i,k])) #Deviance contribution"
   }
   
+  if (family == "contrast") {
+    
+    family.str <- "for (k in 1:(na[i]-1)) {
+                     for (j in 1:(na[i]-1)) {
+                       Sigma[i,j,k] <- se.diffs[i,k+1]^2*(equals(j,k)) + var.ref[i,1]*(1-equals(j,k))
+                     }
+    }
+    Omega[i, 1:(na[i]-1), 1:(na[i]-1)] <- inverse(Sigma[i,])
+    y[i,2:na[i]] ~ dmnorm(delta[i,2:na[i]], Omega[i, 1:(na[i]-1), 1:(na[i]-1)])"
+    monitor.str <- "for(k in 1:(na[i]-1)) {
+    ydiff[i,k] <- y[i,(k+1)]-delta[i,(k+1)]
+    z[i,k] <- inprod2(Omega[i,k, 1:(na[i]-1)], ydiff[i,1:(na[i]-1)])
+    }"
+    
+  }
+  
+  if(family == "contrast") {
+    dev.str <- "dev[i] <- inprod2(ydiff[i,1:(na[i]-1)], z[i,1:(na[i]-1)])
+    resdev[i] <- dev[i]"
+    
+  } else {
+    dev.str <- "resdev[i] <- sum(dev[i,1:na[i]])"
+  }
+  
   if (!is.null(meta.covariate)) {
     metareg.str <- "+ (beta[t[i,k]]-beta[t[i,1]])*(x[i,k])"
     } else {metareg.str <- ""}
@@ -38,6 +62,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       link.str <- "log(lambda[i,k]) <- mu[i] + d[t[i,k]] - d[t[i,1]] # model for linear predictor"
     } else if (family== "binomial" && link=="cloglog"){
       link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,k]] - d[t[i,1]] # model for linear predictor"
+    } else if (family == "contrast" && link=="identity") {
+      link.str <- "theta[i,k] <- d[t[i,k]] - d[t[i,1]]"
     }
 
     link.str <- paste0(link.str, metareg.str)
@@ -55,12 +81,13 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     %s
     
       for(i in 1:ns){                      # LOOP THROUGH STUDIES
+      %s
       for (k in 1:na[i]) {             # LOOP THROUGH ARMS
         %s
         %s
         %s
       }
-      resdev[i] <- sum(dev[i,1:na[i]])
+      %s
 
     }   
       totresdev <- sum(resdev[])
@@ -71,9 +98,11 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       
       %s               
     %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
+        paste0(ifelse(family == "contrast", family.str, "")), # If contrast-based, the trial likelihood is multivariate
         monitor.str,
         link.str,
-        family.str,
+        paste0(ifelse(family == "contrast", "", family.str)),
+        dev.str,
         prior.mu.str,
         prior.d.str,
         prior.meta.reg,
@@ -92,6 +121,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         link.str <- "log(lambda[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
       } else if (family== "binomial" && link=="cloglog"){
         link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,1],t[i,k]]"
+      } else if (family == "contrast" && link == "identity") {
+        link.str <- "theta[i,k] <- d[t[i,1],t[i,k]]"
       }
       
       link.str <- paste0(link.str, metareg.str)
@@ -102,12 +133,13 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     %s
                           
       for(i in 1:ns){             # LOOP THROUGH STUDIES
+        %s
         for (k in 1:na[i])  {   # LOOP THROUGH ARMS
           %s
           %s
           %s
           }
-          resdev[i]<-sum(dev[i,1:na[i]]) 
+          %s 
       }
         totresdev<-sum(resdev[])
         for (k in 1:nt){d[k,k]<-0}  #set effects of k vs k to zero
@@ -117,9 +149,11 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
 
       %s
       ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
+        paste0(ifelse(family == "contrast", family.str, "")),
         monitor.str,
         link.str,
-        family.str,
+        paste0(ifelse(family == "contrast", "", family.str)),
+        dev.str,
         prior.mu.str,
         prior.d.str,
         paste0(ifelse(auto, "", "}")))
@@ -138,6 +172,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       link.str <- "log(lambda[i,k]) <- mu[i] + delta[i,k]"
     } else if (family == "binomial" && link=="cloglog"){
       link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + delta[i,k]"
+    } else if (family == "contrast" && link == "identity") {
+      link.str <- "theta[i,k] <- delta[i,k]"
     }
     
     link.str <- paste0(link.str, metareg.str)
