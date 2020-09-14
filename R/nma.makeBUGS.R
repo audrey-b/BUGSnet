@@ -28,17 +28,18 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
                        Sigma[i,j,k] <- se.diffs[i,k+1]^2*(equals(j,k)) + var.ref[i,1]*(1-equals(j,k))
                      }
     }
-    Omega[i, 1:(na[i]-1), 1:(na[i]-1)] <- inverse(Sigma[i,])
-    y[i,2:na[i]] ~ dmnorm(delta[i,2:na[i]], Omega[i, 1:(na[i]-1), 1:(na[i]-1)])"
+    Omega[i, 1:(na[i]-1), 1:(na[i]-1)] <- inverse(Sigma[i,,])
+    y[i,2:na[i]] ~ dmnorm(theta[i,2:na[i]], Omega[i, 1:(na[i]-1), 1:(na[i]-1)])"
     monitor.str <- "for(k in 1:(na[i]-1)) {
-    ydiff[i,k] <- y[i,(k+1)]-delta[i,(k+1)]
-    z[i,k] <- inprod2(Omega[i,k, 1:(na[i]-1)], ydiff[i,1:(na[i]-1)])
+    ydiff[i,k] <- y[i,(k+1)]-theta[i,(k+1)]
+    #z[i,k] <- inprod(Omega[i,k, 1:(na[i]-1)], ydiff[i,1:(na[i]-1)])
     }"
     
   }
   
   if(family == "contrast") {
-    dev.str <- "dev[i] <- inprod2(ydiff[i,1:(na[i]-1)], z[i,1:(na[i]-1)])
+    dev.str <- "ip1[i] <- inprod(Omega[i,,],ydiff[i,1:(na[i]-1)])
+    dev[i] <- inprod(ydiff[i,1:(na[i]-1)], ip1[i])
     resdev[i] <- dev[i]"
     
   } else {
@@ -82,6 +83,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     
       for(i in 1:ns){                      # LOOP THROUGH STUDIES
       %s
+      %s
       for (k in 1:na[i]) {             # LOOP THROUGH ARMS
         %s
         %s
@@ -99,7 +101,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s               
     %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
         paste0(ifelse(family == "contrast", family.str, "")), # If contrast-based, the trial likelihood is multivariate
-        monitor.str,
+        paste0(ifelse(family == "contrast", monitor.str, "")),
+        paste0(ifelse(family == "contrast", "", monitor.str)),
         link.str,
         paste0(ifelse(family == "contrast", "", family.str)),
         dev.str,
@@ -134,6 +137,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
                           
       for(i in 1:ns){             # LOOP THROUGH STUDIES
         %s
+        %s
         for (k in 1:na[i])  {   # LOOP THROUGH ARMS
           %s
           %s
@@ -149,8 +153,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
 
       %s
       ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
-        paste0(ifelse(family == "contrast", family.str, "")),
-        monitor.str,
+         paste0(ifelse(family == "contrast", family.str, "")), # If contrast-based, the trial likelihood is multivariate
+         paste0(ifelse(family == "contrast", monitor.str, "")),
+         paste0(ifelse(family == "contrast", "", monitor.str)),
         link.str,
         paste0(ifelse(family == "contrast", "", family.str)),
         dev.str,

@@ -94,6 +94,8 @@ nma.run <- function(model,
       DIC.monitor <- c("dev", "r","totresdev","theta")
     } else if(model$family == "normal"){
       DIC.monitor <- c("theta", "prec", "y", "totresdev", "dev")
+    } else if(model$family == "contrast") {
+      DIC.monitor <- c("theta", "Omega", "y", "totresdev", "dev")
     }
     new.monitor <- unique(c(make.monitor, DIC.monitor))
   } else if(DIC==FALSE){

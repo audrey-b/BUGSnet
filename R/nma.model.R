@@ -205,7 +205,7 @@ nma.model <- function(data,
     names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
     bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se", "t", "x")]
-  }  else if (family == "comparison" && link == "identity") { 
+  }  else if (family == "contrast" && link == "identity") { 
     names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se.diffs", "var.ref", "t", "x")]
   } else if (family == "poisson" && link == "log"){
