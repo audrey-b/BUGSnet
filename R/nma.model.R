@@ -105,6 +105,10 @@ nma.model <- function(data,
                       prior.beta = NULL,
                       covariate = NULL){
   
+  if(effects!="fixed" & effects!="random") stop("Effects must be either fixed or random.")
+  
+  if(type!="consistency" & type!="inconsistency") stop("Type must be either consistency or inconsistency.")
+  
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
@@ -134,12 +138,15 @@ nma.model <- function(data,
     scale <- "Rate Ratio"
   }
   
+  
   data1 <- data$arm.data
   
   #pull relevant fields from the data and apply naming convention
   varlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate)
   data1 <- data$arm.data[, varlist]
   names(data1) <- names(varlist)
+  
+  if(!(reference %in% data1$trt)) stop("Reference treatment is not present in the list of treatments.")
   
   #Trt mapping
   trt.key <- data1$trt %>% unique %>% sort %>% tibble(trt.ini=.) %>%
@@ -149,6 +156,14 @@ nma.model <- function(data,
   data1 %<>% mutate(trt.jags=mapvalues(trt,
                                        from=trt.key$trt.ini,
                                        to=trt.key$trt.jags) %>% as.integer)
+  
+  
+  if(!is.null(data1$sd)){ ifelse(!is.numeric(data1$sd) | data1$sd<=0, stop("sd must be numeric and greater than 0."), 1)}
+  
+  if(!is.numeric(data1$N)) stop("Sample size must be an integer greater than 0.")
+  ifelse(floor(data1$N) != data1$N | data1$N<1, stop("Sample size must be an integer greater than 0."), 1)
+  
+  if(!is.numeric(data1$r1)) stop("Outcome must be numeric.")
   
   #pre-process the covariate if specified
   if (!is.null(covariate)) {
@@ -166,10 +181,12 @@ nma.model <- function(data,
       #check that covariate has fewer than 3 levels and convert strings and factors to binary covariates
       if (length(unique(data1$covariate)) > 2)
         stop("BUGSnet does not currently support meta-regression with categorical variables that have more than two levels.")
+      if(length(unique(data1$covariate)) == 1)
+        stop("Covariate should have more than one unique value.")
       if (is.character(data1$covariate) == TRUE)
         data1$covariate <- as.factor(data1$covariate)
       data1$covariate <- as.numeric(data1$covariate != levels(data1$covariate)[1])
-    }
+    } else {stop("Invalid datatype for covariate.")}
   } else{mean.cov <- NULL}
   
   #generate BUGS data object
