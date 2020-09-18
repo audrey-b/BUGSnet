@@ -28,18 +28,16 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
                        Sigma[i,j,k] <- se.diffs[i,k+1]^2*(equals(j,k)) + var.ref[i,1]*(1-equals(j,k))
                      }
     }
-    Omega[i, 1:(na[i]-1), 1:(na[i]-1)] <- inverse(Sigma[i,,])
+    Omega[i, 1:(na[i]-1), 1:(na[i]-1)] <- inverse(Sigma[i,1:(na[i]-1), 1:(na[i]-1)])
     y[i,2:na[i]] ~ dmnorm(theta[i,2:na[i]], Omega[i, 1:(na[i]-1), 1:(na[i]-1)])"
     monitor.str <- "for(k in 1:(na[i]-1)) {
     ydiff[i,k] <- y[i,(k+1)]-theta[i,(k+1)]
-    #z[i,k] <- inprod(Omega[i,k, 1:(na[i]-1)], ydiff[i,1:(na[i]-1)])
     }"
     
   }
   
   if(family == "contrast") {
-    dev.str <- "ip1[i] <- inprod(Omega[i,,],ydiff[i,1:(na[i]-1)])
-    dev[i] <- inprod(ydiff[i,1:(na[i]-1)], ip1[i])
+    dev.str <- "dev[i] <- t(ydiff[i,1:(na[i]-1)])%*%Omega[i,1:(na[i]-1), 1:(na[i]-1)]%*%ydiff[i,1:(na[i]-1)]
     resdev[i] <- dev[i]"
     
   } else {
@@ -192,6 +190,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
   
       for(i in 1:ns){                      # LOOP THROUGH STUDIES
+        %s
+        %s
         w[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
         delta[i,1] <- 0             # treatment effect is zero for control arm
         for (k in 1:na[i]) {             # LOOP THROUGH ARMS
@@ -200,7 +200,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
           %s
           %s
         }
-        resdev[i] <- sum(dev[i,1:na[i]]) #JS
+        %s
         for (k in 2:na[i]) {             # LOOP THROUGH ARMS
           # trial-specific LOR distributions
           delta[i,k] ~ dnorm(md[i,k],taud[i,k])
@@ -222,9 +222,12 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       tau <- pow(sigma,-2)
       %s
     %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
-        monitor.str,
+        paste0(ifelse(family == "contrast", family.str, "")),
+        paste0(ifelse(family == "contrast", monitor.str, "")),
+        paste0(ifelse(family == "contrast", "", monitor.str)),
         link.str,
-        family.str,
+        paste0(ifelse(family == "contrast", "", family.str)),
+        dev.str,
         prior.mu.str,
         prior.d.str,
         prior.sigma2.str,
@@ -241,12 +244,14 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     
       for(i in 1:ns){             # LOOP THROUGH STUDIES
         delta[i,1]<-0           # treatment effect is zero in control arm
+        %s
+        %s
         for (k in 1:na[i])  {   # LOOP THROUGH ARMS
           %s
           %s
           %s
         }
-        resdev[i] <- sum(dev[i,1:na[i]])
+        %s
         for (k in 2:na[i]) {  # LOOP THROUGH ARMS
           delta[i,k] ~ dnorm(d[t[i,1], t[i,k]] , pow(sigma2,-1)) # trial-specific LOR distributions
         }
@@ -255,17 +260,22 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
       %s  
       %s
+      %s
       tau <- 1/sigma2
 
     %s
     ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
-      monitor.str,
-      link.str,
-      family.str,
-      prior.mu.str,
-      prior.d.str,
-      prior.sigma2.str,
-      paste0(ifelse(auto, "", "}")))
+                          paste0(ifelse(family == "contrast", family.str, "")),
+                          paste0(ifelse(family == "contrast", monitor.str, "")),
+                          paste0(ifelse(family == "contrast", "", monitor.str)),
+                          link.str,
+                          paste0(ifelse(family == "contrast", "", family.str)),
+                          dev.str,
+                          prior.mu.str,
+                          prior.d.str,
+                          prior.sigma2.str,
+                          prior.meta.reg,
+                          paste0(ifelse(auto, "", "}")))
     }
   }
 return(code.str)

@@ -87,9 +87,6 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   #stack all chains on top of each other
   samples = do.call(rbind, jagssamples) %>% data.frame()
   
-  #r <- samples %>% select(., starts_with("r.")) 
-  #n <- samples %>% select(., starts_with("n"))
-  #r <- nma$model$data
   dev <- samples %>% select(., starts_with("dev"))
   totresdev <- samples$totresdev %>% mean()
   pmdev <- colMeans(dev)
@@ -131,6 +128,14 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
         data.frame() %>%
         slice(rep(1:n(), each = nrow(rhat)))
       pmdev_fitted <- ((r-ytilde)*(r-ytilde)*prec)[1,]
+  } else if (nma$family == "contrast") {
+    theta <- samples %>% select(., starts_with("theta"))
+    y <- samples %>% select(., starts_with("y"))
+    Omega <- samples %>% select(., starts_with("Omega"))
+    ytilde <- colMeans(theta) # dim should be sum(na)
+    pmdev_fitted <- contrast_pmdev_fitted(y, ytilde, Omega, nma)
+    r <- y %>% select(., !ends_with(".1.")) # get rid of zeros
+    rhat <- theta %>% select(., !ends_with(".1.")) # get rid of zeros
   }
   
   
@@ -138,7 +143,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   
   DIC = sum(leverage) + totresdev
   
-  sign = sign(colMeans(r)-colMeans(rhat))
+  sign = ifelse(nma$family == "contrast", rep(1, length(pmdev)), sign(colMeans(r)-colMeans(rhat)))
   
   w = sign*sqrt(as.numeric(pmdev))
   
@@ -146,7 +151,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   eq = function(x,c){c-x^2}
   x=seq(-3, 3, 0.001)
   c1=eq(x, c=rep(1, 6001))
-  
+
   plot(w, leverage, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
         ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
   points(x, ifelse(c1 < 0, NA, c1),   lty=1, col="firebrick3",    type="l")
@@ -156,7 +161,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   if (plot.pD ==TRUE){text(2, 4.3, paste("pD=", round(pD, 2)), cex = 0.8)}
   if (plot.Dres == TRUE){text(2, 3.9, paste("Dres=", round(totresdev,2)), cex = 0.8)}
   if (plot.DIC==TRUE){text(2, 3.5, paste("DIC=", round(DIC,2)), cex = 0.8)}
-  
+
   return(list(DIC=DIC,
               leverage=leverage,
               w=w,
