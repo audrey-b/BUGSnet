@@ -13,7 +13,7 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     data.st <- select(data, trial, trt)
     data.st %<>% nest(treatments=c(trt))
     data.st %<>%
-      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
+      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% `colnames<-`(c("V1", "V2")) %>% as_tibble)) %>%
       select(-treatments) %>%
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
@@ -29,7 +29,7 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     data.st <- select(data, trial, trt) 
     data.st %<>% nest(treatments=c(trt))
     data.st %<>% 
-      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
+      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% `colnames<-`(c("V1", "V2")) %>% as_tibble)) %>%
       select(-treatments) %>% 
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
@@ -47,7 +47,7 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     data.st <- select(data, trial, trt)
     data.st %<>% nest(treatments=c(trt))
     data.st %<>%
-      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
+      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% `colnames<-`(c("V1", "V2")) %>% as_tibble)) %>%
       select(-treatments) %>%
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%

@@ -25,7 +25,7 @@
 #' @import purrr
 #' @importFrom scales pretty_breaks rescale
 #' @importFrom rlang quo
-#' @importFrom tibble tibble
+#' @import tibble 
 #' @importFrom plyr mapvalues
 #' @importFrom utils combn globalVariables data
 #' @import tidyr
