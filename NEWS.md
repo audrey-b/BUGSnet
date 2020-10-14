@@ -1,7 +1,7 @@
-- corrected the warning messages due to an update to nest in tidyverse
+- Deprecated nma.trace() in manual
 
-- updates to license
+- Special characters now matching in net.structure()
 
-- updates to citation("BUGSnet")
+- Added informative error messages in nma.model()
 
-- removed unused ... argument in net.plot to avoid specifying outcome = 
+- Removed dependencies on deprecated tidyverse functions 
