@@ -60,6 +60,10 @@ nma.run <- function(model,
                     n.chains=3,
                     inits = "DEFAULT"){
   
+  # check if there is contrast data and arm data
+  contrast <- !is.null(model$data$y_c)
+  arm <- !is.null(model$data$ns_a)
+  
   if(class(model) != "BUGSnetModel")
     stop("\'model\' must be a valid BUGSnetModel object created using the nma.model function.")
   
@@ -88,16 +92,25 @@ nma.run <- function(model,
   }else make.monitor <- unique(c(monitor, "d"))
   
   if(DIC==TRUE){
-    if (model$family == "binomial"){
-      DIC.monitor <- c("dev", "r", "n","totresdev","rhat")
-    } else if(model$family == "poisson"){
-      DIC.monitor <- c("dev", "r","totresdev","theta")
-    } else if(model$family == "normal"){
-      DIC.monitor <- c("theta", "prec", "y", "totresdev", "dev")
-    } else if(model$family == "contrast") {
-      DIC.monitor <- c("theta", "Omega", "y", "totresdev", "dev")
+    
+    if(arm) {
+      
+      if (model$family == "binomial"){
+        DIC.monitor <- c("dev_a", "r", "n","totresdev","rhat")
+      } else if(model$family == "poisson"){
+        DIC.monitor <- c("dev_a", "r","totresdev","theta_a")
+      } else if(model$family == "normal"){
+        DIC.monitor <- c("theta_a", "prec", "y", "totresdev", "dev_a")
+      } 
+      
     }
-    new.monitor <- unique(c(make.monitor, DIC.monitor))
+    
+    if (contrast) {
+      
+      DIC.monitor.c <- c("theta_c", "Omega", "y_c", "totresdev", "dev_c")
+      
+    }
+    new.monitor <- unique(c(make.monitor, DIC.monitor, DIC.monitor.c))
   } else if(DIC==FALSE){
     new.monitor <- make.monitor
   }
