@@ -27,10 +27,10 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     
     family.str.c <- "for (k in 1:(na_c[i]-1)) {
                      for (j in 1:(na_c[i]-1)) {
-                       Sigma[i,j,k] <- se.diffs[i,k+1]^2*(equals(j,k)) + var.ref[i,1]*(1-equals(j,k))
+                       Sigma1[i,j,k] <- se.diffs[i,k+1]^2*(equals(j,k)) + var.ref[i,1]*(1-equals(j,k))
                      }
     }
-    Omega[i, 1:(na_c[i]-1), 1:(na_c[i]-1)] <- inverse(Sigma[i,1:(na_c[i]-1), 1:(na_c[i]-1)])
+    Omega[i, 1:(na_c[i]-1), 1:(na_c[i]-1)] <- inverse(Sigma1[i,1:(na_c[i]-1), 1:(na_c[i]-1)])
     y_c[i,2:na_c[i]] ~ dmnorm(theta_c[i,2:na_c[i]], Omega[i, 1:(na_c[i]-1), 1:(na_c[i]-1)])"
     monitor.str.c <- "for(k in 1:(na_c[i]-1)) {
     ydiff[i,k] <- y_c[i,(k+1)]-theta_c[i,(k+1)]
@@ -44,9 +44,13 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     dev.str <- "resdev_a[i] <- sum(dev_a[i,1:na_a[i]])"
   
     # TODO figure out metaregression thing
-  # if (!is.null(meta.covariate)) {
-  #   metareg.str <- "+ (beta[t[i,k]]-beta[t[i,1]])*(x[i,k])"
-  #   } else {metareg.str <- ""}
+  if (!is.null(meta.covariate)) {
+    metareg.str <- "+ (beta[t_a[i,k]]-beta[t_a[i,1]])*(x_a[i,k])"
+    metareg.str.c <- "+ (beta[t_c[i,k]]-beta[t_c[i,1]])*(x_c[i,k])"
+  } else {
+      metareg.str <- ""
+      metareg.str.c <- ""
+  }
   
   if (effects == "fixed"){
     
@@ -66,8 +70,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     # Set up link for contrast-based reporting trials
     link.str.c <- "theta_c[i,k] <- d[t_c[i,k]] - d[t_c[i,1]]"
 
-    # TODO metareg
-      # link.str <- paste0(link.str, metareg.str)
+    # TODO test metareg
+      link.str <- paste0(link.str, metareg.str)
+      link.str.c <- paste0(link.str.c, metareg.str.c)
     
     # Fixed Effects Consistency Model
     if(!inconsistency){
@@ -129,174 +134,238 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         paste0(ifelse(auto, "", "}")))
     }
     
-    # if(inconsistency){
-    #   
-    #   if (family == "binomial" && link=="logit"){
-    #     link.str <- "logit(p[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
-    #   }  else if (family == "binomial" && link=="log"){
-    #     link.str <- "log(p[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
-    #   } else if (family == "normal" && link == "identity"){
-    #     link.str <- "theta[i,k] <- mu[i] + d[t[i,1],t[i,k]]"
-    #   } else if (family == "poisson" && link=="log"){
-    #     link.str <- "log(lambda[i,k]) <- mu[i] + d[t[i,1],t[i,k]]"
-    #   } else if (family== "binomial" && link=="cloglog"){
-    #     link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t[i,1],t[i,k]]"
-    #   } else if (family == "contrast" && link == "identity") {
-    #     link.str <- "theta[i,k] <- d[t[i,1],t[i,k]]"
-    #   }
-    #   
-    #   link.str <- paste0(link.str, metareg.str)
-    #   
-    #   code.str <- sprintf("# inconsistency model
-    # # fixed effects model
-    # 
-    # %s
-    #                       
-    #   for(i in 1:ns){             # LOOP THROUGH STUDIES
-    #     %s
-    #     %s
-    #     for (k in 1:na[i])  {   # LOOP THROUGH ARMS
-    #       %s
-    #       %s
-    #       %s
-    #       }
-    #       %s 
-    #   }
-    #     totresdev<-sum(resdev[])
-    #     for (k in 1:nt){d[k,k]<-0}  #set effects of k vs k to zero
-    #     %s
-    # 
-    #     %s  
-    # 
-    #   %s
-    #   ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
-    #      paste0(ifelse(family == "contrast", family.str, "")), # If contrast-based, the trial likelihood is multivariate
-    #      paste0(ifelse(family == "contrast", monitor.str, "")),
-    #      paste0(ifelse(family == "contrast", "", monitor.str)),
-    #     link.str,
-    #     paste0(ifelse(family == "contrast", "", family.str)),
-    #     dev.str,
-    #     prior.mu.str,
-    #     prior.d.str,
-    #     paste0(ifelse(auto, "", "}")))
-    # } 
+    if(inconsistency){
+
+      if (family == "binomial" && link=="logit"){
+        link.str <- "logit(p[i,k]) <- mu[i] + d[t_a[i,1],t_a[i,k]]"
+      }  else if (family == "binomial" && link=="log"){
+        link.str <- "log(p[i,k]) <- mu[i] + d[t_a[i,1],t_a[i,k]]"
+      } else if (family == "normal" && link == "identity"){
+        link.str <- "theta_a[i,k] <- mu[i] + d[t_a[i,1],t_a[i,k]]"
+      } else if (family == "poisson" && link=="log"){
+        link.str <- "log(lambda[i,k]) <- mu[i] + d[t_a[i,1],t_a[i,k]]"
+      } else if (family== "binomial" && link=="cloglog"){
+        link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t_a[i,1],t_a[i,k]]"
+      } 
+
+      # Set up link for contrast-based reporting trials
+      link.str.c <- "theta_c[i,k] <- d[t_c[i,1],t_c[i,k]]"
+      
+      link.str <- paste0(link.str, metareg.str)
+      link.str.c <- paste0(link.str.c, metareg.str.c)
+
+      code.str <- sprintf("# inconsistency model
+    # fixed effects model
+
+    %s
+
+      for(i in 1:ns_a){             # LOOP THROUGH STUDIES
+        
+        for (k in 1:na_a[i])  {   # LOOP THROUGH ARMS
+          %s
+          %s
+          %s
+          }
+          %s
+      }
+      
+      for(i in 1:ns_c) {
+      
+        %s
+        %s
+      
+        for(k in 1:na_c[i]) {
+        
+          %s
+        
+        }
+        
+        %s
+      
+      }
+      
+      totresdev <- sum(resdev_a[], resdev_c[])
+        for (k in 1:nt){d[k,k]<-0}  #set effects of k vs k to zero
+        %s
+
+        %s
+
+      %s
+      ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
+         monitor.str,
+         family.str,
+        link.str,
+        dev.str,
+        family.str.c,
+        monitor.str.c,
+        link.str.c,
+        dev.str.c,
+        prior.mu.str,
+        prior.d.str,
+        paste0(ifelse(auto, "", "}")))
+    }
   } 
   
-  # if (effects == "random"){
-  #   
-  #   if (family == "binomial" && link=="logit"){
-  #     link.str <- "logit(p[i,k]) <- mu[i] + delta[i,k]"
-  #   } else if (family == "binomial" && link=="log"){
-  #     link.str <- "log(p[i,k]) <- mu[i] + delta[i,k]"
-  #   } else if (family == "normal"){
-  #     link.str <- "theta[i,k] <- mu[i] + delta[i,k]"
-  #   } else if (family == "poisson" && link=="log"){
-  #     link.str <- "log(lambda[i,k]) <- mu[i] + delta[i,k]"
-  #   } else if (family == "binomial" && link=="cloglog"){
-  #     link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + delta[i,k]"
-  #   } else if (family == "contrast" && link == "identity") {
-  #     link.str <- "theta[i,k] <- delta[i,k]"
-  #   }
-  #   
-  #   link.str <- paste0(link.str, metareg.str)
-  #   
-  #   if(!inconsistency){
-  #     
-  #     code.str <- sprintf("
-  #    
-  #     # Random effects model for multi-arm trials
-  #   
-  #     %s
-  # 
-  #     for(i in 1:ns){                      # LOOP THROUGH STUDIES
-  #       %s
-  #       %s
-  #       w[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
-  #       delta[i,1] <- 0             # treatment effect is zero for control arm
-  #       for (k in 1:na[i]) {             # LOOP THROUGH ARMS
-  #         %s
-  #         # model for linear predictor
-  #         %s
-  #         %s
-  #       }
-  #       %s
-  #       for (k in 2:na[i]) {             # LOOP THROUGH ARMS
-  #         # trial-specific LOR distributions
-  #         delta[i,k] ~ dnorm(md[i,k],taud[i,k])
-  #         # mean of LOR distributions, with multi-arm trial correction
-  #         md[i,k] <-  d[t[i,k]] - d[t[i,1]] + sw[i,k]
-  #         # precision of LOR distributions (with multi-arm trial correction)
-  #         taud[i,k] <- pow(sigma2,-1) *2*(k-1)/k
-  #         # adjustment, multi-arm RCTs
-  #         w[i,k] <- (delta[i,k] - d[t[i,k]] + d[t[i,1]])
-  #         # cumulative adjustment for multi-arm trials
-  #         sw[i,k] <- sum(w[i,1:(k-1)])/(k-1)
-  #       }
-  #     }   
-  #     totresdev <- sum(resdev[])
-  #     d[1]<-0       # treatment effect is zero for reference treatment
-  #     %s
-  #     %s
-  #     %s
-  #     tau <- pow(sigma,-2)
-  #     %s
-  #   %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
-  #       paste0(ifelse(family == "contrast", family.str, "")),
-  #       paste0(ifelse(family == "contrast", monitor.str, "")),
-  #       paste0(ifelse(family == "contrast", "", monitor.str)),
-  #       link.str,
-  #       paste0(ifelse(family == "contrast", "", family.str)),
-  #       dev.str,
-  #       prior.mu.str,
-  #       prior.d.str,
-  #       prior.sigma2.str,
-  #       prior.meta.reg,
-  #       paste0(ifelse(auto, "", "}")))
-  #     
-  #   }
-  #   
-  #   if(inconsistency){
-  #     
-  #     code.str <- sprintf("# Binomial likelihood, inconsistency model
-  #     # Random effects model
-  #     %s
-  #   
-  #     for(i in 1:ns){             # LOOP THROUGH STUDIES
-  #       delta[i,1]<-0           # treatment effect is zero in control arm
-  #       %s
-  #       %s
-  #       for (k in 1:na[i])  {   # LOOP THROUGH ARMS
-  #         %s
-  #         %s
-  #         %s
-  #       }
-  #       %s
-  #       for (k in 2:na[i]) {  # LOOP THROUGH ARMS
-  #         delta[i,k] ~ dnorm(d[t[i,1], t[i,k]] , pow(sigma2,-1)) # trial-specific LOR distributions
-  #       }
-  #     }
-  #     totresdev <- sum(resdev[])
-  #     %s
-  #     %s  
-  #     %s
-  #     %s
-  #     tau <- 1/sigma2
-  # 
-  #   %s
-  #   ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
-  #                         paste0(ifelse(family == "contrast", family.str, "")),
-  #                         paste0(ifelse(family == "contrast", monitor.str, "")),
-  #                         paste0(ifelse(family == "contrast", "", monitor.str)),
-  #                         link.str,
-  #                         paste0(ifelse(family == "contrast", "", family.str)),
-  #                         dev.str,
-  #                         prior.mu.str,
-  #                         prior.d.str,
-  #                         prior.sigma2.str,
-  #                         prior.meta.reg,
-  #                         paste0(ifelse(auto, "", "}")))
-  #   }
-  # }
+  if (effects == "random"){
+
+    if (family == "binomial" && link=="logit"){
+      link.str <- "logit(p[i,k]) <- mu[i] + delta[i,k]"
+    } else if (family == "binomial" && link=="log"){
+      link.str <- "log(p[i,k]) <- mu[i] + delta[i,k]"
+    } else if (family == "normal"){
+      link.str <- "theta_a[i,k] <- mu[i] + delta[i,k]"
+    } else if (family == "poisson" && link=="log"){
+      link.str <- "log(lambda[i,k]) <- mu[i] + delta[i,k]"
+    } else if (family == "binomial" && link=="cloglog"){
+      link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + delta[i,k]"
+    }
+
+    link.str.c <- "theta_c[i,k] <- delta[i+ns_a,k]"
+    
+    link.str <- paste0(link.str, metareg.str)
+    link.str.c <- paste0(link.str.c, metareg.str.c)
+
+    if(!inconsistency){
+
+      code.str <- sprintf("
+
+      # Random effects model for multi-arm trials
+
+      %s
+
+      for(i in 1:ns_a){                      # LOOP THROUGH STUDIES
+        
+        w[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
+        delta[i,1] <- 0             # treatment effect is zero for control arm
+        for (k in 1:na_a[i]) {             # LOOP THROUGH ARMS
+          %s
+          # model for linear predictor
+          %s
+          %s
+        }
+        %s
+        for (k in 2:na_a[i]) {             # LOOP THROUGH ARMS
+          # trial-specific LOR distributions
+          delta[i,k] ~ dnorm(md[i,k],taud[i,k])
+          # mean of LOR distributions, with multi-arm trial correction
+          md[i,k] <-  d[t_a[i,k]] - d[t_a[i,1]] + sw[i,k]
+          # precision of LOR distributions (with multi-arm trial correction)
+          taud[i,k] <- pow(sigma2,-1) *2*(k-1)/k
+          # adjustment, multi-arm RCTs
+          w[i,k] <- (delta[i,k] - d[t_a[i,k]] + d[t_a[i,1]])
+          # cumulative adjustment for multi-arm trials
+          sw[i,k] <- sum(w[i,1:(k-1)])/(k-1)
+        }
+      }
+      
+      for(i in 1:ns_c){                      # LOOP THROUGH STUDIES
+        %s
+        %s
+        w_c[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
+        delta[i+ns_a, 1] <- 0
+        for (k in 1:na_c[i]) {             # LOOP THROUGH ARMS
+          
+          # model for linear predictor
+          %s
+          
+        }
+        %s
+        for (k in 2:na_c[i]) {             # LOOP THROUGH ARMS
+          # trial-specific LOR distributions
+          delta[i+ns_a,k] ~ dnorm(md_c[i,k],taud_c[i,k])
+          # mean of LOR distributions, with multi-arm trial correction
+          md_c[i,k] <-  d[t_c[i,k]] - d[t_c[i,1]] + sw_c[i,k]
+          # precision of LOR distributions (with multi-arm trial correction)
+          taud_c[i,k] <- pow(sigma2,-1) *2*(k-1)/k
+          # adjustment, multi-arm RCTs
+          w_c[i,k] <- (delta[i+ns_a,k] - d[t_c[i,k]] + d[t_c[i,1]])
+          # cumulative adjustment for multi-arm trials
+          sw_c[i,k] <- sum(w_c[i,1:(k-1)])/(k-1)
+        }
+      }
+      
+      totresdev <- sum(resdev_a[], resdev_c[])
+      d[1]<-0       # treatment effect is zero for reference treatment
+      %s
+      %s
+      %s
+      tau <- pow(sigma,-2)
+      %s
+    %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
+        monitor.str,
+        family.str,
+        link.str,
+        dev.str,
+        family.str.c,
+        monitor.str.c,
+        link.str.c,
+        dev.str.c,
+        prior.mu.str,
+        prior.d.str,
+        prior.sigma2.str,
+        prior.meta.reg,
+        paste0(ifelse(auto, "", "}")))
+
+    }
+
+    if(inconsistency){
+
+      code.str <- sprintf("# Binomial likelihood, inconsistency model
+      # Random effects model
+      %s
+
+      for(i in 1:ns_a){             # LOOP THROUGH STUDIES
+        delta[i,1]<-0           # treatment effect is zero in control arm
+
+        for (k in 1:na_a[i])  {   # LOOP THROUGH ARMS
+          %s
+          %s
+          %s
+        }
+        %s
+        for (k in 2:na_a[i]) {  # LOOP THROUGH ARMS
+          delta[i,k] ~ dnorm(d[t_a[i,1], t_a[i,k]] , pow(sigma2,-1)) # trial-specific LOR distributions
+        }
+      }
+      
+      for(i in 1:ns_c){             # LOOP THROUGH STUDIES
+        delta[i+ns_a,1]<-0           # treatment effect is zero in control arm
+        %s
+        %s
+        for (k in 1:na_c[i])  {   # LOOP THROUGH ARMS
+          %s
+          
+        }
+        %s
+        for (k in 2:na_c[i]) {  # LOOP THROUGH ARMS
+          delta[i+ns_a,k] ~ dnorm(d[t_c[i,1], t_c[i,k]] , pow(sigma2,-1)) # trial-specific LOR distributions
+        }
+      }
+      
+      totresdev <- sum(resdev_a[], resdev_c[])
+      %s
+      %s
+      %s
+      %s
+      tau <- 1/sigma2
+
+    %s
+    ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
+                          family.str,
+                          monitor.str,
+                          link.str,
+                          dev.str,
+                          family.str.c,
+                          monitor.str.c,
+                          link.str.c,
+                          dev.str.c,
+                          prior.mu.str,
+                          prior.d.str,
+                          prior.sigma2.str,
+                          prior.meta.reg,
+                          paste0(ifelse(auto, "", "}")))
+    }
+  }
 return(code.str)
 
 }

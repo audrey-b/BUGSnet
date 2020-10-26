@@ -334,6 +334,7 @@ nma.model <- function(data_arm = NULL,
       prior.d.str <- sprintf("for (c in 1:(nt-1)) {
                            for (k in (c+1):nt)  {
                            d[c,k] ~ dnorm(0,(%s*15)^(-2))
+                           d[k,c] <- d[c,k]
                            }
     }", max.delta)
     }
@@ -347,6 +348,7 @@ nma.model <- function(data_arm = NULL,
       prior.d.str <- sprintf("for (c in 1:(nt-1)) {
                            for (k in (c+1):nt)  {
                            d[c,k] ~ %s
+                           d[k,c] <- d[c,k]
                            }
   }", prior.d)
     }
