@@ -489,9 +489,18 @@ nma.model <- function(data_arm = NULL,
                         contrast = contrast) %>%
     paste0(add.to.model)
   
-  if(!arm) { # if only contrast data is supplied, we need to specify that ns_a = 0
+  if(!arm) {
     
-    bugsdata <- c(bugsdata3, nt=nt, ns_a = 0)
+    if(effects == "random") { # for random effects, need to specify ns_a=0
+      
+      bugsdata <- c(bugsdata3, nt=nt, ns_a = 0)
+      
+    } else {
+      
+      bugsdata <- c(bugsdata3, nt=nt) # fixed effects - don't specify ns_a=0 to avoid warning about unused variable from JAGS
+      
+    }
+    
     
   } else { # otherwise (just arm or both arm and contrast)
     
