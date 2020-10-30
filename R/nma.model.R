@@ -124,6 +124,7 @@ nma.model <- function(data,
   if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   
+  # Specify a scale name (odds ratio, risk ratio, etc)
   if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
     scale <- "Odds Ratio"
   }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
@@ -320,7 +321,7 @@ nma.model <- function(data,
   #remove covariate from bugsdata2 if unused
   if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
-  model <- makeBUGScode(family=family,
+  model <- makeBUGScode(family=family,       ################ BUG seems to be here!!!!!!!!!!! Outputs have confirmed
                         link=link,
                         effects=effects,
                         inconsistency=(type=="inconsistency"),
