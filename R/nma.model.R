@@ -256,7 +256,7 @@ nma.model <- function(data_arm = NULL,
   } else{mean.cov <- NULL}
   
   # determine number of treatments in dataset
-  nt <- length(unique(c(data_arm$treatments$trt, data_contrast$treatments$trt)))
+  nt <- length(unique(trts))
   
   #generate BUGS data object for arm-based data
   
@@ -384,7 +384,7 @@ nma.model <- function(data_arm = NULL,
   ###Priors###
   ############
 
-  max.delta <- paste0(nma.prior(data_arm, data_contrast, outcome=outcome, differences = differences, scale=scale, N=N, sd=sd, time = time))
+  max.delta <- paste0(nma.prior(data_arm, data_contrast, outcome=outcome, differences = differences, scale=scale, N=N, sd=sd.a, time = time))
   
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){
@@ -439,7 +439,7 @@ nma.model <- function(data_arm = NULL,
 
   ###hot fix for binomial family with log link.
   if(scale == "Risk Ratio"){
-    prior.mu.str <-  "for(i in 1:ns){
+    prior.mu.str <-  "for(i in 1:ns_a){
      mu[i] <- log(p.base[i])           #priors for all trial baselines
      p.base[i] ~ dunif(0, 1)
    }"
