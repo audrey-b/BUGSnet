@@ -65,7 +65,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       link.str <- "log(lambda[i,k]) <- mu[i] + d[t_a[i,k]] - d[t_a[i,1]] # model for linear predictor"
     } else if (family== "binomial" && link=="cloglog"){
       link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t_a[i,k]] - d[t_a[i,1]] # model for linear predictor"
-    } 
+    } else {
+      link.str <- ""
+    }
     
     # Set up link for contrast-based reporting trials
     link.str.c <- "theta_c[i,k] <- d[t_c[i,k]] - d[t_c[i,1]]"
@@ -154,6 +156,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         link.str <- "log(lambda[i,k]) <- mu[i] + d[t_a[i,1],t_a[i,k]]"
       } else if (family== "binomial" && link=="cloglog"){
         link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t_a[i,1],t_a[i,k]]"
+      }  else {
+        link.str <- ""
       }
 
       # Set up link for contrast-based reporting trials
@@ -211,6 +215,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         %s
 
         %s
+        %s
 
       %s
       ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
@@ -218,6 +223,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
          model.str.c,
         ifelse(arm, prior.mu.str, ""), # only include mu priors if arm-based trials included
         prior.d.str,
+        prior.meta.reg,
         paste0(ifelse(auto, "", "}")))
     }
   } 
@@ -234,6 +240,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       link.str <- "log(lambda[i,k]) <- mu[i] + delta[i,k]"
     } else if (family == "binomial" && link=="cloglog"){
       link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + delta[i,k]"
+    }  else {
+      link.str <- ""
     }
 
     link.str.c <- "theta_c[i,k] <- delta[i+ns_a,k]"

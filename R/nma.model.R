@@ -5,17 +5,17 @@
 #' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable for arm-based studies.
 #' @param differences A string indicating the name of the differences for contrast-based studies
-#' @param N A string indicating the name of the variable containing the number of participants in each arm
+#' @param N A string indicating the name of the variable containing the number of participants in each arm for arm-based data
 #' @param sd.a A string (only required for continuous outcomes with arm-level data) indicating variable name
 #' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
-#' @param se.c A string (only required for contrast-based continuous data) indicating the variable name of the 
+#' @param se.c A string (only required for contrast-based data) indicating the variable name of the 
 #' standard errors of the differences.
 #' @param var.ref A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
-#' @param family A string indicating the family of the distribution of the outcome. Options are:
+#' @param family A string indicating the family of the distribution of the outcome for arm-based trials. Options are:
 #' "binomial", "normal", "poisson" 
-#' @param link The link function for the nma model. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).
+#' @param link The link function for the nma model for arm-based models. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).
 #' @param time A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable 
 #'   indicating person-time followup (e.g person years) or study followup time.
 #' @param effects A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".
@@ -24,7 +24,7 @@
 #' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param prior.beta Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.
 #' @param covariate Optional string indicating the name of the variable in your data set that you would like to
-#' adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
+#' adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 #' it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
 #' with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
@@ -106,8 +106,8 @@ nma.model <- function(data_arm = NULL,
                       reference,
                       type="consistency",
                       time=NULL,
-                      family,
-                      link,
+                      family = NULL,
+                      link = NULL,
                       effects,
                       prior.mu = "DEFAULT",
                       prior.d = "DEFAULT",
@@ -167,6 +167,8 @@ nma.model <- function(data_arm = NULL,
     message("Family and link will be ignored for contrast-based models.")
     }
     # set scale and outcome to dummies
+    family <- ""
+    link <- ""
     scale <- "contrast"
     outcome <- "none"
     
@@ -183,6 +185,12 @@ nma.model <- function(data_arm = NULL,
   cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.ref = var.ref, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
   cdata <- data_contrast$arm.data[, cvarlist]
   names(cdata) <- names(cvarlist)
+  
+  if(!is.null(covariate)) {
+    
+    stop("Meta-regression is not supported with when contrast-based studies are included.")
+    
+  }
   } else {cdata <-data.frame()}
   
   trts <- c(adata$trt, cdata$trt)

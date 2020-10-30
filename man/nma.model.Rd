@@ -16,8 +16,8 @@ nma.model(
   reference,
   type = "consistency",
   time = NULL,
-  family,
-  link,
+  family = NULL,
+  link = NULL,
   effects,
   prior.mu = "DEFAULT",
   prior.d = "DEFAULT",
@@ -36,7 +36,7 @@ nma.model(
 
 \item{differences}{A string indicating the name of the differences for contrast-based studies}
 
-\item{N}{A string indicating the name of the variable containing the number of participants in each arm}
+\item{N}{A string indicating the name of the variable containing the number of participants in each arm for arm-based data}
 
 \item{sd.a}{A string (only required for continuous outcomes with arm-level data) indicating variable name
 of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.}
@@ -52,10 +52,10 @@ will be built.}
 \item{time}{A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable
 indicating person-time followup (e.g person years) or study followup time.}
 
-\item{family}{A string indicating the family of the distribution of the outcome. Options are:
+\item{family}{A string indicating the family of the distribution of the outcome for arm-based trials. Options are:
 "binomial", "normal", "poisson"}
 
-\item{link}{The link function for the nma model. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).}
+\item{link}{The link function for the nma model for arm-based models. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).}
 
 \item{effects}{A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".}
 
@@ -68,13 +68,13 @@ indicating person-time followup (e.g person years) or study followup time.}
 \item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.}
 
 \item{covariate}{Optional string indicating the name of the variable in your data set that you would like to
-adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
+adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
 with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)}
 
 \item{auto}{Flag indicating if the model code that is built should be compatible with the automatic \code{nma.run()} function which uses the \code{simanalyse} package}
 
-\item{se.c}{A string (only required for contrast-based continuous data) indicating the variable name of the
+\item{se.c}{A string (only required for contrast-based data) indicating the variable name of the
 standard errors of the differences.}
 }
 \value{
