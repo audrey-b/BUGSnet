@@ -82,45 +82,54 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   
   jagssamples <- nma$samples
   
+  # check what type of data included
+  contrast <- ("y_c[1,1]" %in%colnames(jagssamples[[1]]))
+  arm <- ("dev_a[1,1]" %in%colnames(jagssamples[[1]]))
+  
   if (class(jagssamples) != "mcmc.list"){stop('Object jagssamples must be of class mcmc.list')}
   
   #stack all chains on top of each other
   samples = do.call(rbind, jagssamples) %>% data.frame()
   
-  dev <- samples %>% select(., starts_with("dev"))
+  
+  dev_a <- samples %>% select(., starts_with("dev_a"))
+  dev_c <- samples %>% select(., starts_with("dev_c"))
   totresdev <- samples$totresdev %>% mean()
-  pmdev <- colMeans(dev)
-
-  if (nma$family == "binomial") {
-    rhat <- samples %>% select(., starts_with("rhat"))
-    r <- samples %>% select(., starts_with("r."))
-    n <- samples %>% select(., starts_with("n"))
-    rtilde <- rhat %>%
-      colMeans() %>%
-      matrix(nrow=1, ncol=ncol(rhat)) %>%
-      data.frame() %>%
-      slice(rep(1:n(), each = nrow(rhat)))
+  pmdev_a <- colMeans(dev_a)
+  pmdev_c <- colMeans(dev_c)
+  
+  if(arm) {
     
-    pmdev_fitted <- 2*(r*log(r/rtilde)+(n-r)*log((n-r)/(n-rtilde)))[1,]
-    
-    if(TRUE %in% c(nma$model$data$r==0)) warning("Leverage cannot be calculated for zero cells.")
-    
-  } else if (nma$family == "poisson"){
-    rhat <- samples %>% select(., starts_with("theta"))
-    r <- samples %>% select(., starts_with("r.")) 
-    n <- samples %>% select(., starts_with("n"))
-    thetatilde <- rhat %>%
-      colMeans() %>%
-      matrix(nrow=1, ncol=ncol(rhat)) %>%
-      data.frame() %>%
-      slice(rep(1:n(), each = nrow(rhat)))
-    pmdev_fitted <- 2*((thetatilde-r) + r*log(r/thetatilde))[1,]
-    
-    if(TRUE %in% c(nma$model$data$r==0)) warning("Leverage cannot be calculated for zero cells.")
-    
-  } else if (nma$family == "normal"){
+    if (nma$family == "binomial") {
+      rhat <- samples %>% select(., starts_with("rhat"))
+      r <- samples %>% select(., starts_with("r."))
+      n <- samples %>% select(., starts_with("n"))
+      rtilde <- rhat %>%
+        colMeans() %>%
+        matrix(nrow=1, ncol=ncol(rhat)) %>%
+        data.frame() %>%
+        slice(rep(1:n(), each = nrow(rhat)))
+      
+      pmdev_fitted <- 2*(r*log(r/rtilde)+(n-r)*log((n-r)/(n-rtilde)))[1,]
+      
+      if(TRUE %in% c(nma$model$data$r==0)) warning("Leverage cannot be calculated for zero cells.")
+      
+    } else if (nma$family == "poisson"){
       rhat <- samples %>% select(., starts_with("theta"))
-      r <- samples %>% select(., starts_with("y"))
+      r <- samples %>% select(., starts_with("r.")) 
+      n <- samples %>% select(., starts_with("n"))
+      thetatilde <- rhat %>%
+        colMeans() %>%
+        matrix(nrow=1, ncol=ncol(rhat)) %>%
+        data.frame() %>%
+        slice(rep(1:n(), each = nrow(rhat)))
+      pmdev_fitted <- 2*((thetatilde-r) + r*log(r/thetatilde))[1,]
+      
+      if(TRUE %in% c(nma$model$data$r==0)) warning("Leverage cannot be calculated for zero cells.")
+      
+    } else if (nma$family == "normal"){
+      rhat <- samples %>% select(., starts_with("theta_a"))
+      r <- samples %>% select(., starts_with("y."))
       prec <- samples %>% select(., starts_with("prec"))
       ytilde <- rhat %>%
         colMeans() %>%
@@ -128,32 +137,77 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
         data.frame() %>%
         slice(rep(1:n(), each = nrow(rhat)))
       pmdev_fitted <- ((r-ytilde)*(r-ytilde)*prec)[1,]
-  } else if (nma$family == "contrast") {
-    theta <- samples %>% select(., starts_with("theta"))
-    y <- samples %>% select(., starts_with("y"))
+    } 
+    
+    # calculate leverage for arms
+    leverage_a = pmdev_a-pmdev_fitted
+    colnames(leverage_a) <- colnames(pmdev_a)
+    sign = sign(colMeans(r)-colMeans(rhat))
+    w_a = sign*sqrt(as.numeric(pmdev_a))
+  } else {
+    leverage_a <- 0
+    w_a <- NULL
+  }
+
+  if (contrast) {
+    theta <- samples %>% select(., starts_with("theta_c"))
+    y <- samples %>% select(., starts_with("y_c"))
     Omega <- samples %>% select(., starts_with("Omega"))
     ytilde <- colMeans(theta) # dim should be sum(na)
-    pmdev_fitted <- contrast_pmdev_fitted(y, ytilde, Omega, nma)
+    pmdev_fitted_c <- contrast_pmdev_fitted(y, ytilde, Omega, nma)
     r <- y %>% select(., !ends_with(".1.")) # get rid of zeros
     rhat <- theta %>% select(., !ends_with(".1.")) # get rid of zeros
+    
+    # calculate leverage
+    leverage_c <- pmdev_c-pmdev_fitted_c
+    
+    w_c <- sqrt(as.numeric(pmdev_c))
+    
+  } else {
+    leverage_c <- 0
+    w_c <- NULL
   }
   
+  # Calculate effective parameters and DIC
+  pD = sum(leverage_a, leverage_c)
+
+  DIC = pD + totresdev
   
-  leverage = pmdev-pmdev_fitted
   
-  DIC = sum(leverage) + totresdev
   
-  sign = ifelse(nma$family == "contrast", rep(1, length(pmdev)), sign(colMeans(r)-colMeans(rhat)))
-  
-  w = sign*sqrt(as.numeric(pmdev))
-  
-  pD = sum(leverage)
   eq = function(x,c){c-x^2}
   x=seq(-3, 3, 0.001)
   c1=eq(x, c=rep(1, 6001))
+  
+  if(arm) {
+    
+    plot(w_a, leverage_a, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
+         ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
+    
+    if(contrast) {
+      
+      points(w_c, leverage_c) # add contrast points after plotting arm points
+      # return both arm and contrast leverages, w, pmdev
+      leverage <- c(as.numeric(leverage_a[1,]), leverage_c) 
+      w <- c(w_a, w_c)
+      pmdev <- c(pmdev_a, pmdev_c)
+    } else {
+      # only return arm leverage, w, pmdev
+      leverage <- leverage_a[1,]
+      w <- w_a
+      pmdev <- pmdev_a
+    }
+    
+  } else {
+    
+    plot(w_c, leverage_c, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
+         ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
+    # only return contrast leverage, w, pmdev
+    leverage <- leverage_c
+    w <- w_c
+    pmdev <- pmdev_c
+  } 
 
-  plot(w, leverage, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
-        ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
   points(x, ifelse(c1 < 0, NA, c1),   lty=1, col="firebrick3",    type="l")
   points(x, ifelse(c1 < -1, NA, c1)+1, lty=2, col="chartreuse4",   type="l")
   points(x, ifelse(c1 < -2, NA, c1)+2, lty=3, col="mediumpurple3", type="l")
@@ -161,13 +215,17 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   if (plot.pD ==TRUE){text(2, 4.3, paste("pD=", round(pD, 2)), cex = 0.8)}
   if (plot.Dres == TRUE){text(2, 3.9, paste("Dres=", round(totresdev,2)), cex = 0.8)}
   if (plot.DIC==TRUE){text(2, 3.5, paste("DIC=", round(DIC,2)), cex = 0.8)}
-
+  
+  # leverage <- c(as.numeric(leverage_a[1,]), leverage_c)
+  # w <- c(w_a, w_c)
+  # pmdev <- c(pmdev_a, pmdev_c)
+  
   return(list(DIC=DIC,
+              Dres = totresdev,
+              pD = pD,
               leverage=leverage,
               w=w,
-              pmdev=pmdev,
-              Dres = totresdev,
-              pD = pD)
+              pmdev=pmdev)
   )
 }
 

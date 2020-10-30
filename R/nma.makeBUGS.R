@@ -1,6 +1,6 @@
 #add warning messages for incompatible link and family
 
-makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg, auto){
+makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg, auto, arm, contrast){
   
   # Set up family and monitor strings for arm-based reporting trials
   
@@ -74,20 +74,14 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       link.str <- paste0(link.str, metareg.str)
       link.str.c <- paste0(link.str.c, metareg.str.c)
     
+      
+      
     # Fixed Effects Consistency Model
     if(!inconsistency){
       
-      code.str <- sprintf("#This code is adapted from
-    #Dias, S., Welton, N.J., Sutton, A.J. & Ades, A.E. NICE DSU Technical Support Document 2: 
-    #A Generalised Linear Modelling Framework for Pairwise and Network Meta-Analysis of Randomised
-    #Controlled Trials. 2011; last updated September 2016 (available from http:
-    #//www.nicedsu.org.uk).
-                          
-    # fixed effects model for multi-arm trials
-                          
-    %s
-    
-      for(i in 1:ns_a){                      # LOOP THROUGH ARM-BASED STUDIES
+      if(arm) {
+        
+        model.str.a <- sprintf("for(i in 1:ns_a){                      # LOOP THROUGH ARM-BASED STUDIES
       
         for (k in 1:na_a[i]) {             # LOOP THROUGH ARMS
           %s
@@ -95,9 +89,13 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
           %s
         }
       %s
-      }
+      }", family.str, monitor.str, link.str, dev.str)
+        
+      } else {model.str.a <- "resdev_a <- 0"}
       
-      for(i in 1:ns_c) {                  # LOOP THROUGH CONTRAST-BASED STUDIES
+      if(contrast) {
+        
+        model.str.c <- sprintf("for(i in 1:ns_c) {                  # LOOP THROUGH CONTRAST-BASED STUDIES
       
         %s
         %s
@@ -110,9 +108,25 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         
         %s
       
-      }
+      }", family.str.c, monitor.str.c, link.str.c, dev.str.c)
+        
+      } else { model.str.c <- "resdev_c <- 0"}
       
-      totresdev <- sum(resdev_a[], resdev_c[])
+      code.str <- sprintf("#This code is adapted from
+    #Dias, S., Welton, N.J., Sutton, A.J. & Ades, A.E. NICE DSU Technical Support Document 2: 
+    #A Generalised Linear Modelling Framework for Pairwise and Network Meta-Analysis of Randomised
+    #Controlled Trials. 2011; last updated September 2016 (available from http:
+    #//www.nicedsu.org.uk).
+                          
+    # fixed effects model for multi-arm trials
+                          
+    %s
+    # arm-based trials
+      %s 
+    # contrast - based trials
+      %s
+      
+      totresdev <- sum(resdev_a[]) + sum(resdev_c[])
       d[1]<-0
       %s
                           
@@ -120,15 +134,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       
       %s               
     %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
-        family.str,
-        monitor.str,
-        link.str,
-        dev.str,
-        family.str.c,
-        monitor.str.c,
-        link.str.c,
-        dev.str.c,
-        prior.mu.str,
+        model.str.a,
+        model.str.c,
+        ifelse(arm, prior.mu.str, ""), # only include priors for mu if arm-based data is included
         prior.d.str,
         prior.meta.reg,
         paste0(ifelse(auto, "", "}")))
@@ -146,44 +154,58 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         link.str <- "log(lambda[i,k]) <- mu[i] + d[t_a[i,1],t_a[i,k]]"
       } else if (family== "binomial" && link=="cloglog"){
         link.str <- "cloglog(p[i,k]) <- log(time[i,k]) + mu[i] + d[t_a[i,1],t_a[i,k]]"
-      } 
+      }
 
       # Set up link for contrast-based reporting trials
       link.str.c <- "theta_c[i,k] <- d[t_c[i,1],t_c[i,k]]"
-      
+
       link.str <- paste0(link.str, metareg.str)
       link.str.c <- paste0(link.str.c, metareg.str.c)
-
-      code.str <- sprintf("# inconsistency model
-    # fixed effects model
-
-    %s
-
-      for(i in 1:ns_a){             # LOOP THROUGH STUDIES
+      
+      if(arm) {
         
+        model.str.a <- sprintf("for(i in 1:ns_a){             # LOOP THROUGH STUDIES
+
         for (k in 1:na_a[i])  {   # LOOP THROUGH ARMS
           %s
           %s
           %s
           }
           %s
-      }
+      }", family.str, monitor.str, link.str, dev.str)
+        
+      } else {model.str.a <- "resdev_a <- 0"}
       
-      for(i in 1:ns_c) {
-      
+      if(contrast) {
+        
+        model.str.c <- sprintf("for(i in 1:ns_c) {
+
         %s
         %s
-      
+
         for(k in 1:na_c[i]) {
-        
+
           %s
-        
+
         }
-        
+
         %s
+
+      }",family.str.c, monitor.str.c, link.str.c, dev.str.c)
+        
+      } else { model.str.c <- "resdev_c <- 0"}
+
+      code.str <- sprintf("# inconsistency model
+    # fixed effects model
+
+    %s
+    
+    # arm-based trials
+      %s
       
-      }
-      
+    # contrast-based trials
+      %s
+
       totresdev <- sum(resdev_a[], resdev_c[])
         for (k in 1:nt){d[k,k]<-0}  #set effects of k vs k to zero
         %s
@@ -192,15 +214,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
 
       %s
       ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
-         monitor.str,
-         family.str,
-        link.str,
-        dev.str,
-        family.str.c,
-        monitor.str.c,
-        link.str.c,
-        dev.str.c,
-        prior.mu.str,
+         model.str.a,
+         model.str.c,
+        ifelse(arm, prior.mu.str, ""), # only include mu priors if arm-based trials included
         prior.d.str,
         paste0(ifelse(auto, "", "}")))
     }
@@ -221,20 +237,16 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     }
 
     link.str.c <- "theta_c[i,k] <- delta[i+ns_a,k]"
-    
+
     link.str <- paste0(link.str, metareg.str)
     link.str.c <- paste0(link.str.c, metareg.str.c)
 
     if(!inconsistency){
-
-      code.str <- sprintf("
-
-      # Random effects model for multi-arm trials
-
-      %s
-
-      for(i in 1:ns_a){                      # LOOP THROUGH STUDIES
+      
+      if(arm) {
         
+        model.str.a <- sprintf("for(i in 1:ns_a){                      # LOOP THROUGH STUDIES
+
         w[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
         delta[i,1] <- 0             # treatment effect is zero for control arm
         for (k in 1:na_a[i]) {             # LOOP THROUGH ARMS
@@ -256,18 +268,23 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
           # cumulative adjustment for multi-arm trials
           sw[i,k] <- sum(w[i,1:(k-1)])/(k-1)
         }
-      }
+      }", monitor.str,family.str, link.str, dev.str)
+        
+      } else {model.str.a <- "resdev_a <- 0"}
       
-      for(i in 1:ns_c){                      # LOOP THROUGH STUDIES
+      if(contrast) {
+        
+        model.str.c <- sprintf("
+        for(i in 1:ns_c){                      # LOOP THROUGH STUDIES
         %s
         %s
         w_c[i,1] <- 0    # adjustment for multi-arm trials is zero for control arm
         delta[i+ns_a, 1] <- 0
         for (k in 1:na_c[i]) {             # LOOP THROUGH ARMS
-          
+
           # model for linear predictor
           %s
-          
+
         }
         %s
         for (k in 2:na_c[i]) {             # LOOP THROUGH ARMS
@@ -282,8 +299,21 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
           # cumulative adjustment for multi-arm trials
           sw_c[i,k] <- sum(w_c[i,1:(k-1)])/(k-1)
         }
-      }
-      
+      }", family.str.c, monitor.str.c, link.str.c, dev.str.c)
+        
+      } else {model.str.c <- "resdev_c <-0"}
+
+      code.str <- sprintf("
+
+      # Random effects model for multi-arm trials
+
+      %s
+      # arm-based trials
+        %s
+        
+      # contrast-based trials
+        %s
+
       totresdev <- sum(resdev_a[], resdev_c[])
       d[1]<-0       # treatment effect is zero for reference treatment
       %s
@@ -292,15 +322,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       tau <- pow(sigma,-2)
       %s
     %s", paste0(ifelse(auto, "", "model{                               # *** PROGRAM STARTS")),
-        monitor.str,
-        family.str,
-        link.str,
-        dev.str,
-        family.str.c,
-        monitor.str.c,
-        link.str.c,
-        dev.str.c,
-        prior.mu.str,
+        model.str.a,
+        model.str.c,
+        ifelse(arm, prior.mu.str, ""), # only include mu prior if arm-based studies
         prior.d.str,
         prior.sigma2.str,
         prior.meta.reg,
@@ -309,12 +333,10 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     }
 
     if(inconsistency){
-
-      code.str <- sprintf("# Binomial likelihood, inconsistency model
-      # Random effects model
-      %s
-
-      for(i in 1:ns_a){             # LOOP THROUGH STUDIES
+      
+      if(arm) {
+        
+        model.str.a <- sprintf(" for(i in 1:ns_a){             # LOOP THROUGH STUDIES
         delta[i,1]<-0           # treatment effect is zero in control arm
 
         for (k in 1:na_a[i])  {   # LOOP THROUGH ARMS
@@ -326,22 +348,38 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         for (k in 2:na_a[i]) {  # LOOP THROUGH ARMS
           delta[i,k] ~ dnorm(d[t_a[i,1], t_a[i,k]] , pow(sigma2,-1)) # trial-specific LOR distributions
         }
-      }
+      }", family.str, monitor.str, link.str, dev.str)
+        
+      } else {model.str.a <- "resdev_a <- 0"}
       
-      for(i in 1:ns_c){             # LOOP THROUGH STUDIES
+      if (contrast) {
+        
+        model.str.c <- sprintf("for(i in 1:ns_c){             # LOOP THROUGH STUDIES
         delta[i+ns_a,1]<-0           # treatment effect is zero in control arm
         %s
         %s
         for (k in 1:na_c[i])  {   # LOOP THROUGH ARMS
           %s
-          
+
         }
         %s
         for (k in 2:na_c[i]) {  # LOOP THROUGH ARMS
           delta[i+ns_a,k] ~ dnorm(d[t_c[i,1], t_c[i,k]] , pow(sigma2,-1)) # trial-specific LOR distributions
         }
-      }
-      
+      }", family.str.c, monitor.str.c, link.str.c, dev.str.c)
+        
+      } else {model.str.c <- "resdev_c <- 0"}
+
+      code.str <- sprintf("# Binomial likelihood, inconsistency model
+      # Random effects model
+      %s
+
+      # arm-based trials
+        %s
+
+      # contrast-based trials
+        %s
+
       totresdev <- sum(resdev_a[], resdev_c[])
       %s
       %s
@@ -351,15 +389,9 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
 
     %s
     ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
-                          family.str,
-                          monitor.str,
-                          link.str,
-                          dev.str,
-                          family.str.c,
-                          monitor.str.c,
-                          link.str.c,
-                          dev.str.c,
-                          prior.mu.str,
+                          model.str.a,
+                          model.str.c,
+                          ifelse(arm, prior.mu.str, ""), # only need mu prior if arm-based trials included
                           prior.d.str,
                           prior.sigma2.str,
                           prior.meta.reg,

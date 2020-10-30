@@ -62,7 +62,7 @@ nma.run <- function(model,
   
   # check if there is contrast data and arm data
   contrast <- !is.null(model$data$y_c)
-  arm <- !is.null(model$data$ns_a)
+  arm <- !is.null(model$data$na_a)
   
   if(class(model) != "BUGSnetModel")
     stop("\'model\' must be a valid BUGSnetModel object created using the nma.model function.")
@@ -103,13 +103,13 @@ nma.run <- function(model,
         DIC.monitor <- c("theta_a", "prec", "y", "totresdev", "dev_a")
       } 
       
-    }
+    } else {DIC.monitor <- NULL}
     
     if (contrast) {
       
       DIC.monitor.c <- c("theta_c", "Omega", "y_c", "totresdev", "dev_c")
       
-    }
+    } else {DIC.monitor.c <- NULL}
     new.monitor <- unique(c(make.monitor, DIC.monitor, DIC.monitor.c))
   } else if(DIC==FALSE){
     new.monitor <- make.monitor

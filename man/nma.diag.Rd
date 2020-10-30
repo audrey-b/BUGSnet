@@ -4,9 +4,19 @@
 \alias{nma.diag}
 \title{Trace plots and convergence diagnostics for MCMC chains}
 \usage{
-nma.diag(nma, trace = TRUE, gelman.rubin = TRUE, geweke = TRUE,
-  params = "all", thin = 1, ncol = 1, nrow = 3,
-  plot_prompt = TRUE, geweke_frac1 = 0.1, geweke_frac2 = 0.5)
+nma.diag(
+  nma,
+  trace = TRUE,
+  gelman.rubin = TRUE,
+  geweke = TRUE,
+  params = "all",
+  thin = 1,
+  ncol = 1,
+  nrow = 3,
+  plot_prompt = TRUE,
+  geweke_frac1 = 0.1,
+  geweke_frac2 = 0.5
+)
 }
 \arguments{
 \item{nma}{A \code{BUGSnetRun} object produced by \code{nma.run()}}

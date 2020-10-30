@@ -4,20 +4,44 @@
 \alias{nma.model}
 \title{Create Bugs Model}
 \usage{
-nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
-  time = NULL, family, link, effects, prior.mu = "DEFAULT",
-  prior.d = "DEFAULT", prior.sigma = "DEFAULT", prior.beta = NULL,
-  covariate = NULL)
+nma.model(
+  data_arm = NULL,
+  data_contrast = NULL,
+  outcome,
+  differences,
+  N = NULL,
+  sd.a = NULL,
+  se.diffs = NULL,
+  var.ref = NULL,
+  reference,
+  type = "consistency",
+  time = NULL,
+  family,
+  link,
+  effects,
+  prior.mu = "DEFAULT",
+  prior.d = "DEFAULT",
+  prior.sigma = "DEFAULT",
+  prior.beta = NULL,
+  covariate = NULL,
+  auto = FALSE
+)
 }
 \arguments{
-\item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}}
+\item{data_arm}{A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}}
 
-\item{outcome}{A string indicating the name of your outcome variable.}
+\item{data_contrast}{A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}}
+
+\item{outcome}{A string indicating the name of your outcome variable for arm-based studies.}
+
+\item{differences}{A string indicating the name of the differences for contrast-based studies}
 
 \item{N}{A string indicating the name of the variable containing the number of participants in each arm}
 
-\item{sd}{A string (only required for continuous outcomes) indicating variable name
+\item{sd.a}{A string (only required for continuous outcomes with arm-level data) indicating variable name
 of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.}
+
+\item{var.ref}{A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 a placebo or control drug of some kind.}
@@ -29,7 +53,7 @@ will be built.}
 indicating person-time followup (e.g person years) or study followup time.}
 
 \item{family}{A string indicating the family of the distribution of the outcome. Options are:
-"binomial", "normal", "poisson".}
+"binomial", "normal", "poisson"}
 
 \item{link}{The link function for the nma model. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).}
 
@@ -46,7 +70,12 @@ indicating person-time followup (e.g person years) or study followup time.}
 \item{covariate}{Optional string indicating the name of the variable in your data set that you would like to
 adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
-with fewer than 3 levels are supported.}
+with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)}
+
+\item{auto}{Flag indicating if the model code that is built should be compatible with the automatic \code{nma.run()} function which uses the \code{simanalyse} package}
+
+\item{se.c}{A string (only required for contrast-based continuous data) indicating the variable name of the
+standard errors of the differences.}
 }
 \value{
 \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:

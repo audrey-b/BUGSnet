@@ -6,8 +6,8 @@
 
 contrast_pmdev_fitted <- function(y, ytilde, Omega, nma) {
   
-  ns <- nma$model$data$ns
-  na <- nma$model$data$na
+  ns <- nma$model$data$ns_c
+  na <- nma$model$data$na_c
   pmdev_fitted <- numeric(ns)
   
   for (i in 1:ns) {
@@ -24,13 +24,13 @@ contrast_pmdev_fitted <- function(y, ytilde, Omega, nma) {
     # construct y_i
     yi <- matrix(nrow = na[i]-1, ncol = 1)
     for(j in 2:na[i]) {
-      yi[j-1] <- y[1, names(y) == paste0("y.", i, ".", j, ".")]
+      yi[j-1] <- y[1, names(y) == paste0("y_c.", i, ".", j, ".")]
     }
     
     # construct ytilde_i
     ytildei <- yi
     for(j in 2:na[i]) {
-      ytildei[j-1] <- ytilde[names(ytilde) == paste0("theta.", i, ".", j, ".")]
+      ytildei[j-1] <- ytilde[names(ytilde) == paste0("theta_c.", i, ".", j, ".")]
     }
     
     #calculate pmdev_fittedi

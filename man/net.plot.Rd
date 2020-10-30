@@ -4,12 +4,24 @@
 \alias{net.plot}
 \title{Network Plot}
 \usage{
-net.plot(data, node.scale = 5, edge.scale = 2, flag = NULL,
-  study.counts = FALSE, label.offset1 = 0, label.offset2 = 1,
-  graph.scale = TRUE, node.lab.cex = 1, edge.lab.cex = 1,
-  node.colour = "#f69c54", edge.colour = "grey",
-  edge.lab.colour = "blue", flag.edge.colour = "lightpink",
-  layout = "layout_in_circle", layout.params = NULL)
+net.plot(
+  data,
+  node.scale = 5,
+  edge.scale = 2,
+  flag = NULL,
+  study.counts = FALSE,
+  label.offset1 = 0,
+  label.offset2 = 1,
+  graph.scale = TRUE,
+  node.lab.cex = 1,
+  edge.lab.cex = 1,
+  node.colour = "#f69c54",
+  edge.colour = "grey",
+  edge.lab.colour = "blue",
+  flag.edge.colour = "lightpink",
+  layout = "layout_in_circle",
+  layout.params = NULL
+)
 }
 \arguments{
 \item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}.}

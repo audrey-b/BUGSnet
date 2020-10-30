@@ -137,35 +137,40 @@ nma.model <- function(data_arm = NULL,
       stop("prior.beta must be either UNRELATED, EQUAL, or EXCHANGEABLE")
     }
   }
-  if(family=="normal" & is.null(sd.a)) stop("sd.a must be specified for continuous outcomes")
-  if(family=="normal" & !(link%in% c("identity"))) stop("This combination of family and link is currently not supported in BUGSnet.")
-  if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
-  if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   
-  if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "Odds Ratio"
-  }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "Risk Ratio"
-  }else if(link== "identity" & family =="normal"){
-    scale <- "Mean Difference"
-  }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
-    if(is.null(time)) stop("time must be specified when using a binomial family with the cloglog link")
-    scale <- "Hazard Ratio"
-  }else if(link == "log" & family =="poisson"){
-    if(is.null(time)) stop("time must be specified when using a poisson family with the log link")
-    scale <- "Rate Ratio"
-  } 
-  
-  # else if (link == "identity" & family == "contrast") {
-  #   if(is.null(se.diffs)) stop("se.diffs must be specified when using contrast-based continuous data")
-  #   if(max(data$n.arms$n.arms) > 2 & is.null(var.ref)) stop("var.ref must be specified when using contrast-based data in networks with multi-arm trials")
-  #   if(max(data$n.arms$n.arms) == 2) {
-  #     var.ref <- "var.ref"
-  #     data$arm.data$var.ref <- 0 # add dummy column for var.ref
-  #   }
-  #   scale <- "Treatment Differences"
-  # }
-  # 
+  if(arm) {
+    
+    if(family=="normal" & is.null(sd.a)) stop("sd.a must be specified for continuous outcomes")
+    if(family=="normal" & !(link%in% c("identity"))) stop("This combination of family and link is currently not supported in BUGSnet.")
+    if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
+    if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
+    
+    # Set up measurement scale
+    
+    if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
+      scale <- "Odds Ratio"
+    }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
+      scale <- "Risk Ratio"
+    }else if(link== "identity" & family =="normal"){
+      scale <- "Mean Difference"
+    }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
+      if(is.null(time)) stop("time must be specified when using a binomial family with the cloglog link")
+      scale <- "Hazard Ratio"
+    }else if(link == "log" & family =="poisson"){
+      if(is.null(time)) stop("time must be specified when using a poisson family with the log link")
+      scale <- "Rate Ratio"
+    } 
+    
+  } else if(contrast && !arm) {
+    
+    if(!(is.null(family) && is.null(link))){
+    message("Family and link will be ignored for contrast-based models.")
+    }
+    # set scale and outcome to dummies
+    scale <- "contrast"
+    outcome <- "none"
+    
+  }
   
   #pull relevant fields from the data and apply naming convention
   if(arm) {
@@ -181,6 +186,12 @@ nma.model <- function(data_arm = NULL,
   } else {cdata <-data.frame()}
   
   trts <- c(adata$trt, cdata$trt)
+  
+  if(!(reference %in% trts)) {
+    
+    stop("Reference is not present in network - pick a reference treatment that is in the network.")
+    
+  }
 
   #Trt mapping
   trt.key <- trts %>% unique %>% sort %>% tibble(trt.ini=.) %>%
@@ -254,19 +265,19 @@ nma.model <- function(data_arm = NULL,
     names(bugsdata2)[names(bugsdata2) == "covariate"] <- "x_a"
     if (family == "binomial" && link %in% c("log","logit")){
       names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
-      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t_a", "x")]
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a")]
     } else if (family == "normal" && link=="identity"){
       names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
       bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
-      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se", "t_a", "x")]
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "y", "se", "t_a", "x_a")]
     } else if (family == "poisson" && link == "log"){
       names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
       names(bugsdata2)[names(bugsdata2) == "timevar"] <- "E"
-      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "E", "t_a", "x")]
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "E", "t_a", "x_a")]
     } else if (family == "binomial" && link == "cloglog"){
       names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
       names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
-      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t_a", "x", "time")]
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a", "time")]
     }
     
     bugsdata2$ns_a <- data_arm$studies %>% nrow()
@@ -295,8 +306,63 @@ nma.model <- function(data_arm = NULL,
     bugsdata3$ns_c <- data_contrast$studies %>% nrow()
     bugsdata3$na_c <- data_contrast$n.arms %>% select(n.arms) %>% t() %>% as.vector
     
+    # Data checking for contrast input
+    
+    # check that first arm difference is NA, change them to 0
+    if(!all(is.na(bugsdata3$y_c[,1]))) {
+      
+      stop("The response in the first arm of each contrast-based trial should be NA.")
+      
+    } else {
+      #convert to 0's
+      bugsdata3$y_c[,1] <- 0
+    }
+    
+    # check that first arm se is NA
+    if(!all(is.na(bugsdata3$se.diffs[,1]))) {
+      
+      stop("The standard errors in the first arm of each contrast-based trial should be NA.")
+      
+    }
+    
+    # check if there are multi-arm trials, and if there are, check that var.ref is specified for the first arm
+    if(!all(bugsdata3$na_c == 2)) {
+      
+      message("there are multi-arm trials")
+      if(is.null(var.ref)) { 
+        stop("var.ref must be specified if there are multi-arm contrast-based trials.") 
+      } else {
+        
+        #check that only the first arm is specified
+        if(!all(is.na(c(bugsdata3$var.ref[,-c(1)])))) {
+          
+          stop("Only the observed variances for the control arms for contrast-based trials should be included, all other arms should be NA")
+          
+        }  else if(!all(is.numeric(bugsdata3$var.ref[bugsdata3$na_c >2,1]))) { # make sure the control arms for all multi arm trials is numeric
+          
+          stop("Control arm observed variances for multi-arm conrtast-based trials must be numeric")
+          
+          bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2)
+          
+        }
+        
+      }
+    } else {
+      
+      if(!is.null(var.ref)) { # if var.ref is specified when there are no multi-armed trials, set them all to 0 and print warning
+        
+        message("Control arm variances are not used for contrast-based trials with two arms.")
+        
+      }
+      
+      bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2) # set to zero to avoid compilation error
+      
+    }
+    
   } else {bugsdata3 <- data.frame()}
 
+  
+  
   # make legend for treatment names and numbering in jags program
   
   add.to.model <- trt.key %>%
@@ -311,7 +377,7 @@ nma.model <- function(data_arm = NULL,
   ############
 
   max.delta <- paste0(nma.prior(data_arm, data_contrast, outcome=outcome, differences = differences, scale=scale, N=N, sd=sd, time = time))
-
+  
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){
     prior.mu.str <- sprintf("for(i in 1:ns_a){
@@ -398,6 +464,8 @@ nma.model <- function(data_arm = NULL,
   }else prior.meta.reg <- ""
   # #remove covariate from bugsdata2 if unused
   # if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
+  
+  # make the code for the model
 
   model <- makeBUGScode(family=family,
                         link=link,
@@ -408,10 +476,21 @@ nma.model <- function(data_arm = NULL,
                         prior.sigma2.str,
                         covariate,
                         prior.meta.reg,
-                        auto = auto) %>% # might need to add ifelse to get change this pipe
+                        auto = auto,
+                        arm = arm,
+                        contrast = contrast) %>%
     paste0(add.to.model)
   
-  bugsdata <- c(bugsdata2,bugsdata3, nt = nt)
+  if(!arm) { # if only contrast data is supplied, we need to specify that ns_a = 0
+    
+    bugsdata <- c(bugsdata3, nt=nt, ns_a = 0)
+    
+  } else { # otherwise (just arm or both arm and contrast)
+    
+    bugsdata <- c(bugsdata2,bugsdata3, nt = nt)
+    
+  }
+  
 
   bmodel <- structure(list(bugs=model,
                            data=bugsdata,

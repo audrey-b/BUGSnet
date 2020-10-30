@@ -98,11 +98,12 @@ nma.prior <- function(data_arm, data_contrast, outcome, differences, scale, N, s
     
     deltas2 <- data_contrast$arm.data %>% select(differences) # the differences are already reported, we just need to select the outcome column
     deltas2 <- pull(deltas2, differences)
-    
+    deltas2 <- deltas2[!is.na(deltas2)] # drop NAs
   } else {deltas2 <- 0}
   
   # return maximum delta for priors
   return(max(abs(c(deltas,deltas2))))
+
 }
 
 

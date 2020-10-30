@@ -33,7 +33,7 @@
 #' @importFrom magrittr %>% %<>%
 #' @import dplyr
 #' @importFrom Rdpack reprompt 
-#' @importFrom stringr str_detect
+#' @importFrom stringr str_detect str_sub str_extract
 #' @importFrom grDevices colorRampPalette dev.off
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
 #' @import mcmcr

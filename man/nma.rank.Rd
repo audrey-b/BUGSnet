@@ -4,8 +4,14 @@
 \alias{nma.rank}
 \title{Table and Plots of Treatment Rankings}
 \usage{
-nma.rank(nma, largerbetter, sucra.lwd = 1, sucra.palette = "Set1",
-  ranko.palette = "Blues", cov.value = NULL)
+nma.rank(
+  nma,
+  largerbetter,
+  sucra.lwd = 1,
+  sucra.palette = "Set1",
+  ranko.palette = "Blues",
+  cov.value = NULL
+)
 }
 \arguments{
 \item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}

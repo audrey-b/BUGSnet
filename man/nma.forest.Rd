@@ -4,8 +4,16 @@
 \alias{nma.forest}
 \title{Forest plot}
 \usage{
-nma.forest(nma, comparator, central.tdcy = "median", order = NULL,
-  log.scale = FALSE, lwd = 1, x.trans = NULL, cov.value = NULL)
+nma.forest(
+  nma,
+  comparator,
+  central.tdcy = "median",
+  order = NULL,
+  log.scale = FALSE,
+  lwd = 1,
+  x.trans = NULL,
+  cov.value = NULL
+)
 }
 \arguments{
 \item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}
@@ -28,7 +36,7 @@ nma.forest(nma, comparator, central.tdcy = "median", order = NULL,
 \code{forestplot} - A forest plot.
 }
 \description{
-Produces a forest plot of point estimates and 95% credible intervals obtained with the quantile method.
+Produces a forest plot of point estimates and 95\% credible intervals obtained with the quantile method.
 }
 \examples{
 data(diabetes.sim)
