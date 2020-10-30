@@ -4,7 +4,9 @@
 \name{diabetes}
 \alias{diabetes}
 \title{Diabetes data}
-\format{A dataset.}
+\format{
+A dataset.
+}
 \usage{
 data(diabetes)
 }

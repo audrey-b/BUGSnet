@@ -4,10 +4,24 @@
 \alias{nma.model}
 \title{Create Bugs Model}
 \usage{
-nma.model(data, outcome, N, sd = NULL, reference, type = "consistency",
-  time = NULL, family, link, effects, prior.mu = "DEFAULT",
-  prior.d = "DEFAULT", prior.sigma = "DEFAULT", prior.beta = NULL,
-  covariate = NULL)
+nma.model(
+  data,
+  outcome,
+  N,
+  sd = NULL,
+  reference,
+  type = "consistency",
+  time = NULL,
+  family,
+  link,
+  effects,
+  prior.mu = "DEFAULT",
+  prior.d = "DEFAULT",
+  prior.sigma = "DEFAULT",
+  prior.beta = NULL,
+  covariate = NULL,
+  auto = FALSE
+)
 }
 \arguments{
 \item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}}
@@ -47,6 +61,8 @@ indicating person-time followup (e.g person years) or study followup time.}
 adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
 with fewer than 3 levels are supported.}
+
+\item{auto}{Flag indicating if the model code that is built should be compatible with the automatic \code{nma.run()} function which uses the \code{simanalyse} package}
 }
 \value{
 \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:

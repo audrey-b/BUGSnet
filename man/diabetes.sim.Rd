@@ -4,7 +4,9 @@
 \name{diabetes.sim}
 \alias{diabetes.sim}
 \title{Diabetes data with simulated age covariate}
-\format{A dataset.}
+\format{
+A dataset.
+}
 \usage{
 data(diabetes.sim)
 }

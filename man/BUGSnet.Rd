@@ -3,7 +3,6 @@
 \docType{package}
 \name{BUGSnet}
 \alias{BUGSnet}
-\alias{BUGSnet-package}
 \title{BUGSnet: Bayesian network meta-analysis in compliance with best practice guidelines.}
 \description{
 BUGSnet (Bayesian inference Using Gibbs Sampling to conduct NETwork meta-analysis) is a feature-rich R package to conduct Bayesian network meta-analyses in compliance with best practice and reporting guidelines.

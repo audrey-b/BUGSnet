@@ -4,9 +4,17 @@
 \alias{nma.league}
 \title{League Table and Heat Plot}
 \usage{
-nma.league(nma, central.tdcy = "median", log.scale = FALSE,
-  order = NULL, low.colour = "darkgoldenrod1", mid.colour = "white",
-  high.colour = "cornflowerblue", cov.value = NULL, digits = 2)
+nma.league(
+  nma,
+  central.tdcy = "median",
+  log.scale = FALSE,
+  order = NULL,
+  low.colour = "darkgoldenrod1",
+  mid.colour = "white",
+  high.colour = "cornflowerblue",
+  cov.value = NULL,
+  digits = 2
+)
 }
 \arguments{
 \item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}
@@ -36,7 +44,7 @@ nma.league(nma, central.tdcy = "median", log.scale = FALSE,
 }
 \description{
 Produces a league table and a league heat plot that contain point estimates of relative effectiveness
-for all possible pairs of treatments point estimates along with 95% credible intervals obtained with the quantile method.
+for all possible pairs of treatments point estimates along with 95\% credible intervals obtained with the quantile method.
 }
 \examples{
 data(diabetes.sim)

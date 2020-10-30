@@ -4,8 +4,19 @@
 \alias{pma}
 \title{Pairwise meta-analysis}
 \usage{
-pma(data, name.trt1, name.trt2, outcome, N, sd = NULL, time = NULL,
-  type.outcome, method = "MH", method.tau = "DL", sm)
+pma(
+  data,
+  name.trt1,
+  name.trt2,
+  outcome,
+  N,
+  sd = NULL,
+  time = NULL,
+  type.outcome,
+  method = "MH",
+  method.tau = "DL",
+  sm
+)
 }
 \arguments{
 \item{data}{A BUGSnetData object produced by \code{data.prep()}}
