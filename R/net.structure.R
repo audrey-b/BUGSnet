@@ -44,8 +44,8 @@ network.structure <- function(data.nma) {
     mutate(trt = as.character(trt),
            from = as.character(from),
            to = as.character(to)) %>%
-    mutate(flag = ifelse(stringr::str_detect(trt, from) &
-                           stringr::str_detect(trt, to), 1, 0)) %>%
+    mutate(flag = ifelse(stringr::str_detect(trt, stringr::coll(from)) &
+                           stringr::str_detect(trt, stringr::coll(to)), 1, 0)) %>%
     filter(flag == 1) %>%
     select(-c(mtchvar, flag, trt)) %>%
     nest(data=c(!! trial)) %>%
