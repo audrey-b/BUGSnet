@@ -1,16 +1,21 @@
 #' Create Bugs Model
 #' @description Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
-#' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
-#' @param outcome A string indicating the name of your outcome variable.
-#' @param N A string indicating the name of the variable containing the number of participants in each arm
-#' @param sd A string (only required for continuous outcomes) indicating variable name
+#' @param data_arm A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}
+#' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}
+#' @param outcome A string indicating the name of your outcome variable for arm-based studies.
+#' @param differences A string indicating the name of the differences for contrast-based studies
+#' @param N A string indicating the name of the variable containing the number of participants in each arm for arm-based data
+#' @param sd.a A string (only required for continuous outcomes with arm-level data) indicating variable name
 #' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
+#' @param se.c A string (only required for contrast-based data) indicating the variable name of the 
+#' standard errors of the differences.
+#' @param var.ref A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
-#' @param family A string indicating the family of the distribution of the outcome. Options are:
-#' "binomial", "normal", "poisson".
-#' @param link The link function for the nma model. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).
+#' @param family A string indicating the family of the distribution of the outcome for arm-based trials. Options are:
+#' "binomial", "normal", "poisson" 
+#' @param link The link function for the nma model for arm-based models. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).
 #' @param time A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable 
 #'   indicating person-time followup (e.g person years) or study followup time.
 #' @param effects A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".
@@ -19,9 +24,9 @@
 #' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param prior.beta Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.
 #' @param covariate Optional string indicating the name of the variable in your data set that you would like to
-#' adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
+#' adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 #' it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
-#' with fewer than 3 levels are supported.
+#' with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
 #' @param auto Flag indicating if the model code that is built should be compatible with the automatic \code{nma.run()} function which uses the \code{simanalyse} package
@@ -90,15 +95,19 @@
 #' @seealso \code{\link{data.prep}}, \code{\link{nma.run}}
 
 
-nma.model <- function(data,
-                      outcome, 
-                      N,
-                      sd=NULL,
+nma.model <- function(data_arm = NULL,
+                      data_contrast = NULL,
+                      outcome,
+                      differences,
+                      N = NULL,
+                      sd.a=NULL,
+                      se.diffs = NULL,
+                      var.ref = NULL,
                       reference,
                       type="consistency",
                       time=NULL,
-                      family,
-                      link,
+                      family = NULL,
+                      link = NULL,
                       effects,
                       prior.mu = "DEFAULT",
                       prior.d = "DEFAULT",
@@ -107,8 +116,19 @@ nma.model <- function(data,
                       covariate = NULL,
                       auto = FALSE){
   
-  if(class(data) != "BUGSnetData")
-    stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
+  if(is.null(data_arm) && is.null(data_contrast)) {
+    
+    stop("At least one of data_arm or data_contrast must be specified")
+    
+  }
+  
+  arm<-contrast<-TRUE
+  
+  if(is.null(data_arm)) {arm <- F}
+  if(is.null(data_contrast)) {contrast <- F}
+  
+  if((!is.null(data_arm) && class(data_arm) != "BUGSnetData") || (!is.null(data_contrast) && class(data_contrast) != "BUGSnetData"))
+    stop("\'data_arm\' and \'data_contrast\' must be a valid BUGSnetData object created using the data.prep function.")
   
   if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
   if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
@@ -117,169 +137,317 @@ nma.model <- function(data,
       stop("prior.beta must be either UNRELATED, EQUAL, or EXCHANGEABLE")
     }
   }
-  if(family=="normal" & is.null(sd)) stop("sd must be specified for continuous outcomes")
-  if(family=="normal" & link!="identity") stop("This combination of family and link is currently not supported in BUGSnet.")
-  if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
-  if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   
-  if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "Odds Ratio"
-  }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
-    scale <- "Risk Ratio"
-  }else if(link== "identity" & family =="normal"){
-    scale <- "Mean Difference"
-  }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
-    if(is.null(time)) stop("time must be specified when using a binomial family with the cloglog link")
-    scale <- "Hazard Ratio"
-  }else if(link == "log" & family =="poisson"){
-    if(is.null(time)) stop("time must be specified when using a poisson family with the log link")
-    scale <- "Rate Ratio"
+  if(arm) {
+    
+    if(family=="normal" & is.null(sd.a)) stop("sd.a must be specified for continuous outcomes")
+    if(family=="normal" & !(link%in% c("identity"))) stop("This combination of family and link is currently not supported in BUGSnet.")
+    if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
+    if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
+    
+    # Set up measurement scale
+    
+    if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
+      scale <- "Odds Ratio"
+    }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
+      scale <- "Risk Ratio"
+    }else if(link== "identity" & family =="normal"){
+      scale <- "Mean Difference"
+    }else if(link =="cloglog" & family %in% c("binomial", "binary", "bin", "binom")){
+      if(is.null(time)) stop("time must be specified when using a binomial family with the cloglog link")
+      scale <- "Hazard Ratio"
+    }else if(link == "log" & family =="poisson"){
+      if(is.null(time)) stop("time must be specified when using a poisson family with the log link")
+      scale <- "Rate Ratio"
+    } 
+    
+  } else if(contrast && !arm) {
+    
+    if(!(is.null(family) && is.null(link))){
+    message("Family and link will be ignored for contrast-based models.")
+    }
+    # set scale and outcome to dummies
+    family <- ""
+    link <- ""
+    scale <- "contrast"
+    outcome <- "none"
+    
   }
   
-  data1 <- data$arm.data
-  
   #pull relevant fields from the data and apply naming convention
-  varlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate)
-  data1 <- data$arm.data[, varlist]
-  names(data1) <- names(varlist)
+  if(arm) {
+  avarlist <- c(trt = data_arm$varname.t, trial = data_arm$varname.s, r1 = outcome, N = N, sd.a = sd.a, timevar = time, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
+  adata <- data_arm$arm.data[, avarlist]
+  names(adata) <- names(avarlist)
+  } else { adata <- data.frame()}
   
+  if(contrast) {
+  cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.ref = var.ref, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
+  cdata <- data_contrast$arm.data[, cvarlist]
+  names(cdata) <- names(cvarlist)
+  
+  if(!is.null(covariate)) {
+    
+    stop("Meta-regression is not supported with when contrast-based studies are included.")
+    
+  }
+  } else {cdata <-data.frame()}
+  
+  trts <- c(adata$trt, cdata$trt)
+  
+  if(!(reference %in% trts)) {
+    
+    stop("Reference is not present in network - pick a reference treatment that is in the network.")
+    
+  }
+
   #Trt mapping
-  trt.key <- data1$trt %>% unique %>% sort %>% tibble(trt.ini=.) %>%
+  trt.key <- trts %>% unique %>% sort %>% tibble(trt.ini=.) %>%
     filter(trt.ini!=reference) %>% add_row(trt.ini=reference, .before=1) %>%
     mutate(trt.jags = 1:dim(.)[1])
-  #add treatment mapping to data
-  data1 %<>% mutate(trt.jags=mapvalues(trt,
-                                       from=trt.key$trt.ini,
-                                       to=trt.key$trt.jags) %>% as.integer)
   
+  if(arm) {
+    
+    atrt <- trt.key[trt.key$trt.ini %in% adata$trt,]
+    #add treatment mapping to data
+    adata %<>% mutate(trt.jags=mapvalues(trt,
+                                         from=atrt$trt.ini,
+                                         to=atrt$trt.jags) %>% as.integer)
+  }
+  
+  if (contrast) {
+    
+    ctrt <- trt.key[trt.key$trt.ini %in% cdata$trt,]
+    #add treatment mapping to data
+    cdata %<>% mutate(trt.jags=mapvalues(trt,
+                                         from=ctrt$trt.ini,
+                                         to=ctrt$trt.jags) %>% as.integer)
+    
+  }
+
+  # TODO test of this implementation works for arm and cb data
   #pre-process the covariate if specified
   if (!is.null(covariate)) {
-    if (is.numeric(data1$covariate) == TRUE) {
+    covariates <- c(adata$covariate, cdata$covariate)
+    if (is.numeric(covariates) == TRUE){
       #issue warning if covariate appears to be categorical
-      if (length(unique(data1$covariate)) < 5) {
-        warning(paste0("The specified covariate is being treated as continuous. Ignore this warning if this is the intended behaviour. ", 
+      if (length(unique(covariates)) < 5) {
+        warning(paste0("The specified covariate is being treated as continuous. Ignore this warning if this is the intended behaviour. ",
                        "For the covariate to be treated as a categorical variable it must be converted to a factor in the data that is ",
                        "passed to data.prep."))
       }
+      
       #de-mean covariate if continuous
-      mean.cov <- mean(data1$covariate, na.rm=TRUE)
-      data1$covariate <- data1$covariate-mean.cov
-    } else if (is.factor(data1$covariate) == TRUE || is.character(data1$covariate) == TRUE) {
+      mean.cov <- mean(covariates, na.rm=TRUE)
+      adata$covariate <- adata$covariate-mean.cov
+      cdata$covariate <- cdata$covariate-mean.cov
+    } else if (is.factor(covariates) == TRUE || is.character(covariates) == TRUE) {
       #check that covariate has fewer than 3 levels and convert strings and factors to binary covariates
-      if (length(unique(data1$covariate)) > 2)
+      if (length(unique(covariates)) > 2)
         stop("BUGSnet does not currently support meta-regression with categorical variables that have more than two levels.")
-      if (is.character(data1$covariate) == TRUE)
-        data1$covariate <- as.factor(data1$covariate)
-      data1$covariate <- as.numeric(data1$covariate != levels(data1$covariate)[1])
+      if (is.character(covariates) == TRUE) {
+        adata$covariate <- factor(adata$covariate, levels = unique(covariates))
+        cdata$covariate <- factor(cdata$covariate, levels = unique(covariates))
+        adata$covariate <- as.numeric(adata$covariate != levels(adata$covariate)[1])
+        cdata$covariate <- as.numeric(cdata$covariate != levels(adata$covariate)[1])
+      }
     }
+
   } else{mean.cov <- NULL}
   
-  #generate BUGS data object
-  bugstemp <- data1 %>% arrange(trial, trt.jags) %>% group_by(trial) %>% mutate(arm = row_number()) %>% 
-    ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
-  bugsdata2 <- list()
-  for (v in unique(bugstemp$variable))
-    bugsdata2[[v]] <- as.matrix(bugstemp %>% filter(variable == v) %>% select(-trial, -variable))
+  # determine number of treatments in dataset
+  nt <- length(unique(trts))
   
-  #modify BUGS object for the various family/link combinations
-  names(bugsdata2)[names(bugsdata2) == "trt.jags"] <- "t"
-  names(bugsdata2)[names(bugsdata2) == "N"] <- "n"
-  names(bugsdata2)[names(bugsdata2) == "covariate"] <- "x"
-  if (family == "binomial" && link %in% c("log","logit")){
-    names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
-    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x")]
-  } else if (family == "normal" && link=="identity"){
-    names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
-    bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
-    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "y", "se", "t", "x")]
-  } else if (family == "poisson" && link == "log"){
-    names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
-    names(bugsdata2)[names(bugsdata2) == "timevar"] <- "E"
-    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "E", "t", "x")]
-  } else if (family == "binomial" && link == "cloglog"){
-    names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
-    names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
-    bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x", "time")]
-  }
+  #generate BUGS data object for arm-based data
+  
+  if(arm) {
     
-  #add number of treatments, studies, and arms to BUGS data object
-  bugsdata2$nt <- data$treatments %>% nrow()
-  bugsdata2$ns <- data$studies %>% nrow()
-  bugsdata2$na <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
+    bugstemp <- adata %>% arrange(trial, trt.jags) %>% group_by(trial) %>% mutate(arm = row_number()) %>%
+      ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
+    bugsdata2 <- list()
+    for (v in unique(bugstemp$variable))
+      bugsdata2[[v]] <- as.matrix(bugstemp %>% filter(variable == v) %>% select(-trial, -variable))
+    #modify BUGS arm object for the various family/link combinations
+    names(bugsdata2)[names(bugsdata2) == "trt.jags"] <- "t_a"
+    names(bugsdata2)[names(bugsdata2) == "N"] <- "n"
+    names(bugsdata2)[names(bugsdata2) == "covariate"] <- "x_a"
+    if (family == "binomial" && link %in% c("log","logit")){
+      names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a")]
+    } else if (family == "normal" && link=="identity"){
+      names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
+      bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "y", "se", "t_a", "x_a")]
+    } else if (family == "poisson" && link == "log"){
+      names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
+      names(bugsdata2)[names(bugsdata2) == "timevar"] <- "E"
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "E", "t_a", "x_a")]
+    } else if (family == "binomial" && link == "cloglog"){
+      names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
+      names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
+      bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a", "time")]
+    }
+    
+    bugsdata2$ns_a <- data_arm$studies %>% nrow()
+    bugsdata2$na_a <- data_arm$n.arms %>% select(n.arms) %>% t() %>% as.vector
+    
+  } else (bugsdata2 <- data.frame())
   
-  add.to.model <- trt.key %>% 
-    transmute(Treatments = paste0("# ", trt.jags, ": ", trt.ini, "\n")) %>% 
-    t() %>% 
-    paste0() %>% 
+  # generate BUGS data object for cb data
+  
+  if(contrast) {
+    
+    bugstemp2 <- cdata %>% arrange(trial) %>% group_by(trial) %>% mutate(arm = row_number()) %>% # changed
+      ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
+    bugsdata3 <- list()
+    
+    for (v in unique(bugstemp2$variable))
+      bugsdata3[[v]] <- as.matrix(bugstemp2 %>% filter(variable == v) %>% select(-trial, -variable))
+    
+    # modify BUGS contrast object and add treatment index, response, covariate, studies, number of arms to data
+    
+    names(bugsdata3)[names(bugsdata3) == "trt.jags"] <- "t_c"  
+    names(bugsdata3)[names(bugsdata3) == "r1"] <- "y_c"
+    names(bugsdata3)[names(bugsdata3) == "covariate"] <- "x_c"
+    bugsdata3 <- bugsdata3[names(bugsdata3) %in% c("ns_c", "nt", "na_c", "y_c", "se.diffs", "var.ref", "t_c", "x_c")]
+    
+    bugsdata3$ns_c <- data_contrast$studies %>% nrow()
+    bugsdata3$na_c <- data_contrast$n.arms %>% select(n.arms) %>% t() %>% as.vector
+    
+    # Data checking for contrast input
+    
+    # check that first arm difference is NA, change them to 0
+    if(!all(is.na(bugsdata3$y_c[,1]))) {
+      
+      stop("The response in the first arm of each contrast-based trial should be NA.")
+      
+    } else {
+      #convert to 0's
+      bugsdata3$y_c[,1] <- 0
+    }
+    
+    # check that first arm se is NA
+    if(!all(is.na(bugsdata3$se.diffs[,1]))) {
+      
+      stop("The standard errors in the first arm of each contrast-based trial should be NA.")
+      
+    }
+    
+    # check if there are multi-arm trials, and if there are, check that var.ref is specified for the first arm
+    if(!all(bugsdata3$na_c == 2)) {
+      
+      message("there are multi-arm trials")
+      if(is.null(var.ref)) { 
+        stop("var.ref must be specified if there are multi-arm contrast-based trials.") 
+      } else {
+        
+        #check that only the first arm is specified
+        if(!all(is.na(c(bugsdata3$var.ref[,-c(1)])))) {
+          
+          stop("Only the observed variances for the control arms for contrast-based trials should be included, all other arms should be NA")
+          
+        }  else if(!all(is.numeric(bugsdata3$var.ref[bugsdata3$na_c >2,1]))) { # make sure the control arms for all multi arm trials is numeric
+          
+          stop("Control arm observed variances for multi-arm conrtast-based trials must be numeric")
+          
+          bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2)
+          
+        }
+        
+      }
+    } else {
+      
+      if(!is.null(var.ref)) { # if var.ref is specified when there are no multi-armed trials, set them all to 0 and print warning
+        
+        message("Control arm variances are not used for contrast-based trials with two arms.")
+        
+      }
+      
+      bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2) # set to zero to avoid compilation error
+      
+    }
+    
+  } else {bugsdata3 <- data.frame()}
+
+  
+  
+  # make legend for treatment names and numbering in jags program
+  
+  add.to.model <- trt.key %>%
+    transmute(Treatments = paste0("# ", trt.jags, ": ", trt.ini, "\n")) %>%
+    t() %>%
+    paste0() %>%
     paste(collapse="") %>%
     paste0("\n\n# Treatment key\n",.)
-  
+
   ############
   ###Priors###
   ############
-  
-  max.delta <- paste0(nma.prior(data, outcome=outcome, scale=scale, N=N, sd=sd, time = time))
+
+  max.delta <- paste0(nma.prior(data_arm, data_contrast, outcome=outcome, differences = differences, scale=scale, N=N, sd=sd.a, time = time))
   
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){
-    prior.mu.str <- sprintf("for(i in 1:ns){
+    prior.mu.str <- sprintf("for(i in 1:ns_a){
                                mu[i] ~ dnorm(0,(%s*15)^(-2))
                                }", max.delta)
-  } else {
-    prior.mu.str <- sprintf("for(i in 1:ns){
+   } else {
+    prior.mu.str <- sprintf("for(i in 1:ns_a){
                                mu[i] ~ %s
   }", prior.mu)
   }
-  
+
   # RELATIVE EFFECTS PRIOR
   if (prior.d =="DEFAULT"){
     if(type=="consistency"){
       prior.d.str <- sprintf("for(k in 2:nt){
                              d[k] ~ dnorm(0,(%s*15)^(-2))
     }", max.delta)
-      
+
     } else if(type=="inconsistency"){
       prior.d.str <- sprintf("for (c in 1:(nt-1)) {
-                           for (k in (c+1):nt)  { 
+                           for (k in (c+1):nt)  {
                            d[c,k] ~ dnorm(0,(%s*15)^(-2))
-                           } 
+                           d[k,c] <- d[c,k]
+                           }
     }", max.delta)
     }
   } else {
     if(type=="consistency"){
       prior.d.str <- sprintf("for(k in 2:nt){
-                             d[k] ~ %s)
+                             d[k] ~ %s
     }", prior.d)
-      
+
     }else if(type=="inconsistency"){
       prior.d.str <- sprintf("for (c in 1:(nt-1)) {
-                           for (k in (c+1):nt)  { 
+                           for (k in (c+1):nt)  {
                            d[c,k] ~ %s
-                           } 
+                           d[k,c] <- d[c,k]
+                           }
   }", prior.d)
-    } 
+    }
   }
-  
+
   # RANDOM EFFECTS VARIANCE PRIOR
   if (prior.sigma == "DEFAULT"){
     prior.sigma2.str <-  sprintf("sigma ~ dunif(0,%s)
                                  sigma2 <- sigma^2", max.delta)
   } else {
     prior.sigma2.str <-  sprintf("sigma ~ %s
-                                 sigma2 <- sigma^2", prior.sigma)  
+                                 sigma2 <- sigma^2", prior.sigma)
   }
-  
+
   ###hot fix for binomial family with log link.
   if(scale == "Risk Ratio"){
-    prior.mu.str <-  "for(i in 1:ns){
+    prior.mu.str <-  "for(i in 1:ns_a){
      mu[i] <- log(p.base[i])           #priors for all trial baselines
      p.base[i] ~ dunif(0, 1)
    }"
   }
-  
+
   #meta regression string
   if (!is.null(covariate)){
-    
+
     if (prior.beta=="UNRELATED"){
       prior.meta.reg <- sprintf("beta[1]<-0
     for (k in 2:nt){
@@ -302,9 +470,11 @@ nma.model <- function(data,
       prior.meta.reg <- prior.beta
     }
   }else prior.meta.reg <- ""
-  #remove covariate from bugsdata2 if unused
-  if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
+  # #remove covariate from bugsdata2 if unused
+  # if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
+  # make the code for the model
+
   model <- makeBUGScode(family=family,
                         link=link,
                         effects=effects,
@@ -314,14 +484,36 @@ nma.model <- function(data,
                         prior.sigma2.str,
                         covariate,
                         prior.meta.reg,
-                        auto = auto) %>% # might need to add ifelse to get change this pipe
+                        auto = auto,
+                        arm = arm,
+                        contrast = contrast) %>%
     paste0(add.to.model)
   
+  if(!arm) {
+    
+    if(effects == "random") { # for random effects, need to specify ns_a=0
+      
+      bugsdata <- c(bugsdata3, nt=nt, ns_a = 0)
+      
+    } else {
+      
+      bugsdata <- c(bugsdata3, nt=nt) # fixed effects - don't specify ns_a=0 to avoid warning about unused variable from JAGS
+      
+    }
+    
+    
+  } else { # otherwise (just arm or both arm and contrast)
+    
+    bugsdata <- c(bugsdata2,bugsdata3, nt = nt)
+    
+  }
+  
+
   bmodel <- structure(list(bugs=model,
-                           data=bugsdata2, 
-                           scale=scale, 
-                           trt.key=trt.key, 
-                           family=family, 
+                           data=bugsdata,
+                           scale=scale,
+                           trt.key=trt.key,
+                           family=family,
                            link=link,
                            type=type,
                            effects=effects,
