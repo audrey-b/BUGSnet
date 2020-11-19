@@ -29,8 +29,6 @@
 #' with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
-#' @param auto Flag indicating if the model code that is built should be compatible with the automatic \code{nma.run()} function which uses the \code{simanalyse} package
-#' 
 #' @return \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
 #' @return \code{bugs} - A long character string containing BUGS code that will be run in \code{jags}.
 #' @return \code{data} - The data used in the BUGS code.
@@ -113,8 +111,7 @@ nma.model <- function(data_arm = NULL,
                       prior.d = "DEFAULT",
                       prior.sigma = "DEFAULT",
                       prior.beta = NULL,
-                      covariate = NULL,
-                      auto = FALSE){
+                      covariate = NULL){
   
   if(is.null(data_arm) && is.null(data_contrast)) {
     
@@ -484,7 +481,7 @@ nma.model <- function(data_arm = NULL,
                         prior.sigma2.str,
                         covariate,
                         prior.meta.reg,
-                        auto = auto,
+                        auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
                         arm = arm,
                         contrast = contrast) %>%
     paste0(add.to.model)
