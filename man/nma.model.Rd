@@ -23,8 +23,7 @@ nma.model(
   prior.d = "DEFAULT",
   prior.sigma = "DEFAULT",
   prior.beta = NULL,
-  covariate = NULL,
-  auto = FALSE
+  covariate = NULL
 )
 }
 \arguments{
@@ -71,8 +70,6 @@ indicating person-time followup (e.g person years) or study followup time.}
 adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
 with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)}
-
-\item{auto}{Flag indicating if the model code that is built should be compatible with the automatic \code{nma.run()} function which uses the \code{simanalyse} package}
 
 \item{se.c}{A string (only required for contrast-based data) indicating the variable name of the
 standard errors of the differences.}
