@@ -31,7 +31,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
       select(data.nma$varname.s, data.nma$varname.t) %>% 
       count(across(data.nma$varname.s))
     
-    tmp1 <- bind_cols(tmp1, cnt) %>%
+    tmp1 <- suppressMessages(bind_cols(tmp1, cnt)) %>%
       filter(n>1)
     pairs <- tmp1[1,"data"] %>% unlist %>% sort %>% combn(2)
     for(i in 2:nrow(tmp1)){
@@ -40,7 +40,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
     
     n.pairwise.direct <- unique(pairs, MARGIN=2) %>% ncol()
     
-    edgesANDnodes <- network.structure(data.nma)
+    edgesANDnodes <- suppressMessages(network.structure(data.nma))
     edges <- edgesANDnodes[[1]]
     nodes <- edgesANDnodes[[2]]
     net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
@@ -73,12 +73,12 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
 
       n.events <- data.nma$arm.data %>% select(outcome) %>% sum 
       
-      tmp3 <- data.nma$arm.data %>% 
+      tmp3 <- suppressMessages(data.nma$arm.data %>% 
         select(data.nma$varname.s, outcome) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
         group_by(across(data.nma$varname.s)) %>%
         summarise(s=sum(event0), n.arms=sum(one)) %>%
-        mutate(no.0=(s==0), some.0=(s!=0), all.0=(s==n.arms))
+        mutate(no.0=(s==0), some.0=(s!=0), all.0=(s==n.arms)))
       
       n.studies.no.0 <- tmp3$no.0 %>% sum
       

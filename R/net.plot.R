@@ -75,7 +75,7 @@ net.plot <- function(data,
   #                     varname.t=data$varname.t, 
   #                     varname.s=data$varname.s)
   
-  edgesANDnodes <- network.structure(data)
+  edgesANDnodes <- suppressMessages(network.structure(data))
   edges <- edgesANDnodes[[1]]
   nodes <- edgesANDnodes[[2]]
   
