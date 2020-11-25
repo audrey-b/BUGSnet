@@ -111,13 +111,16 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         %s
 
         %s  
+        
+        %s
 
       }
       ", monitor.str,
         link.str,
         family.str,
         prior.mu.str,
-        prior.d.str)
+        prior.d.str,
+        prior.meta.reg)
     } 
   } 
   
@@ -208,6 +211,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s  
       %s
       tau <- 1/sigma2
+      %s
 
     }
     ",monitor.str,
@@ -215,7 +219,8 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       family.str,
       prior.mu.str,
       prior.d.str,
-      prior.sigma2.str)
+      prior.sigma2.str,
+      prior.meta.reg)
     }
   }
 return(code.str)
