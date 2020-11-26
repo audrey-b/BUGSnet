@@ -71,7 +71,7 @@ nma.run <- function(model,
       inits[[i]] <- list(.RNG.seed = seeds[i], .RNG.name = "base::Mersenne-Twister")
   }
   
-  jagsmodel <- jags.model(textConnection(model$bugs),
+  jagsmodel <- jags.model(textConnection(model$bugs),        #Create a connection so JAGS can access the variables
                           model$data,
                           n.chains=n.chains,
                           n.adapt=n.adapt,

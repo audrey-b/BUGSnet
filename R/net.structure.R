@@ -26,7 +26,7 @@ network.structure <- function(data.nma) {
   
   cnt <- data.nma$arm.data %>%
     select(data.nma$varname.s, data.nma$varname.t) %>%
-    count_(data.nma$varname.s)
+    count(across(data.nma$varname.s))
   tmp1 <- bind_cols(studytrt, cnt) %>%
     filter(n>1)
   
