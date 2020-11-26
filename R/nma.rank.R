@@ -64,6 +64,14 @@ nma.rank <- function(nma,
                      ranko.palette="Blues",
                      cov.value=NULL) {
   
+  #Bind variables to function
+  trt <- NULL
+  value <- NULL
+  iteration <- NULL
+  prob <- NULL
+  SUCRA <- NULL
+  cumprob <- NULL
+  
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   

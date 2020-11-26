@@ -1,4 +1,15 @@
 by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL, time = NULL){
+  
+  #Binding variables to function
+  trial <- NULL
+  trt <- NULL
+  treatments <- NULL
+  comparisons <- NULL
+  V1 <- NULL
+  V2 <- NULL
+  trt.e <- NULL
+  trt.c <- NULL
+  
   data <- data.nma$arm.data %>% select(outcome, data.nma$varname.t, data.nma$varname.s, N, sd, time)
   names(data)[names(data) == data.nma$varname.t] <- "trt"
   names(data)[names(data) == data.nma$varname.s] <- "trial"

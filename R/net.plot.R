@@ -64,6 +64,11 @@ net.plot <- function(data,
                      layout = "layout_in_circle",
                      layout.params = NULL) {
   
+  # Bind variables to function
+  x <- NULL
+  y <- NULL
+  z <- NULL
+  
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   

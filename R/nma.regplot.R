@@ -39,6 +39,14 @@
 
 nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
   
+  #Bind variables to function
+  d <- NULL
+  x <- NULL
+  y <- NULL
+  Treatment <- NULL
+  
+  
+  
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   

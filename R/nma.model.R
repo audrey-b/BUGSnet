@@ -105,6 +105,17 @@ nma.model <- function(data,
                       prior.beta = NULL,
                       covariate = NULL){
   
+  # Bind variables to function
+  trt.ini <- NULL
+  trt <- NULL
+  trial <- NULL
+  trt.jags <- NULL
+  arm <- NULL
+  value <- NULL
+  variable <- NULL
+  n.arms <- NULL
+  
+  
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
