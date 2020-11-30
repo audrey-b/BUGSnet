@@ -1,5 +1,14 @@
 network.structure <- function(data.nma) {
   
+  # Bind Variables to function
+  node.weight <- NULL
+  from <- NULL
+  to <- NULL
+  trt <- NULL
+  flag <- NULL
+  mtchvar <- NULL
+  
+  
   trial <- rlang::quo(!! as.name(data.nma$varname.s))
   varname.t.quo <- rlang::quo(!! as.name(data.nma$varname.t))
   

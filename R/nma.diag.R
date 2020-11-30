@@ -46,6 +46,13 @@ nma.diag <- function(nma,
                      geweke_frac1 = 0.1,
                      geweke_frac2 = 0.5)
 {
+  
+  # Bind variables to function
+  str_sub <- NULL
+  str_extract <- NULL
+  gelman.diag <- NULL
+  geweke.diag <- NULL
+  
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   

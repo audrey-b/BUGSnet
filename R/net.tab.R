@@ -2,6 +2,12 @@
 ####1) comparison.charac() needs overall mean for continuous variables
 
 network.charac <- function(data.nma, outcome, N, type.outcome, time){
+  
+  # Bind variables to function
+  event0 <- NULL
+  one <- NULL
+  s <- NULL
+  n.arms <- NULL
 
   # Check if number of events and participants is integer
   tmp.check1 <- data.nma$arm.data %>% select(outcome)
@@ -149,6 +155,11 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
 }
  
 intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
+  
+  # Bind variables to the function
+  w.outcome <- NULL
+  person.time.fup <- NULL
+  
   outcome2 <- rlang::quo(!! as.name(outcome))
   N2 <- rlang::quo(!! as.name(N))
   
@@ -249,6 +260,10 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 }
 
 comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
+  
+  # Binding Variables to function
+  comparison <- NULL
+  patient_time <- NULL
 
   tmp1 <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome, N=N, time=time)
   

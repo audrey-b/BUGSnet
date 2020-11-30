@@ -1,4 +1,19 @@
 nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
+  
+  #Bind variables to function
+  outcome.e <- NULL
+  N.e <- NULL
+  outcome.c <- NULL
+  N.c <- NULL
+  adj_r.e <- NULL
+  adj_r.c <- NULL
+  theta.e <- NULL
+  theta.c <- NULL
+  delta <- NULL
+  time.e <- NULL
+  time.c <- NULL
+  
+  
   if (scale =="Odds Ratio" ){
     type.outcome = "binomial"
   } else if (scale =="Risk Ratio"){
