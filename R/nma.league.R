@@ -196,7 +196,7 @@ nma.league <- function(nma,
     tmp1.list[[i]] <- colvals(dmat, b.col=i)
   }
   
-  tmp.df <- bind_cols(tmp1.list) %>%
+  tmp.df <- suppressMessages(bind_cols(tmp1.list)) %>%
     select(-starts_with("trt")) %>%
     t()
   
