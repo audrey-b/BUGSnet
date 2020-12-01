@@ -21,6 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
+          brew install jags
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check
