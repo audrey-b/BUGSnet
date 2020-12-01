@@ -20,8 +20,8 @@ jobs:
       - uses: r-lib/actions/setup-r@v1
       - name: Install JAGS macOS
         run: |
+          rm '/usr/local/bin/gfortran'
           brew install jags
-          brew link --overwrite gcc  
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
