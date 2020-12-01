@@ -18,10 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v1
+      - name: Install JAGS macOS
+        if: runner.os == 'macOS'
+        run: brew install jags  
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
-          brew install jags
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check
