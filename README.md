@@ -3,6 +3,13 @@
 
 # BUGSnet
 
+<!-- badges: start -->
+
+[![R build
+status](https://github.com/Harmohit-Singh/BUGSnet/workflows/R_CMD_check/badge.svg)](https://github.com/Harmohit-Singh/BUGSnet/actions)
+
+<!-- badges: end -->
+
 BUGSnet (Bayesian inference Using Gibbs Sampling to conduct NETwork
 meta-analysis) is a feature-rich R package to conduct Bayesian network
 meta-analyses in compliance with best practice and reporting guidelines.
