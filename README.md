@@ -5,8 +5,7 @@
 
 <!-- badges: start -->
 
-[![R build
-status](https://github.com/Harmohit-Singh/BUGSnet/workflows/R_CMD_check/badge.svg)](https://github.com/Harmohit-Singh/BUGSnet/actions)
+![R-CMD-check](https://github.com/Harmohit-Singh/BUGSnet/workflows/R-CMD-check/badge.svg)
 
 <!-- badges: end -->
 
