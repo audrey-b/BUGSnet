@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-![R-CMD-check](https://github.com/Harmohit-Singh/BUGSnet/workflows/R-CMD-check/badge.svg)
+![R-CMD-check](https://github.com/audrey-b/BUGSnet/workflows/R-CMD-check/badge.svg)
 
 <!-- badges: end -->
 
