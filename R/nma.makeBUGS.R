@@ -43,7 +43,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     
     dev.str <- "resdev_a[i] <- sum(dev_a[i,1:na_a[i]])"
   
-    # TODO figure out metaregression thing
+    # TODO testing metareg for contrast models?
   if (!is.null(meta.covariate)) {
     metareg.str <- "+ (beta[t_a[i,k]]-beta[t_a[i,1]])*(x_a[i,k])"
     metareg.str.c <- "+ (beta[t_c[i,k]]-beta[t_c[i,1]])*(x_c[i,k])"

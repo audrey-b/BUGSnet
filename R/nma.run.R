@@ -1,4 +1,4 @@
-#' Run NMA model
+#' Run NMA model 
 #' @description Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 #' 
 #' @param model A \code{BUGSnetModel} object produced by running \code{nma.model}.
