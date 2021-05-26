@@ -118,7 +118,7 @@ nma.model <- function(data,
   if(effects!="fixed" & effects!="random") stop("Effects must be either fixed or random.")
   
   if(type!="consistency" & type!="inconsistency") stop("Type must be either consistency or inconsistency.")
-
+  
   
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
@@ -198,6 +198,7 @@ nma.model <- function(data,
       if (is.character(data1$covariate) == TRUE)
         data1$covariate <- as.factor(data1$covariate)
       data1$covariate <- as.numeric(data1$covariate != levels(data1$covariate)[1])
+      mean.cov = 0
     } else {stop("Invalid datatype for covariate.")}
   } else{mean.cov <- NULL}
   
@@ -228,7 +229,7 @@ nma.model <- function(data,
     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns", "nt", "na", "r", "n", "t", "x", "time")]
   }
-    
+  
   #add number of treatments, studies, and arms to BUGS data object
   bugsdata2$nt <- data$treatments %>% nrow()
   bugsdata2$ns <- data$studies %>% nrow()
