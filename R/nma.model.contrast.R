@@ -83,6 +83,8 @@ nma.model.contrast <- function(data_contrast = NULL,
   
   arm <- FALSE
   contrast <- TRUE
+  
+  covariate <- NULL
   # 
   # if(is.null(data_arm)) {arm <- F}
   # if(is.null(data_contrast)) {contrast <- F}
@@ -336,30 +338,30 @@ nma.model.contrast <- function(data_contrast = NULL,
   }
   
   # #meta regression string
-  # if (!is.null(covariate)){
-  #   
-  #   if (prior.beta=="UNRELATED"){
-  #     prior.meta.reg <- sprintf("beta[1]<-0
-  #   for (k in 2:nt){
-  #     beta[k] ~ dt(0, (%s)^(-2), 1)
-  #   }", max.delta)
-  #   }else if(prior.beta=="EXCHANGEABLE"){
-  #     prior.meta.reg <- sprintf("beta[1]<-0
-  #   for (k in 2:nt){
-  #     beta[k] ~ dnorm(b, gamma^(-2))
-  #   }
-  #   b~dt(0, %s^(-2), 1)
-  #   gamma~dunif(0, %s)", max.delta, max.delta)
-  #   }else if(prior.beta=="EQUAL"){
-  #     prior.meta.reg <- sprintf("beta[1]<-0
-  #   for (k in 2:nt){
-  #     beta[k] <- B
-  #   }
-  #   B~dt(0, %s^(-2), 1)", max.delta)
-  #   }else {
-  #     prior.meta.reg <- prior.beta
-  #   }
-  # }else prior.meta.reg <- ""
+  if (!is.null(covariate)){
+
+    if (prior.beta=="UNRELATED"){
+      prior.meta.reg <- sprintf("beta[1]<-0
+    for (k in 2:nt){
+      beta[k] ~ dt(0, (%s)^(-2), 1)
+    }", max.delta)
+    }else if(prior.beta=="EXCHANGEABLE"){
+      prior.meta.reg <- sprintf("beta[1]<-0
+    for (k in 2:nt){
+      beta[k] ~ dnorm(b, gamma^(-2))
+    }
+    b~dt(0, %s^(-2), 1)
+    gamma~dunif(0, %s)", max.delta, max.delta)
+    }else if(prior.beta=="EQUAL"){
+      prior.meta.reg <- sprintf("beta[1]<-0
+    for (k in 2:nt){
+      beta[k] <- B
+    }
+    B~dt(0, %s^(-2), 1)", max.delta)
+    }else {
+      prior.meta.reg <- prior.beta
+    }
+  }else prior.meta.reg <- ""
   
   prior.meta.reg <- ""
   
@@ -374,7 +376,7 @@ nma.model.contrast <- function(data_contrast = NULL,
                         prior.mu.str,
                         prior.d.str,
                         prior.sigma2.str,
-                        covariate = NULL,
+                        meta.covariate = NULL,
                         prior.meta.reg,
                         auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
                         arm = arm,
@@ -404,7 +406,7 @@ nma.model.contrast <- function(data_contrast = NULL,
                            prior.mu=prior.mu,
                            prior.d=prior.d,
                            prior.sigma=prior.sigma,
-                           prior.beta=prior.beta,
+                           prior.beta=NULL,
                            reference=reference,
                            time=NULL,
                            outcome=outcome,

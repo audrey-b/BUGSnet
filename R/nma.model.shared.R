@@ -105,6 +105,7 @@ nma.model.shared <- function(data_arm = NULL,
   }
   
   arm<-contrast<-TRUE
+  covariate <- NULL
   
   if(is.null(data_arm)) {arm <- F}
   if(is.null(data_contrast)) {contrast <- F}
@@ -459,7 +460,7 @@ nma.model.shared <- function(data_arm = NULL,
                         prior.mu.str,
                         prior.d.str,
                         prior.sigma2.str,
-                        covariate = NULL,
+                        meta.covariate = NULL,
                         prior.meta.reg,
                         auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
                         arm = arm,
@@ -498,7 +499,7 @@ nma.model.shared <- function(data_arm = NULL,
                            prior.mu=prior.mu,
                            prior.d=prior.d,
                            prior.sigma=prior.sigma,
-                           prior.beta=prior.beta,
+                           prior.beta=NULL,
                            reference=reference,
                            time=time,
                            outcome=outcome,
