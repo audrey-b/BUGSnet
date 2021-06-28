@@ -89,7 +89,7 @@
 #' @seealso \code{\link{data.prep}}, \code{\link{nma.run}}
 
 
-nma.model.arm <- function(data_arm = NULL,
+nma.model <- function(data_arm = NULL,
                           outcome,
                           N = NULL,
                           sd.a=NULL,
