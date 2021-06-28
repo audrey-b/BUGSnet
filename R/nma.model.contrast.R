@@ -98,7 +98,7 @@ nma.model.contrast <- function(data_contrast = NULL,
 
   
   #pull relevant fields from the data and apply naming convention
-  cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.ref = var.ref, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
+  cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.ref = var.ref, covariate = NULL) #se.diffs = se.diffs, var.ref = var.ref
   cdata <- data_contrast$arm.data[, cvarlist]
   names(cdata) <- names(cvarlist)
   
@@ -367,7 +367,6 @@ nma.model.contrast <- function(data_contrast = NULL,
   # if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
   # make the code for the model
-  #FIXME
   model <- makeBUGScode(family=family,
                         link=link,
                         effects=effects,
@@ -375,7 +374,7 @@ nma.model.contrast <- function(data_contrast = NULL,
                         prior.mu.str,
                         prior.d.str,
                         prior.sigma2.str,
-                        covariate,
+                        covariate = NULL,
                         prior.meta.reg,
                         auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
                         arm = arm,
@@ -401,7 +400,7 @@ nma.model.contrast <- function(data_contrast = NULL,
                            link=link,
                            type=type,
                            effects=effects,
-                           covariate=covariate,
+                           covariate=NULL,
                            prior.mu=prior.mu,
                            prior.d=prior.d,
                            prior.sigma=prior.sigma,

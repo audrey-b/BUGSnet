@@ -156,21 +156,16 @@ nma.model.shared <- function(data_arm = NULL,
   
   #pull relevant fields from the data and apply naming convention
   if(arm) {
-    avarlist <- c(trt = data_arm$varname.t, trial = data_arm$varname.s, r1 = outcome, N = N, sd.a = sd.a, timevar = time, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
+    avarlist <- c(trt = data_arm$varname.t, trial = data_arm$varname.s, r1 = outcome, N = N, sd.a = sd.a, timevar = time, covariate = NULL) #se.diffs = se.diffs, var.ref = var.ref
     adata <- data_arm$arm.data[, avarlist]
     names(adata) <- names(avarlist)
   } else { adata <- data.frame()}
   
   if(contrast) {
-    cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.ref = var.ref, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
+    cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.ref = var.ref, covariate = NULL) #se.diffs = se.diffs, var.ref = var.ref
     cdata <- data_contrast$arm.data[, cvarlist]
     names(cdata) <- names(cvarlist)
     
-    if(!is.null(covariate)) {
-      
-      stop("Meta-regression is not supported with when contrast-based studies are included.")
-      
-    }
   } else {cdata <-data.frame()}
   
   trts <- c(adata$trt, cdata$trt)
@@ -205,35 +200,37 @@ nma.model.shared <- function(data_arm = NULL,
     
   }
   
-  # TODO test of this implementation works for arm and cb data
-  #pre-process the covariate if specified
-  if (!is.null(covariate)) {
-    covariates <- c(adata$covariate, cdata$covariate)
-    if (is.numeric(covariates) == TRUE){
-      #issue warning if covariate appears to be categorical
-      if (length(unique(covariates)) < 5) {
-        warning(paste0("The specified covariate is being treated as continuous. Ignore this warning if this is the intended behaviour. ",
-                       "For the covariate to be treated as a categorical variable it must be converted to a factor in the data that is ",
-                       "passed to data.prep."))
-      }
-      
-      #de-mean covariate if continuous
-      mean.cov <- mean(covariates, na.rm=TRUE)
-      adata$covariate <- adata$covariate-mean.cov
-      cdata$covariate <- cdata$covariate-mean.cov
-    } else if (is.factor(covariates) == TRUE || is.character(covariates) == TRUE) {
-      #check that covariate has fewer than 3 levels and convert strings and factors to binary covariates
-      if (length(unique(covariates)) > 2)
-        stop("BUGSnet does not currently support meta-regression with categorical variables that have more than two levels.")
-      if (is.character(covariates) == TRUE) {
-        adata$covariate <- factor(adata$covariate, levels = unique(covariates))
-        cdata$covariate <- factor(cdata$covariate, levels = unique(covariates))
-        adata$covariate <- as.numeric(adata$covariate != levels(adata$covariate)[1])
-        cdata$covariate <- as.numeric(cdata$covariate != levels(adata$covariate)[1])
-      }
-    }
-    
-  } else{mean.cov <- NULL}
+  
+  # #pre-process the covariate if specified
+  # if (!is.null(covariate)) {
+  #   covariates <- c(adata$covariate, cdata$covariate)
+  #   if (is.numeric(covariates) == TRUE){
+  #     #issue warning if covariate appears to be categorical
+  #     if (length(unique(covariates)) < 5) {
+  #       warning(paste0("The specified covariate is being treated as continuous. Ignore this warning if this is the intended behaviour. ",
+  #                      "For the covariate to be treated as a categorical variable it must be converted to a factor in the data that is ",
+  #                      "passed to data.prep."))
+  #     }
+  #     
+  #     #de-mean covariate if continuous
+  #     mean.cov <- mean(covariates, na.rm=TRUE)
+  #     adata$covariate <- adata$covariate-mean.cov
+  #     cdata$covariate <- cdata$covariate-mean.cov
+  #   } else if (is.factor(covariates) == TRUE || is.character(covariates) == TRUE) {
+  #     #check that covariate has fewer than 3 levels and convert strings and factors to binary covariates
+  #     if (length(unique(covariates)) > 2)
+  #       stop("BUGSnet does not currently support meta-regression with categorical variables that have more than two levels.")
+  #     if (is.character(covariates) == TRUE) {
+  #       adata$covariate <- factor(adata$covariate, levels = unique(covariates))
+  #       cdata$covariate <- factor(cdata$covariate, levels = unique(covariates))
+  #       adata$covariate <- as.numeric(adata$covariate != levels(adata$covariate)[1])
+  #       cdata$covariate <- as.numeric(cdata$covariate != levels(adata$covariate)[1])
+  #     }
+  #   }
+  #   
+  # } else{mean.cov <- NULL}
+  
+  mean.cov <- NULL
   
   # determine number of treatments in dataset
   nt <- length(unique(trts))
@@ -424,31 +421,32 @@ nma.model.shared <- function(data_arm = NULL,
    }"
   }
   
-  #meta regression string
-  if (!is.null(covariate)){
-    
-    if (prior.beta=="UNRELATED"){
-      prior.meta.reg <- sprintf("beta[1]<-0
-    for (k in 2:nt){
-      beta[k] ~ dt(0, (%s)^(-2), 1)
-    }", max.delta)
-    }else if(prior.beta=="EXCHANGEABLE"){
-      prior.meta.reg <- sprintf("beta[1]<-0
-    for (k in 2:nt){
-      beta[k] ~ dnorm(b, gamma^(-2))
-    }
-    b~dt(0, %s^(-2), 1)
-    gamma~dunif(0, %s)", max.delta, max.delta)
-    }else if(prior.beta=="EQUAL"){
-      prior.meta.reg <- sprintf("beta[1]<-0
-    for (k in 2:nt){
-      beta[k] <- B
-    }
-    B~dt(0, %s^(-2), 1)", max.delta)
-    }else {
-      prior.meta.reg <- prior.beta
-    }
-  }else prior.meta.reg <- ""
+  # #meta regression string
+  # if (!is.null(covariate)){
+  #   
+  #   if (prior.beta=="UNRELATED"){
+  #     prior.meta.reg <- sprintf("beta[1]<-0
+  #   for (k in 2:nt){
+  #     beta[k] ~ dt(0, (%s)^(-2), 1)
+  #   }", max.delta)
+  #   }else if(prior.beta=="EXCHANGEABLE"){
+  #     prior.meta.reg <- sprintf("beta[1]<-0
+  #   for (k in 2:nt){
+  #     beta[k] ~ dnorm(b, gamma^(-2))
+  #   }
+  #   b~dt(0, %s^(-2), 1)
+  #   gamma~dunif(0, %s)", max.delta, max.delta)
+  #   }else if(prior.beta=="EQUAL"){
+  #     prior.meta.reg <- sprintf("beta[1]<-0
+  #   for (k in 2:nt){
+  #     beta[k] <- B
+  #   }
+  #   B~dt(0, %s^(-2), 1)", max.delta)
+  #   }else {
+  #     prior.meta.reg <- prior.beta
+  #   }
+  # }else prior.meta.reg <- ""
+  prior.meta.reg <- ""
   # #remove covariate from bugsdata2 if unused
   # if (is.null(covariate)){bugsdata2 <- bugsdata2[names(bugsdata2)!="x"]}
   
@@ -461,7 +459,7 @@ nma.model.shared <- function(data_arm = NULL,
                         prior.mu.str,
                         prior.d.str,
                         prior.sigma2.str,
-                        covariate,
+                        covariate = NULL,
                         prior.meta.reg,
                         auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
                         arm = arm,
@@ -496,7 +494,7 @@ nma.model.shared <- function(data_arm = NULL,
                            link=link,
                            type=type,
                            effects=effects,
-                           covariate=covariate,
+                           covariate=NULL,
                            prior.mu=prior.mu,
                            prior.d=prior.d,
                            prior.sigma=prior.sigma,
