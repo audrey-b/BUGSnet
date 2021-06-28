@@ -111,3 +111,20 @@
 #' \insertRef{gemtc}{BUGSnet}
 #' 
 "afib"
+
+#' ?? data
+#'
+#' Data from COvalence research in the form of contrast-based data
+#'
+#' @docType data
+#'
+#' @usage data(contrast)
+#'
+#' @format A dataset.
+#'
+#' @keywords datasets
+#'
+#' @examples
+#' data(contrast)
+#' 
+"contrast"

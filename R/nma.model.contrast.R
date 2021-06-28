@@ -22,7 +22,6 @@
 #' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 #' @return ...
 #' 
-#' @details 
 #' @examples
 #' 
 #' 
