@@ -1,11 +1,10 @@
 #' Create Bugs Model for Arm-Based data
 #' @description Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
-#' @param data_arm A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}
+#' @param data A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable for arm-based studies.
-#' @param differences A string indicating the name of the differences for contrast-based studies
 #' @param N A string indicating the name of the variable containing the number of participants in each arm for arm-based data - required.
-#' @param sd.a A string (only required for continuous outcomes with arm-level data) indicating variable name
+#' @param sd A string (only required for continuous outcomes with arm-level data) indicating variable name
 #' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
@@ -89,10 +88,10 @@
 #' @seealso \code{\link{data.prep}}, \code{\link{nma.run}}
 
 
-nma.model <- function(data_arm = NULL,
+nma.model <- function(data = NULL,
                           outcome,
                           N = NULL,
-                          sd.a=NULL,
+                          sd=NULL,
                           reference,
                           type="consistency",
                           time=NULL,

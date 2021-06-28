@@ -5,10 +5,10 @@
 \title{Create Bugs Model for Arm-Based data}
 \usage{
 nma.model(
-  data_arm = NULL,
+  data = NULL,
   outcome,
   N = NULL,
-  sd.a = NULL,
+  sd = NULL,
   reference,
   type = "consistency",
   time = NULL,
@@ -23,13 +23,13 @@ nma.model(
 )
 }
 \arguments{
-\item{data_arm}{A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}}
+\item{data}{A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}}
 
 \item{outcome}{A string indicating the name of your outcome variable for arm-based studies.}
 
 \item{N}{A string indicating the name of the variable containing the number of participants in each arm for arm-based data - required.}
 
-\item{sd.a}{A string (only required for continuous outcomes with arm-level data) indicating variable name
+\item{sd}{A string (only required for continuous outcomes with arm-level data) indicating variable name
 of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
@@ -60,8 +60,6 @@ indicating person-time followup (e.g person years) or study followup time.}
 adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
 with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)}
-
-\item{differences}{A string indicating the name of the differences for contrast-based studies}
 }
 \value{
 \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
