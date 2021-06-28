@@ -21,9 +21,7 @@ nma.model.shared(
   effects,
   prior.mu = "DEFAULT",
   prior.d = "DEFAULT",
-  prior.sigma = "DEFAULT",
-  prior.beta = NULL,
-  covariate = NULL
+  prior.sigma = "DEFAULT"
 )
 }
 \arguments{
@@ -64,13 +62,6 @@ indicating person-time followup (e.g person years) or study followup time.}
 
 \item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
-\item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.}
-
-\item{covariate}{Optional string indicating the name of the variable in your data set that you would like to
-adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
-it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
-with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)}
-
 \item{se.c}{A string indicating the variable name of the
 standard errors of the differences in data_contrast.}
 }
@@ -92,13 +83,7 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 Creates BUGS code which can be ran through \code{nma.run()}.
 }
 \details{
-For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
-\describe{
-\item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
-\item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
-\item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ t(0, u^2, 1)}}
-}
-where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
+
 }
 \examples{
 

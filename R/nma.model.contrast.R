@@ -3,9 +3,8 @@
 #' 
 #' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}
 #' @param differences A string indicating the name of the differences for contrast-based studies
-#' @param se.c A string (only required for contrast-based data) indicating the variable name of the 
-#' standard errors of the differences.
-#' @param var.ref A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
+#' @param se.c A string indicating the variable name of the standard errors of the differences.
+#' @param var.ref A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
 #' @param effects A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".
@@ -14,7 +13,7 @@
 #' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
-#' @param scale A string indicating the scale of the data, such as "Mean Difference", "Log-Odds Ratio",
+#' @param scale A string indicating the scale of the data, such as "Mean Difference" or "Log-Odds Ratio",
 #' @return \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
 #' @return \code{bugs} - A long character string containing BUGS code that will be run in \code{jags}.
 #' @return \code{data} - The data used in the BUGS code.
@@ -24,15 +23,6 @@
 #' @return ...
 #' 
 #' @details 
-#' For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
-#' \describe{
-#'   \item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
-#'   \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
-#'   \item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ t(0, u^2, 1)}}
-#' }
-#' where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
-#' 
-#' 
 #' @examples
 #' 
 #' 
@@ -90,9 +80,7 @@ nma.model.contrast <- function(data_contrast = NULL,
                       scale,
                       prior.mu = "DEFAULT",
                       prior.d = "DEFAULT",
-                      prior.sigma = "DEFAULT",
-                      prior.beta = NULL,
-                      covariate = NULL){
+                      prior.sigma = "DEFAULT"){
   
   arm <- FALSE
   contrast <- TRUE
@@ -102,14 +90,6 @@ nma.model.contrast <- function(data_contrast = NULL,
   
   if(!is.null(data_contrast) && class(data_contrast) != "BUGSnetData")
     stop("\'data_contrast\' must be a valid BUGSnetData object created using the data.prep function.")
-  
-  if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
-  if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
-  if(!is.null(prior.beta)){
-    if(!(prior.beta %in% c("UNRELATED","EQUAL","EXCHANGEABLE"))){
-      stop("prior.beta must be either UNRELATED, EQUAL, or EXCHANGEABLE")
-    }
-  }
   
 
     # set scale and outcome to dummies

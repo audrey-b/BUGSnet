@@ -16,9 +16,7 @@ nma.model.contrast(
   scale,
   prior.mu = "DEFAULT",
   prior.d = "DEFAULT",
-  prior.sigma = "DEFAULT",
-  prior.beta = NULL,
-  covariate = NULL
+  prior.sigma = "DEFAULT"
 )
 }
 \arguments{
@@ -26,7 +24,7 @@ nma.model.contrast(
 
 \item{differences}{A string indicating the name of the differences for contrast-based studies}
 
-\item{var.ref}{A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study}
+\item{var.ref}{A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 a placebo or control drug of some kind.}
@@ -36,7 +34,7 @@ will be built.}
 
 \item{effects}{A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".}
 
-\item{scale}{A string indicating the scale of the data, such as "Mean Difference", "Log-Odds Ratio",}
+\item{scale}{A string indicating the scale of the data, such as "Mean Difference" or "Log-Odds Ratio",}
 
 \item{prior.mu}{A string of BUGS code that defines priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
@@ -44,8 +42,7 @@ will be built.}
 
 \item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
-\item{se.c}{A string (only required for contrast-based data) indicating the variable name of the
-standard errors of the differences.}
+\item{se.c}{A string indicating the variable name of the standard errors of the differences.}
 }
 \value{
 \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
@@ -63,15 +60,6 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 }
 \description{
 Creates BUGS code which can be ran through \code{nma.run()}.
-}
-\details{
-For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
-\describe{
-\item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
-\item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
-\item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ t(0, u^2, 1)}}
-}
-where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 }
 \examples{
 

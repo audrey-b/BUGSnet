@@ -22,11 +22,6 @@
 #' @param prior.mu A string of BUGS code that defines priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param prior.d A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
-#' @param prior.beta Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.
-#' @param covariate Optional string indicating the name of the variable in your data set that you would like to
-#' adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
-#' it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
-#' with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
 #' @return \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
@@ -38,14 +33,6 @@
 #' @return ...
 #' 
 #' @details 
-#' For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
-#' \describe{
-#'   \item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
-#'   \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
-#'   \item{Equal:}{\deqn{\beta_2=...=\beta_T=B, B ~ t(0, u^2, 1)}}
-#' }
-#' where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
-#' 
 #' 
 #' @examples
 #' 
@@ -109,9 +96,7 @@ nma.model.shared <- function(data_arm = NULL,
                       effects,
                       prior.mu = "DEFAULT",
                       prior.d = "DEFAULT",
-                      prior.sigma = "DEFAULT",
-                      prior.beta = NULL,
-                      covariate = NULL){
+                      prior.sigma = "DEFAULT"){
   
   if(is.null(data_arm) && is.null(data_contrast)) {
     
@@ -132,14 +117,6 @@ nma.model.shared <- function(data_arm = NULL,
   
   if((!is.null(data_arm) && class(data_arm) != "BUGSnetData") || (!is.null(data_contrast) && class(data_contrast) != "BUGSnetData"))
     stop("\'data_arm\' and \'data_contrast\' must be a valid BUGSnetData object created using the data.prep function.")
-  
-  if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
-  if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
-  if(!is.null(prior.beta)){
-    if(!(prior.beta %in% c("UNRELATED","EQUAL","EXCHANGEABLE"))){
-      stop("prior.beta must be either UNRELATED, EQUAL, or EXCHANGEABLE")
-    }
-  }
   
   if(arm) {
     
