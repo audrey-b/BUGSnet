@@ -107,11 +107,11 @@ nma.model <- function(data = NULL,
   arm <- TRUE
   contrast <- FALSE
   # 
-  # if(is.null(data_arm)) {arm <- F}
+  # if(is.null(data)) {arm <- F}
   # if(is.null(data_contrast)) {contrast <- F}
   
-  if((!is.null(data_arm) && class(data_arm) != "BUGSnetData"))
-    stop("\'data_arm\' must be a valid BUGSnetData object created using the data.prep function.")
+  if((!is.null(data) && class(data) != "BUGSnetData"))
+    stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
   if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
@@ -122,7 +122,7 @@ nma.model <- function(data = NULL,
   }
   
   # Warnings for different families and data requirements
-  if(family=="normal" & is.null(sd.a)) stop("sd.a must be specified for continuous outcomes")
+  if(family=="normal" & is.null(sd)) stop("sd must be specified for continuous outcomes")
   if(family=="normal" & !(link%in% c("identity"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
@@ -143,8 +143,8 @@ nma.model <- function(data = NULL,
   } 
   
   #pull relevant fields from the data and apply naming convention
-  avarlist <- c(trt = data_arm$varname.t, trial = data_arm$varname.s, r1 = outcome, N = N, sd.a = sd.a, timevar = time, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
-  adata <- data_arm$arm.data[, avarlist]
+  avarlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
+  adata <- data$arm.data[, avarlist]
   names(adata) <- names(avarlist)
   trts <- adata$trt
   
@@ -223,8 +223,8 @@ nma.model <- function(data = NULL,
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a", "time")]
   }
   
-  bugsdata2$ns_a <- data_arm$studies %>% nrow()
-  bugsdata2$na_a <- data_arm$n.arms %>% select(n.arms) %>% t() %>% as.vector
+  bugsdata2$ns_a <- data$studies %>% nrow()
+  bugsdata2$na_a <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
   
   # # generate BUGS data object for cb data
   # 
@@ -316,7 +316,7 @@ nma.model <- function(data = NULL,
   ###Priors###
   ############
   
-  max.delta <- paste0(nma.prior(data_arm, data_contrast=NULL, outcome=outcome, differences = differences, scale=scale, N=N, sd=sd.a, time = time))
+  max.delta <- paste0(nma.prior(data, data_contrast=NULL, outcome=outcome, differences = differences, scale=scale, N=N, sd=sd, time = time))
   
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){
