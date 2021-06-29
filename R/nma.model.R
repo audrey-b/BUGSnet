@@ -104,7 +104,7 @@ nma.model <- function(data = NULL,
                           prior.beta = NULL,
                           covariate = NULL){
   
-  arm <- TRUE
+  armdat <- TRUE
   contrast <- FALSE
   # 
   # if(is.null(data)) {arm <- F}
@@ -452,7 +452,7 @@ nma.model <- function(data = NULL,
                         covariate,
                         prior.meta.reg,
                         auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
-                        arm = arm,
+                        arm = armdat,
                         contrast = contrast) %>%
     paste0(add.to.model)
   
