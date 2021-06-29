@@ -393,7 +393,6 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
       %s
       %s
-      %s
       tau <- 1/sigma2
       %s
 
