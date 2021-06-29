@@ -58,6 +58,12 @@ pma <- function(data,
                      method.tau="DL",
                      sm){
   
+  #Bind variables to function
+  comparison <- NULL
+  trt.e <- NULL
+  trt.c <- NULL
+  
+  
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   

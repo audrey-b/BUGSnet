@@ -52,6 +52,13 @@ nma.forest <- function(nma,
                        x.trans=NULL,
                        cov.value=NULL) {
   
+  # Bind variables to function
+  key <- NULL
+  value <- NULL
+  trt <- NULL
+  lci <- NULL
+  uci <- NULL
+  
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   

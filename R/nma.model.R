@@ -109,9 +109,23 @@ nma.model <- function(data = NULL,
   # 
   # if(is.null(data)) {arm <- F}
   # if(is.null(data_contrast)) {contrast <- F}
-  
   if((!is.null(data) && class(data) != "BUGSnetData"))
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
+
+  # Bind variables to function
+  trt.ini <- NULL
+  trt <- NULL
+  trial <- NULL
+  trt.jags <- NULL
+  arm <- NULL
+  value <- NULL
+  variable <- NULL
+  n.arms <- NULL
+  
+  if(effects!="fixed" & effects!="random") stop("Effects must be either fixed or random.")
+  
+  if(type!="consistency" & type!="inconsistency") stop("Type must be either consistency or inconsistency.")
+    
   
   if(!is.null(covariate) & is.null(prior.beta))stop("prior.beta must be specified when covariate is specified")
   if(is.null(covariate) & !is.null(prior.beta))stop("covariate must be specified when prior.beta is specified")
@@ -127,7 +141,7 @@ nma.model <- function(data = NULL,
   if(family=="poisson" & link!="log") stop("This combination of family and link is currently not supported in BUGSnet.")
   if(family=="binomial" & !(link %in% c("log","logit", "cloglog"))) stop("This combination of family and link is currently not supported in BUGSnet.")
   
-  # Set up measurement scale
+  # Specify a scale name (odds ratio, risk ratio, etc)
   if(link=="logit" & family %in% c("binomial", "binary", "bin", "binom")){
     scale <- "Odds Ratio"
   }else if(link=="log" & family %in% c("binomial", "binary", "bin", "binom")){
@@ -140,7 +154,9 @@ nma.model <- function(data = NULL,
   }else if(link == "log" & family =="poisson"){
     if(is.null(time)) stop("time must be specified when using a poisson family with the log link")
     scale <- "Rate Ratio"
-  } 
+
+  }
+  
   
   #pull relevant fields from the data and apply naming convention
   avarlist <- c(trt = data$varname.t, trial = data$varname.s, r1 = outcome, N = N, sd = sd, timevar = time, covariate = covariate) #se.diffs = se.diffs, var.ref = var.ref
@@ -154,6 +170,8 @@ nma.model <- function(data = NULL,
     
   }
   
+  if(!(reference %in% data1$trt)) stop("Reference treatment is not present in the list of treatments.")
+  
   #Trt mapping
   trt.key <- trts %>% unique %>% sort %>% tibble(trt.ini=.) %>%
     filter(trt.ini!=reference) %>% add_row(trt.ini=reference, .before=1) %>%
@@ -165,7 +183,14 @@ nma.model <- function(data = NULL,
                                        from=atrt$trt.ini,
                                        to=atrt$trt.jags) %>% as.integer)
   
-  # TODO test of this implementation works for arm and cb data
+  
+  if(!is.null(adata$sd)){ ifelse(!is.numeric(adata$sd) | data1$sd<=0, stop("sd must be numeric and greater than 0."), 1)}
+  
+  if(!is.numeric(adata$N)) stop("Sample size must be an integer greater than 0.")
+  ifelse(floor(adata$N) != adata$N | adata$N<1, stop("Sample size must be an integer greater than 0."), 1)
+  
+  if(!is.numeric(adata$r1)) stop("Outcome must be numeric.")
+  
   #pre-process the covariate if specified
   if (!is.null(covariate)) {
     covariates <- adata$covariate
@@ -184,12 +209,14 @@ nma.model <- function(data = NULL,
       #check that covariate has fewer than 3 levels and convert strings and factors to binary covariates
       if (length(unique(covariates)) > 2)
         stop("BUGSnet does not currently support meta-regression with categorical variables that have more than two levels.")
+      if (length(unique(adata$covariate)) == 1)
+        stop("Covariate should have more than one unique value.")
       if (is.character(covariates) == TRUE) {
-        adata$covariate <- factor(adata$covariate, levels = unique(covariates))
+        adata$covariate <- as.factor(adata$covariate)
         adata$covariate <- as.numeric(adata$covariate != levels(adata$covariate)[1])
+        mean.cov <- 0
       }
-    }
-    
+    } else {stop("Invalid datatype for covariate.")}
   } else{mean.cov <- NULL}
   
   # determine number of treatments in dataset
@@ -222,6 +249,14 @@ nma.model <- function(data = NULL,
     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a", "time")]
   }
+# <<<<<<< HEAD
+# =======
+#   
+#   #add number of treatments, studies, and arms to BUGS data object
+#   bugsdata2$nt <- data$treatments %>% nrow()
+#   bugsdata2$ns <- data$studies %>% nrow()
+#   bugsdata2$na <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
+# >>>>>>> upstream/master
   
   bugsdata2$ns_a <- data$studies %>% nrow()
   bugsdata2$na_a <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
@@ -407,7 +442,7 @@ nma.model <- function(data = NULL,
   
   # make the code for the model
   
-  model <- makeBUGScode(family=family,
+  model <- makeBUGScode(family=family,       ################ BUG seems to be here!!!!!!!!!!! Outputs have confirmed
                         link=link,
                         effects=effects,
                         inconsistency=(type=="inconsistency"),

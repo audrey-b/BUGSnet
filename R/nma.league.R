@@ -59,6 +59,12 @@ nma.league <- function(nma,
                        cov.value=NULL,
                        digits = 2) {
   
+  # Bind variables to function
+  trt <- NULL
+  Treatment <- NULL
+  Comparator <- NULL
+  
+  
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
@@ -89,6 +95,15 @@ nma.league <- function(nma,
   trt.names <- order
   
   colvals <- function(dmat, b.col=1, paste=TRUE) {
+    
+    # Bind variables to function
+    key <- NULL
+    value <- NULL
+    trt <- NULL
+    estimate <- NULL
+    lci <- NULL
+    uci <- NULL
+    result <- NULL
     
     base <- colnames(dmat)[b.col]
     
@@ -181,7 +196,7 @@ nma.league <- function(nma,
     tmp1.list[[i]] <- colvals(dmat, b.col=i)
   }
   
-  tmp.df <- bind_cols(tmp1.list) %>%
+  tmp.df <- suppressMessages(bind_cols(tmp1.list)) %>%
     select(-starts_with("trt")) %>%
     t()
   
@@ -237,6 +252,13 @@ league.heat.plot <- function(leaguetable,
                              high.colour = "springgreen4",
                              midpoint,
                              digits){
+  
+  #Bind Variables to function
+  Treatment <- NULL
+  Comparator <- NULL
+  ct.stat <- NULL
+  lci <- NULL
+  uci <- NULL
   
   #if (ncol(leaguetable) > 5){warning("leaguetable must be in 'long' format")}
   

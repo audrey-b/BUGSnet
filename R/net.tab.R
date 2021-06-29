@@ -2,6 +2,12 @@
 ####1) comparison.charac() needs overall mean for continuous variables
 
 network.charac <- function(data.nma, outcome, N, type.outcome, time){
+  
+  # Bind variables to function
+  event0 <- NULL
+  one <- NULL
+  s <- NULL
+  n.arms <- NULL
 
   # Check if number of events and participants is integer
   tmp.check1 <- data.nma$arm.data %>% select(outcome)
@@ -29,9 +35,9 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
     
     cnt <- data.nma$arm.data %>% 
       select(data.nma$varname.s, data.nma$varname.t) %>% 
-      count_(data.nma$varname.s)
+      count(across(data.nma$varname.s))
     
-    tmp1 <- bind_cols(tmp1, cnt) %>%
+    tmp1 <- suppressMessages(bind_cols(tmp1, cnt)) %>%
       filter(n>1)
     pairs <- tmp1[1,"data"] %>% unlist %>% sort %>% combn(2)
     for(i in 2:nrow(tmp1)){
@@ -40,7 +46,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
     
     n.pairwise.direct <- unique(pairs, MARGIN=2) %>% ncol()
     
-    edgesANDnodes <- network.structure(data.nma)
+    edgesANDnodes <- suppressMessages(network.structure(data.nma))
     edges <- edgesANDnodes[[1]]
     nodes <- edgesANDnodes[[2]]
     net <- graph_from_data_frame(d=edges, vertices=nodes, directed=F) 
@@ -73,12 +79,12 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
 
       n.events <- data.nma$arm.data %>% select(outcome) %>% sum 
       
-      tmp3 <- data.nma$arm.data %>% 
+      tmp3 <- suppressMessages(data.nma$arm.data %>% 
         select(data.nma$varname.s, outcome) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
-        group_by_(data.nma$varname.s) %>%
+        group_by(across(data.nma$varname.s)) %>%
         summarise(s=sum(event0), n.arms=sum(one)) %>%
-        mutate(no.0=(s==0), some.0=(s!=0), all.0=(s==n.arms))
+        mutate(no.0=(s==0), some.0=(s!=0), all.0=(s==n.arms)))
       
       n.studies.no.0 <- tmp3$no.0 %>% sum
       
@@ -105,7 +111,7 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
       tmp3 <- data.nma$arm.data %>% 
         select(data.nma$varname.s, outcome) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
-        group_by_(data.nma$varname.s) %>%
+        group_by(across(data.nma$varname.s)) %>%
         summarise(s=sum(event0), n.arms=sum(one)) %>%
         mutate(no.0=(s==0), some.0=(s!=0), all.0=(s==n.arms))
       
@@ -149,17 +155,22 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
 }
  
 intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
+  
+  # Bind variables to the function
+  w.outcome <- NULL
+  person.time.fup <- NULL
+  
   outcome2 <- rlang::quo(!! as.name(outcome))
   N2 <- rlang::quo(!! as.name(N))
   
   if ("n" %in% colnames(data.nma$arm.data)) {
-  n.studies <- data.nma$arm.data %>% select(-n) %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
+  n.studies <- data.nma$arm.data %>% select(-n) %>% count(across(data.nma$varname.t)) %>% rename(n.studies = n) 
   } else {
-    n.studies <- data.nma$arm.data %>% count_(data.nma$varname.t) %>% rename(n.studies = n) 
+    n.studies <- data.nma$arm.data %>% count(across(data.nma$varname.t)) %>% rename(n.studies = n) 
   }
   
   n.patients <- data.nma$arm.data %>% 
-    group_by_(data.nma$varname.t) %>% 
+    group_by(across(data.nma$varname.t)) %>% 
     summarise(n.patients = as.integer(sum(!! N2)))
   
   tmp.tbl <- left_join(n.studies, n.patients, by=data.nma$varname.t)
@@ -167,12 +178,12 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   if(type.outcome %in% c("bin","binom","binomial","binary")){  
   
   n.events <- data.nma$arm.data %>% 
-    group_by_(data.nma$varname.t) %>% 
+    group_by(across(data.nma$varname.t)) %>% 
     summarise(n.events = as.integer(sum(!! outcome2))) 
   
    tmp.rate <- data.nma$arm.data %>% 
     mutate(tmp.rate = (!! outcome2) / (!! N2)) %>% 
-    group_by_(data.nma$varname.t) %>% 
+    group_by(across(data.nma$varname.t)) %>% 
     summarise(min.outcome = min(tmp.rate), max.outcome = max(tmp.rate))
   
    tmp.tbl <- left_join(n.studies, n.events, by=data.nma$varname.t) %>% 
@@ -184,7 +195,7 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
     
     tmp.outcome <- data.nma$arm.data %>% 
      mutate(tmp.outcome = (!! outcome2), w.outcome=(!! outcome2)*(!! N2)) %>% 
-     group_by_(data.nma$varname.t) %>% 
+     group_by(across(data.nma$varname.t)) %>% 
      summarise(min.outcome = min(tmp.outcome), max.outcome = max(tmp.outcome), w.outcome=sum(w.outcome))
     
     tmp.tbl <- left_join(n.studies, n.patients, by=data.nma$varname.t) %>% 
@@ -196,21 +207,21 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
     time2 <- rlang::quo(!! as.name(time))
     
     person.time <- data.nma$arm.data %>% 
-      group_by_(data.nma$varname.t) %>% 
+      group_by(across(data.nma$varname.t)) %>% 
       summarise(person.time.fup = as.integer(sum(!! time2)))
 
     n.events <- data.nma$arm.data %>%
-      group_by_(data.nma$varname.t) %>%
+      group_by(across(data.nma$varname.t)) %>%
       summarise(n.events = as.integer(sum(!! outcome2)))
     
     tmp.proportion <- data.nma$arm.data %>% 
       mutate(tmp.proportion = (!! outcome2) / (!! N2)) %>% 
-      group_by_(data.nma$varname.t) %>% 
+      group_by(across(data.nma$varname.t)) %>% 
       summarise(min.proportion = min(tmp.proportion), max.proportion = max(tmp.proportion))
     
     tmp.rate <- data.nma$arm.data %>% 
       mutate(tmp.rate = (!! outcome2) / (!! time2)) %>% 
-      group_by_(data.nma$varname.t) %>% 
+      group_by(across(data.nma$varname.t)) %>% 
       summarise(min.event.rate = min(tmp.rate), max.event.rate = max(tmp.rate))
     
     tmp.tbl <- left_join(n.studies, n.events, by=data.nma$varname.t) %>% 
@@ -224,16 +235,16 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
       time2 <- quo(!! as.name(time))
       
       person.time <- data.nma$arm.data %>% 
-        group_by_(data.nma$varname.t) %>% 
+        group_by(across(data.nma$varname.t)) %>% 
         summarise(person.time.fup = as.integer(sum((!! time2)*(!! N2))))
       
       n.events <- data.nma$arm.data %>%
-        group_by_(data.nma$varname.t) %>%
+        group_by(across(data.nma$varname.t)) %>%
         summarise(n.events = as.integer(sum(!! outcome2)))
       
       tmp.rate <- data.nma$arm.data %>% 
         mutate(tmp.rate = (!! outcome2) / ((!! time2)*(!! N2))) %>% 
-        group_by_(data.nma$varname.t) %>% 
+        group_by(across(data.nma$varname.t)) %>% 
         summarise(min.event.rate = min(tmp.rate), max.event.rate = max(tmp.rate))
       
       tmp.tbl <- left_join(n.studies, n.events, by=data.nma$varname.t) %>% 
@@ -249,6 +260,10 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 }
 
 comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
+  
+  # Binding Variables to function
+  comparison <- NULL
+  patient_time <- NULL
 
   tmp1 <- by.comparison(data.nma=data.nma, outcome=outcome, type.outcome, N=N, time=time)
   

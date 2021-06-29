@@ -226,6 +226,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
         prior.meta.reg,
         paste0(ifelse(auto, "", "}")))
     }
+
   } 
   
   if (effects == "random"){
@@ -394,6 +395,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s
       %s
       tau <- 1/sigma2
+      %s
 
     %s
     ", paste0(ifelse(auto, "", "model{                      # *** PROGRAM STARTS")),
@@ -404,6 +406,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
                           prior.sigma2.str,
                           prior.meta.reg,
                           paste0(ifelse(auto, "", "}")))
+
     }
   }
 return(code.str)

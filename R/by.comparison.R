@@ -1,4 +1,15 @@
 by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL, time = NULL){
+  
+  #Binding variables to function
+  trial <- NULL
+  trt <- NULL
+  treatments <- NULL
+  comparisons <- NULL
+  V1 <- NULL
+  V2 <- NULL
+  trt.e <- NULL
+  trt.c <- NULL
+  
   data <- data.nma$arm.data %>% select(outcome, data.nma$varname.t, data.nma$varname.s, N, sd, time)
   names(data)[names(data) == data.nma$varname.t] <- "trt"
   names(data)[names(data) == data.nma$varname.s] <- "trial"
@@ -11,7 +22,7 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     data.st <- select(data, trial, trt)
     data.st %<>% nest(treatments=c(trt))
     data.st %<>%
-      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
+      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% `colnames<-`(c("V1", "V2")) %>% as_tibble)) %>%
       select(-treatments) %>%
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
@@ -27,7 +38,7 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     data.st <- select(data, trial, trt) 
     data.st %<>% nest(treatments=c(trt))
     data.st %<>% 
-      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
+      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% `colnames<-`(c("V1", "V2")) %>% as_tibble)) %>%
       select(-treatments) %>% 
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
@@ -45,7 +56,7 @@ by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL
     data.st <- select(data, trial, trt)
     data.st %<>% nest(treatments=c(trt))
     data.st %<>%
-      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% as_tibble)) %>%
+      mutate(comparisons = map(treatments, function(x) combn(x[[1]], 2) %>% t() %>% `colnames<-`(c("V1", "V2")) %>% as_tibble)) %>%
       select(-treatments) %>%
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%

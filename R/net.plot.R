@@ -64,6 +64,11 @@ net.plot <- function(data,
                      layout = "layout_in_circle",
                      layout.params = NULL) {
   
+  # Bind variables to function
+  x <- NULL
+  y <- NULL
+  z <- NULL
+  
   if(class(data) != "BUGSnetData")
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
@@ -75,7 +80,7 @@ net.plot <- function(data,
   #                     varname.t=data$varname.t, 
   #                     varname.s=data$varname.s)
   
-  edgesANDnodes <- network.structure(data)
+  edgesANDnodes <- suppressMessages(network.structure(data))
   edges <- edgesANDnodes[[1]]
   nodes <- edgesANDnodes[[2]]
   
