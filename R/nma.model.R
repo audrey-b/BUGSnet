@@ -170,7 +170,7 @@ nma.model <- function(data = NULL,
     
   }
   
-  if(!(reference %in% data1$trt)) stop("Reference treatment is not present in the list of treatments.")
+  if(!(reference %in% adata$trt)) stop("Reference treatment is not present in the list of treatments.")
   
   #Trt mapping
   trt.key <- trts %>% unique %>% sort %>% tibble(trt.ini=.) %>%
@@ -184,7 +184,7 @@ nma.model <- function(data = NULL,
                                        to=atrt$trt.jags) %>% as.integer)
   
   
-  if(!is.null(adata$sd)){ ifelse(!is.numeric(adata$sd) | data1$sd<=0, stop("sd must be numeric and greater than 0."), 1)}
+  if(!is.null(adata$sd)){ ifelse(!is.numeric(adata$sd) | adata$sd<=0, stop("sd must be numeric and greater than 0."), 1)}
   
   if(!is.numeric(adata$N)) stop("Sample size must be an integer greater than 0.")
   ifelse(floor(adata$N) != adata$N | adata$N<1, stop("Sample size must be an integer greater than 0."), 1)
