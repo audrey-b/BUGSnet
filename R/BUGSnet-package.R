@@ -16,7 +16,7 @@
 #' 
 #' \insertRef{JAGSweb}{BUGSnet}
 #' 
-#' @importFrom stats density median offset update qnorm
+#' @importFrom stats density median offset update qnorm sd
 #' @import ggplot2
 #' @importFrom igraph incident is.connected clusters V E graph_from_data_frame ecount vcount layout_as_bipartite layout_as_star layout_as_tree layout_in_circle layout_nicely layout_on_grid layout_on_sphere layout_randomly layout_with_dh layout_with_fr layout_with_gem layout_with_graphopt layout_with_kk layout_with_lgl layout_with_mds layout_with_sugiyama
 #' @import rjags

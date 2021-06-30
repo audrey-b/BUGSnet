@@ -121,6 +121,7 @@ nma.model <- function(data = NULL,
   value <- NULL
   variable <- NULL
   n.arms <- NULL
+  differences <- NULL
   
   if(effects!="fixed" & effects!="random") stop("Effects must be either fixed or random.")
   

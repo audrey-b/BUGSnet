@@ -8,7 +8,7 @@
 #' @param N A string indicating the name of the variable containing the number of participants in each arm for arm-based data
 #' @param sd.a A string (only required for continuous outcomes with arm-level data) indicating variable name
 #' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
-#' @param se.c A string indicating the variable name of the 
+#' @param se.diffs A string indicating the variable name of the 
 #' standard errors of the differences in data_contrast.
 #' @param var.ref A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
@@ -31,8 +31,6 @@
 #' examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Hazard Ratio"
 #' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 #' @return ...
-#' 
-#' @details 
 #' 
 #' @examples
 #' 
@@ -104,13 +102,23 @@ nma.model.shared <- function(data_arm = NULL,
     
   }
   
-  arm<-contrast<-TRUE
+  # Bind variables to function
+  trt.ini <- NULL
+  trt <- NULL
+  trial <- NULL
+  trt.jags <- NULL
+  arm <- NULL
+  value <- NULL
+  variable <- NULL
+  n.arms <- NULL
+  
+  armdat<-contrast<-TRUE
   covariate <- NULL
   
-  if(is.null(data_arm)) {arm <- F}
+  if(is.null(data_arm)) {armdat <- F}
   if(is.null(data_contrast)) {contrast <- F}
   
-  if(!arm | !contrast) {
+  if(!armdat | !contrast) {
     
     warning("You are using nma.model.shared but have only specified one type of data - did you mean to use nma.model.arm or nma.model.contrast?")
     
@@ -119,7 +127,7 @@ nma.model.shared <- function(data_arm = NULL,
   if((!is.null(data_arm) && class(data_arm) != "BUGSnetData") || (!is.null(data_contrast) && class(data_contrast) != "BUGSnetData"))
     stop("\'data_arm\' and \'data_contrast\' must be a valid BUGSnetData object created using the data.prep function.")
   
-  if(arm) {
+  if(armdat) {
     
     if(family=="normal" & is.null(sd.a)) stop("sd.a must be specified for continuous outcomes")
     if(family=="normal" & !(link%in% c("identity"))) stop("This combination of family and link is currently not supported in BUGSnet.")
@@ -142,7 +150,7 @@ nma.model.shared <- function(data_arm = NULL,
       scale <- "Rate Ratio"
     } 
     
-  } else if(contrast && !arm) {
+  } else if(contrast && !armdat) {
     
     if(!(is.null(family) && is.null(link))){
       message("Family and link will be ignored for contrast-based models.")
@@ -156,7 +164,7 @@ nma.model.shared <- function(data_arm = NULL,
   }
   
   #pull relevant fields from the data and apply naming convention
-  if(arm) {
+  if(armdat) {
     avarlist <- c(trt = data_arm$varname.t, trial = data_arm$varname.s, r1 = outcome, N = N, sd.a = sd.a, timevar = time, covariate = NULL) #se.diffs = se.diffs, var.ref = var.ref
     adata <- data_arm$arm.data[, avarlist]
     names(adata) <- names(avarlist)
@@ -182,7 +190,7 @@ nma.model.shared <- function(data_arm = NULL,
     filter(trt.ini!=reference) %>% add_row(trt.ini=reference, .before=1) %>%
     mutate(trt.jags = 1:dim(.)[1])
   
-  if(arm) {
+  if(armdat) {
     
     atrt <- trt.key[trt.key$trt.ini %in% adata$trt,]
     #add treatment mapping to data
@@ -238,7 +246,7 @@ nma.model.shared <- function(data_arm = NULL,
   
   #generate BUGS data object for arm-based data
   
-  if(arm) {
+  if(armdat) {
     
     bugstemp <- adata %>% arrange(trial, trt.jags) %>% group_by(trial) %>% mutate(arm = row_number()) %>%
       ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
@@ -463,11 +471,11 @@ nma.model.shared <- function(data_arm = NULL,
                         meta.covariate = NULL,
                         prior.meta.reg,
                         auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
-                        arm = arm,
+                        arm = armdat,
                         contrast = contrast) %>%
     paste0(add.to.model)
   
-  if(!arm) {
+  if(!armdat) {
     
     if(effects == "random") { # for random effects, need to specify ns_a=0
       

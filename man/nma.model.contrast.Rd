@@ -7,11 +7,10 @@
 nma.model.contrast(
   data_contrast = NULL,
   differences,
-  se.diffs = NULL,
+  se.diffs,
   var.ref = NULL,
   reference,
   type = "consistency",
-  time = NULL,
   effects,
   scale,
   prior.mu = "DEFAULT",
@@ -23,6 +22,8 @@ nma.model.contrast(
 \item{data_contrast}{A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}}
 
 \item{differences}{A string indicating the name of the differences for contrast-based studies}
+
+\item{se.diffs}{A string indicating the variable name of the standard errors of the differences.}
 
 \item{var.ref}{A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study}
 
@@ -41,8 +42,6 @@ will be built.}
 \item{prior.d}{A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
 \item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
-
-\item{se.c}{A string indicating the variable name of the standard errors of the differences.}
 }
 \value{
 \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:

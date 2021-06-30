@@ -3,7 +3,7 @@
 #' 
 #' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}
 #' @param differences A string indicating the name of the differences for contrast-based studies
-#' @param se.c A string indicating the variable name of the standard errors of the differences.
+#' @param se.diffs A string indicating the variable name of the standard errors of the differences.
 #' @param var.ref A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
@@ -70,22 +70,30 @@
 
 nma.model.contrast <- function(data_contrast = NULL,
                       differences,
-                      se.diffs = NULL,
+                      se.diffs,
                       var.ref = NULL,
                       reference,
                       type="consistency",
-                      time=NULL,
                       effects,
                       scale,
                       prior.mu = "DEFAULT",
                       prior.d = "DEFAULT",
                       prior.sigma = "DEFAULT"){
   
-  arm <- FALSE
   contrast <- TRUE
-  
+  time <- NULL
   covariate <- NULL
-  # 
+  
+  # Bind variables to function
+  trt.ini <- NULL
+  trt <- NULL
+  trial <- NULL
+  trt.jags <- NULL
+  arm <- NULL
+  value <- NULL
+  variable <- NULL
+  n.arms <- NULL
+  
   # if(is.null(data_arm)) {arm <- F}
   # if(is.null(data_contrast)) {contrast <- F}
   
@@ -276,7 +284,7 @@ nma.model.contrast <- function(data_contrast = NULL,
   ###Priors###
   ############
 
-  max.delta <- paste0(nma.prior(data_arm=NULL, data_contrast, outcome=outcome, differences = differences, scale=scale, N=N, sd=sd.a, time = NULL))
+  max.delta <- paste0(nma.prior(data_arm=NULL, data_contrast, outcome=outcome, differences = differences, scale=scale, N=NULL, sd=NULL, time = NULL))
   
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){
@@ -337,31 +345,31 @@ nma.model.contrast <- function(data_contrast = NULL,
    }"
   }
   
-  # #meta regression string
-  if (!is.null(covariate)){
-
-    if (prior.beta=="UNRELATED"){
-      prior.meta.reg <- sprintf("beta[1]<-0
-    for (k in 2:nt){
-      beta[k] ~ dt(0, (%s)^(-2), 1)
-    }", max.delta)
-    }else if(prior.beta=="EXCHANGEABLE"){
-      prior.meta.reg <- sprintf("beta[1]<-0
-    for (k in 2:nt){
-      beta[k] ~ dnorm(b, gamma^(-2))
-    }
-    b~dt(0, %s^(-2), 1)
-    gamma~dunif(0, %s)", max.delta, max.delta)
-    }else if(prior.beta=="EQUAL"){
-      prior.meta.reg <- sprintf("beta[1]<-0
-    for (k in 2:nt){
-      beta[k] <- B
-    }
-    B~dt(0, %s^(-2), 1)", max.delta)
-    }else {
-      prior.meta.reg <- prior.beta
-    }
-  }else prior.meta.reg <- ""
+  # # #meta regression string
+  # if (!is.null(covariate)){
+  # 
+  #   if (prior.beta=="UNRELATED"){
+  #     prior.meta.reg <- sprintf("beta[1]<-0
+  #   for (k in 2:nt){
+  #     beta[k] ~ dt(0, (%s)^(-2), 1)
+  #   }", max.delta)
+  #   }else if(prior.beta=="EXCHANGEABLE"){
+  #     prior.meta.reg <- sprintf("beta[1]<-0
+  #   for (k in 2:nt){
+  #     beta[k] ~ dnorm(b, gamma^(-2))
+  #   }
+  #   b~dt(0, %s^(-2), 1)
+  #   gamma~dunif(0, %s)", max.delta, max.delta)
+  #   }else if(prior.beta=="EQUAL"){
+  #     prior.meta.reg <- sprintf("beta[1]<-0
+  #   for (k in 2:nt){
+  #     beta[k] <- B
+  #   }
+  #   B~dt(0, %s^(-2), 1)", max.delta)
+  #   }else {
+  #     prior.meta.reg <- prior.beta
+  #   }
+  # }else prior.meta.reg <- ""
   
   prior.meta.reg <- ""
   
@@ -379,7 +387,7 @@ nma.model.contrast <- function(data_contrast = NULL,
                         meta.covariate = NULL,
                         prior.meta.reg,
                         auto = FALSE, # for compatibility with auto-run function - can change this if the feature is added
-                        arm = arm,
+                        arm = FALSE,
                         contrast = contrast) %>%
     paste0(add.to.model)
   

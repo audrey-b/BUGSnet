@@ -38,6 +38,9 @@ nma.model.shared(
 \item{sd.a}{A string (only required for continuous outcomes with arm-level data) indicating variable name
 of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.}
 
+\item{se.diffs}{A string indicating the variable name of the
+standard errors of the differences in data_contrast.}
+
 \item{var.ref}{A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
@@ -61,9 +64,6 @@ indicating person-time followup (e.g person years) or study followup time.}
 \item{prior.d}{A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
 \item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
-
-\item{se.c}{A string indicating the variable name of the
-standard errors of the differences in data_contrast.}
 }
 \value{
 \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
@@ -81,9 +81,6 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 }
 \description{
 Creates BUGS code which can be ran through \code{nma.run()}.
-}
-\details{
-
 }
 \examples{
 
