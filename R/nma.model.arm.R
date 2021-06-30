@@ -78,7 +78,6 @@
 #'        time="followup"
 #'        )
 #'         
-#' @export
 #'
 #' @references
 #' \insertRef{gemtc}{BUGSnet}

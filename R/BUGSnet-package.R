@@ -37,6 +37,5 @@
 #' @importFrom grDevices colorRampPalette dev.off
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
 #' @import mcmcr
-#' @import simanalyse
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", ":="))

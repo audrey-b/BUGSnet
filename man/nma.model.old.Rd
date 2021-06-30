@@ -122,6 +122,7 @@ diabetes.fe.c <- nma.model(data = diabetes.slr,
        time="followup"
        )
         
+
 }
 \references{
 \insertRef{gemtc}{BUGSnet}
