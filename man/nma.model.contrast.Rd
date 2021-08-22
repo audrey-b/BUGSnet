@@ -8,7 +8,7 @@ nma.model.contrast(
   data_contrast = NULL,
   differences,
   se.diffs,
-  var.ref = NULL,
+  var.arm1 = NULL,
   reference,
   type = "consistency",
   effects,
@@ -25,7 +25,7 @@ nma.model.contrast(
 
 \item{se.diffs}{A string indicating the variable name of the standard errors of the differences.}
 
-\item{var.ref}{A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study}
+\item{var.arm1}{A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the treatment in arm 1 of each study}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 a placebo or control drug of some kind.}

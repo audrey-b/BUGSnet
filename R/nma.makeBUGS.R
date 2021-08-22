@@ -27,13 +27,15 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
     
     family.str.c <- "for (k in 1:(na_c[i]-1)) {
                      for (j in 1:(na_c[i]-1)) {
-                       Sigma1[i,j,k] <- se.diffs[i,k+1]^2*(equals(j,k)) + var.ref[i,1]*(1-equals(j,k))
+                     Sigma1[i,j,k] <- se.diffs[i,k+1]^2*(equals(j,k)) + var.arm1[i,1]*(1-equals(j,k))
                      }
     }
     Omega[i, 1:(na_c[i]-1), 1:(na_c[i]-1)] <- inverse(Sigma1[i,1:(na_c[i]-1), 1:(na_c[i]-1)])
     y_c[i,2:na_c[i]] ~ dmnorm(theta_c[i,2:na_c[i]], Omega[i, 1:(na_c[i]-1), 1:(na_c[i]-1)])"
     monitor.str.c <- "for(k in 1:(na_c[i]-1)) {
+    # CHANGEBACK
     ydiff[i,k] <- y_c[i,(k+1)]-theta_c[i,(k+1)]
+    # ydiff[i,k] <- 1
     }"
   
     
@@ -127,8 +129,7 @@ makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, pri
       %s 
     # contrast - based trials
       %s
-      
-      totresdev <- sum(resdev_a[]) + sum(resdev_c[])
+      totresdev <- sum(resdev_a) + sum(resdev_c[])
       d[1]<-0
       %s
                           
