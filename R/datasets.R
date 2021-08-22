@@ -114,7 +114,7 @@
 
 #' Parkinsons contrast data
 #'
-#' This dataset was used to demonstrate network meta-analysis in the NICE-DSU TSD 2 (examples 5, 7, and 8). It includes information on seven clinical trials examining
+#' This dataset was used to demonstrate network meta-analysis in the NICE-DSU TSD 2 (example 7). It includes information on seven clinical trials examining
 #' the effects of five different treatments for Parkinsons on the mean off-time reduction (continuous outcome).
 #' This dataset is in the form of mean differences in order to demonstrate the contrast data.
 #'
@@ -127,10 +127,33 @@
 #' @keywords datasets
 #'
 #' @examples
-#' data(contrast)
-#' \insertRef{TSD2}{BUGSnet}
+#' data(parkinsons)
 #' 
 #' @references 
-#' \insertRef{walton}{BUGSnet}
+#' \insertRef{TSD2}{BUGSnet}
 #' 
 "parkinsons"
+
+#' Parkinsons arm-based data
+#'
+#' This dataset was used to demonstrate network meta-analysis in the NICE-DSU TSD 2 (examples 5 and 8). 
+#' It includes arm-based information on three out of a total of seven clinical trials examining the effects of five different treatments 
+#' for Parkinsons on the mean off-time reduction (continuous outcome).
+#' This dataset can be used in combination with rows 9 to 15 of the `parkinsons` dataset to demonstrate the use of shared parameter models
+#' in BUGSnet.
+#'
+#' @docType data
+#'
+#' @usage data(parkinsons_arm)
+#'
+#' @format A dataset.
+#'
+#' @keywords datasets
+#'
+#' @examples
+#' data(parkinsons_arm)
+#' 
+#' @references 
+#' \insertRef{TSD2}{BUGSnet}
+#' 
+"parkinsons_arm"

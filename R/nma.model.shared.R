@@ -10,7 +10,7 @@
 #' of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.
 #' @param se.diffs A string indicating the variable name of the 
 #' standard errors of the differences in data_contrast.
-#' @param var.ref A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study
+#' @param var.arm1 A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the treatment in arm 1 in each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
 #' @param family A string indicating the family of the distribution of the outcome for arm-based trials. Options are:
@@ -85,7 +85,7 @@ nma.model.shared <- function(data_arm = NULL,
                       N =NULL,
                       sd.a=NULL,
                       se.diffs = NULL,
-                      var.ref = NULL,
+                      var.arm1 = NULL,
                       reference,
                       type="consistency",
                       time=NULL,
@@ -165,13 +165,13 @@ nma.model.shared <- function(data_arm = NULL,
   
   #pull relevant fields from the data and apply naming convention
   if(armdat) {
-    avarlist <- c(trt = data_arm$varname.t, trial = data_arm$varname.s, r1 = outcome, N = N, sd.a = sd.a, timevar = time, covariate = NULL) #se.diffs = se.diffs, var.ref = var.ref
+    avarlist <- c(trt = data_arm$varname.t, trial = data_arm$varname.s, r1 = outcome, N = N, sd.a = sd.a, timevar = time, covariate = NULL) #se.diffs = se.diffs, var.arm1 = var.arm1
     adata <- data_arm$arm.data[, avarlist]
     names(adata) <- names(avarlist)
   } else { adata <- data.frame()}
   
   if(contrast) {
-    cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.ref = var.ref, covariate = NULL) #se.diffs = se.diffs, var.ref = var.ref
+    cvarlist <- c(trt = data_contrast$varname.t, trial = data_contrast$varname.s, r1 = differences, se.diffs = se.diffs, var.arm1 = var.arm1, covariate = NULL) #se.diffs = se.diffs, var.arm1 = var.arm1
     cdata <- data_contrast$arm.data[, cvarlist]
     names(cdata) <- names(cvarlist)
     
@@ -295,7 +295,7 @@ nma.model.shared <- function(data_arm = NULL,
     names(bugsdata3)[names(bugsdata3) == "trt.jags"] <- "t_c"  
     names(bugsdata3)[names(bugsdata3) == "r1"] <- "y_c"
     names(bugsdata3)[names(bugsdata3) == "covariate"] <- "x_c"
-    bugsdata3 <- bugsdata3[names(bugsdata3) %in% c("ns_c", "nt", "na_c", "y_c", "se.diffs", "var.ref", "t_c", "x_c")]
+    bugsdata3 <- bugsdata3[names(bugsdata3) %in% c("ns_c", "nt", "na_c", "y_c", "se.diffs", "var.arm1", "t_c", "x_c")]
     
     bugsdata3$ns_c <- data_contrast$studies %>% nrow()
     bugsdata3$na_c <- data_contrast$n.arms %>% select(n.arms) %>% t() %>% as.vector
@@ -319,36 +319,37 @@ nma.model.shared <- function(data_arm = NULL,
       
     }
     
-    # check if there are multi-arm trials, and if there are, check that var.ref is specified for the first arm
+    # check if there are multi-arm trials, and if there are, check that var.arm1 is specified for the first arm
     if(!all(bugsdata3$na_c == 2)) {
       
-      if(is.null(var.ref)) { 
-        stop("var.ref must be specified if there are multi-arm contrast-based trials.") 
+      if(is.null(var.arm1)) { 
+        stop("var.arm1 must be specified if there are multi-arm contrast-based trials.") 
       } else {
         
         #check that only the first arm is specified
-        if(!all(is.na(c(bugsdata3$var.ref[,-c(1)])))) {
+        if(!all(is.na(c(bugsdata3$var.arm1[,-c(1)])))) {
           
           stop("Only the observed variances for the control arms for contrast-based trials should be included, all other arms should be NA")
           
-        }  else if(!all(is.numeric(bugsdata3$var.ref[bugsdata3$na_c >2,1]))) { # make sure the control arms for all multi arm trials is numeric
+        }  else if(!all(is.numeric(bugsdata3$var.arm1[bugsdata3$na_c >2,1]))) { # make sure the control arms for all multi arm trials is numeric
           
           stop("Control arm observed variances for multi-arm conrtast-based trials must be numeric")
           
-          bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2)
-          
-        }
+        } 
+        # set the variances to 0 in the first column to avoid compilation error
+        bugsdata3$var.arm1[bugsdata3$na_c <3,1] <- 0
         
       }
+      
     } else {
       
-      if(!is.null(var.ref)) { # if var.ref is specified when there are no multi-armed trials, set them all to 0 and print warning
+      if(!is.null(var.arm1)) { # if var.arm1 is specified when there are no multi-armed trials, set them all to 0 and print warning
         
         message("Control arm variances are not used for contrast-based trials with two arms.")
         
       }
       
-      bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2) # set to zero to avoid compilation error
+      bugsdata3$var.arm1 <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2) # set to zero to avoid compilation error
       
     }
     

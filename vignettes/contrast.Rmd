@@ -50,7 +50,7 @@ The network has 4 treatments and is not highly connected.
 
 ## Main Analysis
 
-When contrast-based summary data is used, the Normal distribution is used with the identity link for all types of contrast data. Some examples of contrast-based data summaries are log odds ratios, mean differences, log hazard ratios, and risk differences. In the `parksinsons` dataset, the data are mean differences. A mathematical description of the model follows.
+When contrast-based summary data is used, the Normal distribution is used with the identity link for all types of contrast data. Some examples of contrast-based data summaries are log odds ratios, mean differences, log hazard ratios, and risk differences. In the `parkinsons` dataset, the data are mean differences. A mathematical description of the model follows.
 
 Let $i=1,...,M$ be labels for the $M$ studies in the data and let $t_{ik}\in\{1,…,T\}$ denote the treatment used in arm $k$ of study $i$. The set $\{1,…,T\}$ represents the set of treatments that were assessed across the $M$ studies. Let $y_{i,k}$ be the contrast (mean difference, log-odds, ratio, etc) of arm $k$ compared to the reference arm (arm 1) of study $i$. Then we assume $y_{ik}\sim \text{Normal}(\theta_{ik}, V_{ik})$. An identity link is used such that
 
@@ -87,7 +87,7 @@ random_effects_model <- nma.model.contrast(data=contrast_prep,
                                           effects = "random",
                                           scale = "Mean differences")
 ```
-If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ and $\mu_1,...,\mu_M$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.d`and `prior.sigma` in the `nma.model.contrast()` function.
+If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.d`and `prior.sigma` in the `nma.model.contrast()` function.
 
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
@@ -188,7 +188,9 @@ nma.forest(fixed_effects_results,
 
 # Appendix
 
+The traceplots and densities for each chain can be used to assess convergence of the MCMC chains.
+
 ```{r}
-nma.diag(fixed_effects_results)
-nma.diag(random_effects_results)
+nma.diag(fixed_effects_results, plot_prompt = F)
+nma.diag(random_effects_results, plot_prompt = F)
 ```

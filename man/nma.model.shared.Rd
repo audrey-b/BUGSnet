@@ -12,7 +12,7 @@ nma.model.shared(
   N = NULL,
   sd.a = NULL,
   se.diffs = NULL,
-  var.ref = NULL,
+  var.arm1 = NULL,
   reference,
   type = "consistency",
   time = NULL,
@@ -41,7 +41,7 @@ of the standard deviation of the outcome. Standard errors should be converted to
 \item{se.diffs}{A string indicating the variable name of the
 standard errors of the differences in data_contrast.}
 
-\item{var.ref}{A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the reference treatment in each study}
+\item{var.arm1}{A string (only required for contrast-based continuous data in networks with multi-arm trials) indicating the variable name of the variance of the treatment in arm 1 in each study}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 a placebo or control drug of some kind.}
