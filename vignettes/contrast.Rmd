@@ -17,18 +17,25 @@ knitr::opts_chunk$set(
 )
 ```
 
+The purpose of this vignette is to show how BUGSnet can be used to perform NMA using contrast-based data. The data we will be using is `parkinsons` in BUGSnet [@TSD2]. Treatment 1 corresponds to a placebo and treatments 2-5 correspond to active drugs.
+
 ### Data Preparation
 
-Notice the format the contrast-based data takes. The object should have one row per arm (the same as arm-based data), but the reference arm has `NA`'s in the difference (here, called `y`) and standard error (here, called `se.diffs`) columns. If the network includes multi-arm trials, we require an additional column used to specify the variance of the response in the reference arm for each trial, which has a variance in the rows corresponding to a reference arm and and `NA`s elsewhere.
+The format for the contrast-based summary data object that gets passed to `data.prep` is important. The object should have one row per arm. The contrast-based summary data goes in one column. In this dataset, this column is called `differences`. In this column, the rows corresponding to arm 1 for each study has `NA`. The standard errors of the contrast-based summary goes in another column. In this dataset, that column is called `se.diffs`. Similarly to the previous column, rows corresponding to arm 1 of a study should have `NA`. If the network includes multi-arm trials, we require an additional column used to specify the variance of the response in arm 1 for each trial, which has a variance in the rows corresponding to a first arm and `NA`s elsewhere. In this dataset, this column is called `var.arm1`. Additionally, there must be a column which specifies which study each arm corresponds to (in this example, `study`) and a column which specifies which treatment is used in each arm (in this example, `treatment`). The `parkinsons` data is shown below.
+```{r, echo = F, message = F}
+library(BUGSnet)
+data(parkinsons)
+knitr::kable(parkinsons)
+```
+
+The data is prepared for analysis in BUGSnet by running it through `data.prep()`.
 
 ```{r}
 library(BUGSnet)
-data(contrast)
-head(contrast)
-
-contrast_prep <- data.prep(arm.data = contrast,
-                           varname.t = "Treatment",
-                           varname.s = "Study")
+data(parkinsons)
+contrast_prep <- data.prep(arm.data = parkinsons,
+                           varname.t = "treatment",
+                           varname.s = "study")
 ```
 
 ## Network of Evidence
@@ -43,7 +50,7 @@ The network has 4 treatments and is not highly connected.
 
 ## Main Analysis
 
-When contrast-based summary data is used, the Normal distribution is used with the identity link for all types of contrast data. Some examples of contrast-based data summaries are log odds ratios, mean differences, log hazard ratios, and risk differences. A mathematical description of the model follows.
+When contrast-based summary data is used, the Normal distribution is used with the identity link for all types of contrast data. Some examples of contrast-based data summaries are log odds ratios, mean differences, log hazard ratios, and risk differences. In the `parksinsons` dataset, the data are mean differences. A mathematical description of the model follows.
 
 Let $i=1,...,M$ be labels for the $M$ studies in the data and let $t_{ik}\in\{1,…,T\}$ denote the treatment used in arm $k$ of study $i$. The set $\{1,…,T\}$ represents the set of treatments that were assessed across the $M$ studies. Let $y_{i,k}$ be the contrast (mean difference, log-odds, ratio, etc) of arm $k$ compared to the reference arm (arm 1) of study $i$. Then we assume $y_{ik}\sim \text{Normal}(\theta_{ik}, V_{ik})$. An identity link is used such that
 
@@ -59,24 +66,28 @@ In the fixed effect model, the $\delta_{ik}$’s are treated as fixed (from a fr
 Independent priors are specified on $d_{(1,2)},...,d_{(1,T)}$. Note that in both fixed and random-effects models, the quantities of interest are $d_{(1,2)},...,d_{(1,T)}$ which allow us to conclude on all treatment contrasts though the transitivity relation, $d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$.
 
 
-Returning to the analysis, `nma.model.contrast()` creates BUGS code for contrast-based data that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort, and corresponds to the treatment labelled as 1. In our case, we will use Sorafenib. The scale parameter is used to specify what the scale of the contrasts is, for example, `Log-odds ratio` or `Mean difference`, and is used in subsequent plotting functions.
+Returning to the analysis, `nma.model.contrast()` creates BUGS code for contrast-based data that will be put into `nma.run()` and analysed through JAGS [@JAGS]. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort, and corresponds to the treatment labelled as 1. In our case, we will use treatment 1 (placebo). The scale parameter is used to specify what the scale of the contrasts is, for example, `Log-odds ratio` or `Mean difference`, and is used in subsequent plotting functions.
+
+We will fit a fixed effects model and a random effects model.
 
 ```{r models}
 fixed_effects_model <- nma.model.contrast(data=contrast_prep,
-                                          differences="y",
+                                          differences="differences",
                                           se.diffs = "se.diffs",
-                                          reference = "Sorafenib",
+                                          var.arm1 = "var.arm1",
+                                          reference = "1",
                                           effects = "fixed",
-                                          scale = "Log hazard ratio")
+                                          scale = "Mean differences")
 
 random_effects_model <- nma.model.contrast(data=contrast_prep,
-                                          differences="y",
+                                          differences="differences",
                                           se.diffs = "se.diffs",
-                                          reference = "Sorafenib",
+                                          var.arm1 = "var.arm1",
+                                          reference = "1",
                                           effects = "random",
-                                          scale = "Log hazard ratio")
+                                          scale = "Mean differences")
 ```
-If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ and $\mu_1,...,\mu_M$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.mu`, `prior.d`and `prior.sigma` in the `nma.model.contrast()` function.
+If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ and $\mu_1,...,\mu_M$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.d`and `prior.sigma` in the `nma.model.contrast()` function.
 
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
@@ -84,13 +95,13 @@ The next step is to run the NMA model using `nma.run()`. Since we are working in
 set.seed(2021)
 fixed_effects_results <- nma.run(fixed_effects_model,
                            n.adapt=1000,
-                           n.burnin=1000,
-                           n.iter=10000)
+                           n.burnin=2000,
+                           n.iter=12000)
 
 random_effects_results <- nma.run(random_effects_model,
                            n.adapt=1000,
-                           n.burnin=2000,
-                           n.iter=12000)
+                           n.burnin=4000,
+                           n.iter=15000)
 
 ```
 
@@ -103,7 +114,7 @@ nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
 nma.fit(random_effects_results, main= "Random Effects Model")
 ```
 
-The DIC is slightly less for the fixed effect model. The leverage plots are similar between the two models. Overall, we will continue with the fixed effects model for demonstration purposes.
+The DIC is less for the fixed effect model. The leverage plot for the fixed effect model also looks a bit better, although the differences are small. Overall, we will continue with the fixed effects model.
 
 ## Check Inconsistency
 
@@ -111,12 +122,13 @@ Next, we will assess consistency in the network by fitting a fixed effects incon
 
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8, fig.align="centre"}
 fe_inconsistency_model <- nma.model.contrast(data=contrast_prep,
-                                          differences="y",
+                                          differences="differences",
                                           se.diffs = "se.diffs",
-                                          reference = "Sorafenib",
+                                          var.arm1 = "var.arm1",
+                                          reference = "1",
                                           effects = "fixed",
                                           type = "inconsistency",
-                                          scale = "Log hazard ratio")
+                                          scale = "Mean differences")
 
 fe_inconsistency_results <- nma.run(fe_inconsistency_model,
                                          n.adapt=1000,
@@ -130,7 +142,7 @@ fe_model_fit <- nma.fit(fixed_effects_results, main = "Consistency Model" )
 inconsist_model_fit <- nma.fit(fe_inconsistency_results, main= "Inconsistency Model")
 ```
 
-Here, the consistency and inconsistency models seem almost equivalent. 
+Here, the consistency model has a lower DIC. 
 
 Furthermore, a plot of the posterior mean deviance of the individual data points in the inconsistency model against their posterior mean deviance in the consistency model can highlight descrepancies between the two models.
 ```{r,fig.width=5 , fig.height = 4, fig.align="centre"}
@@ -138,12 +150,12 @@ par(mfrow=c(1,1))
 nma.compare(fe_model_fit, inconsist_model_fit)
 ```
 
-The data lies very near the line $y=x$, indicating agreement between the models. This suggests we can proceed with the more parsimonious model, the consistency model.
+The data lies near the line $y=x$, indicating agreement between the models. This suggests we can proceed with the more parsimonious model, the consistency model.
 
 
 ## Results
 
-Simulaneous comparison of every treatment based on the results of the NMA analysis can be achieved by comparing the posterior probabilities of being the best, second best,…, worst treatment. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and FALSE otherwise.
+Simulaneous comparison of every treatment based on the results of the NMA analysis can be achieved by comparing the posterior probabilities of being the best, second best,…, worst treatment. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and FALSE otherwise. In our case, a more negative outcome is associated with better treatments, so we set `largerbetter=FALSE`.
 
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
@@ -171,7 +183,7 @@ Forest plots are another great way to summarize the results of an NMA with respe
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 nma.forest(fixed_effects_results,
            central.tdcy="median",
-           comparator = "Sorafenib")
+           comparator = "1")
 ```
 
 # Appendix
