@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The purpose of this vignette is to show how BUGSnet can be used to perform NMA using contrast-based data. The data we will be using is `parkinsons` in BUGSnet [@TSD2]. Treatment 1 corresponds to a placebo and treatments 2-5 correspond to active drugs.
+The purpose of this vignette is to show how BUGSnet can be used to perform NMA using contrast-based data. The data we will be using is `parkinsons` in BUGSnet [@TSD2]. Treatment 1 corresponds to a placebo and treatments 2-5 correspond to active drugs. This dataset was used in [@TSD2] to demonstrate contrast-based NMA, and our results are very similar.
 
 ### Data Preparation
 
@@ -46,7 +46,7 @@ To generate the network plot, input the `data.prep` object into the `net.plot()`
  net.plot(contrast_prep, node.scale = 1.5, edge.scale=0.5)
 ```
 
-The network has 4 treatments and is not highly connected.
+The network has 5 treatments and is somewhat connected.
 
 ## Main Analysis
 
@@ -60,7 +60,7 @@ where $\delta_{ik}$ represents the fixed or random effect of the treatment from 
 In the random effects model, the $\boldsymbol \delta_i’s=(\delta_{i2},...,\delta_{ia_i} )^\top$ are  conditionally independent with distributions
 
 $$[\boldsymbol\delta_i│\boldsymbol d_i,\Sigma] \sim MVNormal(\boldsymbol d_i,\Sigma),$$
-where $\boldsymbol d_i=(d_{(t_{i1},t_{i2})},...,d_{(t_{i1},t_{ia_i)}})^\top$ and $d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$ is the difference in the treatment effect of treatments $t_{i1}$ and $t_{ik}$ on the cloglog scale and $d_{(1,1)}=0$. For $\Sigma$, a compound symmetry structure is specified following (16), with variances $\sigma^2$ and covariances $0.5\sigma^2$, where $\sigma^2$ represents the between-trial variability in treatment effects (heterogeneity).
+where $\boldsymbol d_i=(d_{(t_{i1},t_{i2})},...,d_{(t_{i1},t_{ia_i)}})^\top$ and $d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$ is the difference in the treatment effect of treatments $t_{i1}$ and $t_{ik}$ on the scale of the data and $d_{(1,1)}=0$. For $\Sigma$, a compound symmetry structure is specified following (16), with variances $\sigma^2$ and covariances $0.5\sigma^2$, where $\sigma^2$ represents the between-trial variability in treatment effects (heterogeneity).
 
 In the fixed effect model, the $\delta_{ik}$’s are treated as fixed (from a frequentist perspective) and are defined as $\delta_{ik}=d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$ with $d_{(1,1)}=0$.
 Independent priors are specified on $d_{(1,2)},...,d_{(1,T)}$. Note that in both fixed and random-effects models, the quantities of interest are $d_{(1,2)},...,d_{(1,T)}$ which allow us to conclude on all treatment contrasts though the transitivity relation, $d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$.
@@ -87,7 +87,7 @@ random_effects_model <- nma.model.contrast(data=contrast_prep,
                                           effects = "random",
                                           scale = "Mean differences")
 ```
-If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.d`and `prior.sigma` in the `nma.model.contrast()` function.
+If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.d` and `prior.sigma` in the `nma.model.contrast()` function.
 
 The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
 
