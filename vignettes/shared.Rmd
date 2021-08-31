@@ -1,0 +1,203 @@
+---
+title: "Shared Parameter Models for NMA"
+author: "Augustine Wigle"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{Shared Parameter Models for NMA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The purpose of this vignette is to demonstrate how shared parameter models can be implemented using BUGSnet. Shared parameter models allow practitioners to use contrast and arm-based summary data in the same model. The data we will be using is `parkinsons_arm` which contains arm-based data on three studies and a subset of `parkinsons` which contains contrast-based data on seven studies in BUGSnet [@TSD2]. Treatment 1 corresponds to a placebo and treatments 2-5 correspond to active drugs. These data were used in [@TSD2] to demonstrate shared parameter NMA, and our results are very similar.
+
+### Data Preparation
+
+There are seven studies for which we have data. `parkinsons_arm` has arm-based data for studies 1-3. We will also use the contrast-based data for studies 4-7 from the `parkinsons` data set. For details on the format of the contrast-based data, see the contrast vignette. The `parkinsons_arm` dataset is shown below.
+```{r, echo = F, message = F}
+library(BUGSnet)
+data(parkinsons_arm)
+knitr::kable(parkinsons_arm)
+```
+
+Now we load the `parkinsons` and `parkinsons_arm` datasets, and we will create a new data object called `parkinsons_contrast` which contains only the data for studies 4-7 from the `parkinsons` dataset. Together, the `parkinsons_arm` and `parkinsons_contrast` datasets have information on all 7 studies, and will be used to build a shared parameters model.
+
+```{r, data prep}
+library(BUGSnet)
+data(parkinsons)
+data(parkinsons_arm)
+parkinsons_contrast <- parkinsons[parkinsons$study > 3,]
+parkinsons_contrast
+parkinsons_arm
+```
+
+
+Now that we have the raw data for the arm and contrast-based data, we can prepare both datasets for analysis using `data.prep()`.
+
+```{r}
+contrast_prep <- data.prep(arm.data = parkinsons_contrast,
+                           varname.t = "treatment",
+                           varname.s = "study")
+arm_prep <- data.prep(arm.data = parkinsons_arm,
+                      varname.t = "treatment",
+                      varname.s = "study")
+```
+
+## Main Analysis
+
+Shared parameter models are a way to provide a single coherent analysis of study data when they are reported in different formats. In particular, some studies may report arm-level data while others may report contrast-level summary data. The shared parameters are the trial-specific relative effects $\delta_{ik}$, which are assumed to come from a common distribution for studies which report contrast and arm level data.
+
+In the case of this example, we have three studies whose data are arm-level summaries in the form of mean outcomes, and four studies whose data are contrast-level summaries in the form of mean differences. Let $y_{ik}$ represent the mean outcome in arm $k$ of study $i$ for the arm-based studies and the mean difference of arm $k$ compared to arm $1$ of study $i$ for the contrast-based studies. Then we assume $y_{ik}\sim \text{Normal}(\theta_{ik}, V_{ik})$ where
+\[
+\theta_{ik} = \begin{cases}
+\mu_i + \delta_{i,k}I_{k\neq t_{i1}} \text{ for } i = 1,2,3, k = 1, \dots, a_i \\
+\delta_{i,k} \text{ for } i = 4,5,6,7, k = 1, \dots, a_i
+\end{cases}
+\]
+where $a_i$ is the number of arms in study $i$, and $\delta_{ik}$ represents the fixed or random effect of the treatment from arm $k$ compared to the treatment in arm 1 of study $i$. Then we also have $\delta_{i1} = 0$ for $i = 1,\dots,M$.
+
+In the random effects model, the $\boldsymbol \delta_i’s=(\delta_{i2},...,\delta_{ia_i} )^\top$ are  conditionally independent with distributions
+
+$$[\boldsymbol\delta_i│\boldsymbol d_i,\Sigma] \sim MVNormal(\boldsymbol d_i,\Sigma),$$
+where $\boldsymbol d_i=(d_{(t_{i1},t_{i2})},...,d_{(t_{i1},t_{ia_i)}})^\top$ and $d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$ is the difference in the treatment effect of treatments $t_{i1}$ and $t_{ik}$ on the scale of the data and $d_{(1,1)}=0$. For $\Sigma$, a compound symmetry structure is specified following (16), with variances $\sigma^2$ and covariances $0.5\sigma^2$, where $\sigma^2$ represents the between-trial variability in treatment effects (heterogeneity).
+
+In the fixed effect model, the $\delta_{ik}$’s are treated as fixed (from a frequentist perspective) and are defined as $\delta_{ik}=d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$ with $d_{(1,1)}=0$.
+Independent priors are specified on $d_{(1,2)},...,d_{(1,T)}$. Note that in both fixed and random-effects models, the quantities of interest are $d_{(1,2)},...,d_{(1,T)}$ which allow us to conclude on all treatment contrasts though the transitivity relation, $d_{(t_{i1},t_{ik})}=d_{(1,t_{ik})}-d_{(1,t_{i1})}$.
+
+The `nma.model.shared` function creates BUGS code and data which will be run through JAGS [@JAGS] using the `nma.run` function. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort, and corresponds to the treatment labelled as 1. In our case, we will use treatment 1 (placebo).
+
+```{r}
+fixed_effect_model <- nma.model.shared(data_arm = arm_prep,
+                                       data_contrast = contrast_prep,
+                                       outcome = "y", # name of the outcome for arm-based data
+                                       differences = "differences", # name of the outcome for contrast-based data
+                                       N = "n", # name of sample size for arm-based data
+                                       sd.a = "sd", # name of sd for arm-based data
+                                       se.diffs = "se.diffs", # name of standard errors for contrast-based data
+                                       reference = "1",
+                                       # Specify family and link for arm data
+                                       family = "normal", link = "identity",
+                                       effects = "fixed")
+
+random_effect_model <- nma.model.shared(data_arm = arm_prep,
+                                       data_contrast = contrast_prep,
+                                       outcome = "y", # name of the outcome for arm-based data
+                                       differences = "differences", # name of the outcome for contrast-based data
+                                       N = "n", # name of sample size for arm-based data
+                                       sd.a = "sd", # name of sd for arm-based data
+                                       se.diffs = "se.diffs", # name of standard errors for contrast-based data
+                                       reference = "1",
+                                       # Specify family and link for arm data
+                                       family = "normal", link = "identity",
+                                       effects = "random")
+```
+
+If you want to review or modify the BUGS code, you can review it by outputting `cat(fixed_effects_model$bugs)` and `cat(random_effects_model$bugs)`. Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ and $\mu_1,...,\mu_M$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.d`, `prior.mu`, and `prior.sigma` in the `nma.model.shared()` function.
+
+The next step is to run the NMA model using `nma.run()`. Since we are working in a Bayesian framework, we need to specify the number of adaptations, burn-ins, and iterations. A description of Bayesian MCMC is omitted here, we direct the reader to any introductory text on Bayesian Modelling [@lunn2012bugs].
+
+```{r, results = "hide"}
+set.seed(2021)
+fixed_effect_results <- nma.run(fixed_effect_model,
+                           n.adapt=1000,
+                           n.burnin=2000,
+                           n.iter=12000)
+
+random_effect_results <- nma.run(random_effect_model,
+                           n.adapt=1000,
+                           n.burnin=4000,
+                           n.iter=15000)
+
+```
+
+# Assess model fit
+
+Compare the fit of the fixed and random effects models by comparing the leverage plots and DIC.
+```{r, fig.width=7, fig.height=4, results = "hide"}
+par(mfrow = c(1,2))
+nma.fit(fixed_effect_results, main = "Fixed Effects Model" )
+nma.fit(random_effect_results, main= "Random Effects Model")
+```
+
+The fixed effect model has a smaller DIC and a nicer leverage plot. We will continue with the fixed effect model.
+
+## Check Inconsistency
+
+Next, we will assess consistency in the network by fitting a fixed effects inconsistency model. We can then compare the fit of this model to the consistency model. If the inconsistency model has a better fit, then it is likely that there is inconsistency in the network [@lu2006assessing].
+
+```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8, fig.align="centre"}
+fe_inconsistency_model <- nma.model.shared(data_arm = arm_prep,
+                                       data_contrast = contrast_prep,
+                                       outcome = "y", # name of the outcome for arm-based data
+                                       differences = "differences", # name of the outcome for contrast-based data
+                                       N = "n", # name of sample size for arm-based data
+                                       sd.a = "sd", # name of sd for arm-based data
+                                       se.diffs = "se.diffs", # name of standard errors for contrast-based data
+                                       reference = "1",
+                                       # Specify family and link for arm data
+                                       family = "normal", link = "identity",
+                                       effects = "fixed",
+                                       type = "inconsistency")
+
+fe_inconsistency_results <- nma.run(fe_inconsistency_model,
+                                         n.adapt=1000,
+                                         n.burnin=1000,
+                                         n.iter=10000)
+```
+
+We use rainbow plots and DIC to assess fit.
+```{r, fig.width=7, fig.height=4, results = "hide"}
+par(mfrow = c(1,2))
+fe_model_fit <- nma.fit(fixed_effect_results, main = "Consistency Model" )
+inconsist_model_fit <- nma.fit(fe_inconsistency_results, main= "Inconsistency Model")
+```
+
+The consistency model has a lower DIC and the leverage plots are very similar. Therefore, we will conclude there is not evidence of inconsistency in the network.
+
+## Results
+
+Simulaneous comparison of every treatment based on the results of the NMA analysis can be achieved by comparing the posterior probabilities of being the best, second best,…, worst treatment. In BUGSnet, simply input the results of your model into the `nma.rank()` function, and specify `largerbetter=TRUE` if a larger outcome is associated with better treatments, and FALSE otherwise. In our case, a more negative outcome is associated with better treatments, so we set `largerbetter=FALSE`.
+
+### Sucra Plot
+```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
+sucra.out <- nma.rank(fixed_effect_results, largerbetter=FALSE, sucra.palette= "Set1")
+sucra.out$sucraplot
+```
+
+### League Heat Plot
+
+League tables are another way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes 95% credible intervals. You can also plot the league table as a heatplot using the following code:
+```{r, echo=TRUE, fig.width=7, fig.height=4}
+league.out <- nma.league(fixed_effect_results,  
+                         central.tdcy="median",
+                         order = sucra.out$order,
+                         low.colour = "springgreen4",
+                         mid.colour = "white",
+                         high.colour = "red")
+league.out$heatplot
+```
+
+### Forest Plot
+Forest plots are another great way to summarize the results of an NMA with respect to a particular comparator. The x-axis label is based on the scale of the arm-based data.
+```{r, echo=TRUE, fig.width=7, fig.height=4}
+nma.forest(fixed_effect_results,
+           central.tdcy="median",
+           comparator = "1")
+```
+
+# Appendix
+
+The traceplots and densities for each chain can be used to assess convergence of the MCMC chains.
+
+```{r}
+nma.diag(fixed_effect_results, plot_prompt = F)
+nma.diag(random_effect_results, plot_prompt = F)
+```

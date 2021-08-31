@@ -1,4 +1,3 @@
-
 #' Data preparation
 #' @description Puts data into appropriate form for subsequent analysis using BUGSnet.
 #' @param arm.data Data with 1 row for each study arm.

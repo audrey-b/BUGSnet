@@ -1,4 +1,8 @@
-nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
+# Calculates estimate of max-delta to be used in prior calculation
+
+nma.prior <- function(data_arm, data_contrast, outcome, differences, scale, N, sd=NULL, time = NULL){
+  
+  if(!is.null(data_arm)){
   
   #Bind variables to function
   outcome.e <- NULL
@@ -13,7 +17,6 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
   time.e <- NULL
   time.c <- NULL
   
-  
   if (scale =="Odds Ratio" ){
     type.outcome = "binomial"
   } else if (scale =="Risk Ratio"){
@@ -24,12 +27,15 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
     type.outcome = "rate"
   } else if (scale =="Hazard Ratio"){
     type.outcome = "rate2"
-  }
-  
-  table <- by.comparison(data.nma, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
+  } 
+
+  # build table of treatment comparisons for which we have data (for arm-based)
+  table <- by.comparison(data_arm, outcome, type.outcome = type.outcome, N, sd=sd, time = time)
   names(table)[names(table) == paste0(outcome,".e")] <- "outcome.e"
   names(table)[names(table) == paste0(outcome,".c")] <- "outcome.c"
   
+  
+  #calculate MLEs of deltas from arm-based data table
   if (scale == "Odds Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
     names(table)[names(table) == paste0(N,".c")] <- "N.c"
@@ -41,6 +47,8 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
              theta.c = log(adj_r.c/(1-adj_r.c))) %>%
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
+    # make numeric
+    deltas <- pull(deltas, delta)
     
   } else if (scale =="Risk Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
@@ -53,12 +61,16 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
              theta.c = log(adj_r.c)) %>%
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
+    # make numeric
+    deltas <- pull(deltas, delta)
     
   } else if (scale == "Mean Difference"){
     
     deltas <- table %>% 
       mutate(delta = as.numeric(outcome.e)-as.numeric(outcome.c)) %>%
       select(delta)
+    # make numeric
+    deltas <- pull(deltas, delta)
     
   } else if (scale == "Hazard Ratio"){
     names(table)[names(table) == paste0(N,".e")] <- "N.e"
@@ -73,6 +85,8 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
              theta.c = log(-log(adj_r.c))) %>%
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
+    # make numeric
+    deltas <- pull(deltas, delta)
     
   } else if (scale =="Rate Ratio"){
     names(table)[names(table) == paste0(time,".e")] <- "time.e"
@@ -85,13 +99,25 @@ nma.prior <- function(data.nma, outcome, scale, N, sd=NULL, time = NULL){
              theta.c = log(adj_r.c)) %>%
       mutate(delta = theta.e-theta.c) %>%
       select(delta)
+    # make numeric
+    deltas <- pull(deltas, delta)
     
   }
+  } else {deltas <- 0}
   
-  return(max(abs(deltas)))
-}
+  # calculate deltas from contrast-based data
+  
+  if(!is.null(data_contrast)) {
+    
+    deltas2 <- data_contrast$arm.data %>% select(differences) # the differences are already reported, we just need to select the outcome column
+    deltas2 <- pull(deltas2, differences)
+    deltas2 <- deltas2[!is.na(deltas2)] # drop NAs
+  } else {deltas2 <- 0}
+  
+  # return maximum delta for priors
+  return(max(abs(c(deltas,deltas2))))
 
-#nma.prior(data.nma = dich.slr, scale = "Risk Ratio", outcome = "responders", N = "sampleSize")
+}
 
 
 
