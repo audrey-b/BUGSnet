@@ -2,7 +2,7 @@
 % Please edit documentation in R/nma.model.contrast.R
 \name{nma.model.contrast}
 \alias{nma.model.contrast}
-\title{Create Bugs Model for contrast-based data}
+\title{Create Bugs Model for contrast-Level data}
 \usage{
 nma.model.contrast(
   data_contrast = NULL,

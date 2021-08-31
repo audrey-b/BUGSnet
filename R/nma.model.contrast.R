@@ -1,4 +1,4 @@
-#' Create Bugs Model for contrast-based data
+#' Create Bugs Model for contrast-Level data
 #' @description Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
 #' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}

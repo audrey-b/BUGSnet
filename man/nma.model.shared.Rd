@@ -80,7 +80,7 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 ...
 }
 \description{
-Creates BUGS code which can be ran through \code{nma.run()}.
+Creates BUGS code which can be run through \code{nma.run()}. Handles a combination of arm-level and contrast-level data.
 }
 \examples{
 

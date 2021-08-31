@@ -1,4 +1,4 @@
-#' Forest plot
+#' Forest Plot
 #' @description Produces a forest plot of point estimates and 95% credible intervals obtained with the quantile method.
 #' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
 #' @param comparator The treatment to use as a comparator
