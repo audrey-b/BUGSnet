@@ -4,7 +4,7 @@
 \alias{nma.fit}
 \title{Assess Model Fit}
 \usage{
-nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, ...)
+nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, c = 3, ...)
 }
 \arguments{
 \item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}
@@ -14,6 +14,8 @@ nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, ...)
 \item{plot.DIC}{Whether to include DIC on the plot. Default is TRUE.}
 
 \item{plot.Dres}{Whether to include Dres on the plot. Default is TRUE.}
+
+\item{c}{value which determines what is considered an outlier - default is 3 based on TSD-2}
 
 \item{...}{Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}. These arguments will only effect the
 leverage plot.}
@@ -34,6 +36,8 @@ the model and is calculated as the sign of the difference of the observed outcom
 \code{Dres} - The posterior mean of the residual deviance.
 
 \code{pD} - The effective number of parameters, calculated as the sum of the leverages.
+
+\code{outliers} - A data.frame with the trial identifier (and arm number if the trial supplied arm-based data) of the points which are outliers according to the value of c.
 }
 \description{
 Computes the Deviance Information Criteria (DIC) and produces a leverage plot (as in the NICE Technical Support Document 2)

@@ -9,6 +9,7 @@
 #' @param plot.pD Whether to include pD on the plot. Default is TRUE.
 #' @param plot.DIC Whether to include DIC on the plot. Default is TRUE.
 #' @param plot.Dres Whether to include Dres on the plot. Default is TRUE.
+#' @param c value which determines what is considered an outlier - default is 3 based on TSD-2
 #' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}. These arguments will only effect the
 #' leverage plot.
 #' 
@@ -22,7 +23,7 @@
 #' @return \code{pmdev} - A vector with one value per study arm representing the posterior mean residual deviance for each data point (study arm).
 #' @return \code{Dres} - The posterior mean of the residual deviance.
 #' @return \code{pD} - The effective number of parameters, calculated as the sum of the leverages.
-
+#' @return \code{outliers} - A data.frame with the trial identifier (and arm number if the trial supplied arm-based data) of the points which are outliers according to the value of c.
 #' 
 #' @examples
 #' 
@@ -75,7 +76,7 @@
 #' @export
 #' @seealso \code{\link{nma.run}}
 
-nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
+nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ...){
   
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
@@ -173,8 +174,6 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 
   DIC = pD + totresdev
   
-  
-  
   eq = function(x,c){c-x^2}
   x=seq(-3, 3, 0.001)
   c1=eq(x, c=rep(1, 6001))
@@ -207,7 +206,46 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
     w <- w_c
     pmdev <- pmdev_c
   } 
+  
+  # Detecting Outliers
+  
+  # Do pre-processing on strings to extract corresponding trial and arm labels
+  split_results <- strsplit(names(pmdev), "[.]")
+  trials <- c(sapply(split_results, "[", 2))
+  arms <- c(sapply(split_results, "[", 3))
+  arm_trials <- !is.na(arms)
+  con_trials <- !arm_trials
 
+  if(length(arm_trials > 0)) {
+
+    trials[arm_trials] <- nma$model$study_a$study[as.numeric(trials[arm_trials])]
+
+  }
+
+  if(length(con_trials > 0)) {
+
+    trials[con_trials] <- nma$model$study_c$study[as.numeric(trials[con_trials])]
+
+  }
+  
+  # Create a data frame with summary information
+  x_val <- as.vector(unname(w)) # x values on plot are w_ik = sign(resid) * residual_deviance
+  y_val <- as.vector(unlist(leverage)) # y values on plot are the leverage values
+  temp_data <- data.frame(trials, arms, x_val, y_val)
+
+  # Check whether or not the data points lie outside x^2 + y = c for user-defined c
+  p_vals <- mapply(function(x,y){if((x - 0)^2 + (y-c)>0) "Outside" else "Inside"},
+                   x=temp_data$x_val, y=temp_data$y_val)
+
+  # Summarize and clean up results table; output is the outlying points and values
+  results <- subset(temp_data, p_vals == "Outside")
+  colnames(results) <- c("Trial", "Arm", "w_ik", "leverage_ik")
+  # Plot the outliers in a different colour else give printed message
+  if(nrow(results)>0) {
+    points(results$w_ik, results$leverage_ik, col = "red")
+  } else print("No outliers detected for given c")
+  
+  # Adding lines and text to plot
   points(x, ifelse(c1 < 0, NA, c1),   lty=1, col="firebrick3",    type="l")
   points(x, ifelse(c1 < -1, NA, c1)+1, lty=2, col="chartreuse4",   type="l")
   points(x, ifelse(c1 < -2, NA, c1)+2, lty=3, col="mediumpurple3", type="l")
@@ -216,16 +254,13 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
   if (plot.Dres == TRUE){text(2, 3.9, paste("Dres=", round(totresdev,2)), cex = 0.8)}
   if (plot.DIC==TRUE){text(2, 3.5, paste("DIC=", round(DIC,2)), cex = 0.8)}
   
-  # leverage <- c(as.numeric(leverage_a[1,]), leverage_c)
-  # w <- c(w_a, w_c)
-  # pmdev <- c(pmdev_a, pmdev_c)
-  
   return(list(DIC=DIC,
               Dres = totresdev,
               pD = pD,
               leverage=leverage,
               w=w,
-              pmdev=pmdev)
+              pmdev=pmdev,
+              outliers = results[order(results$Trial),])
   )
 }
 
