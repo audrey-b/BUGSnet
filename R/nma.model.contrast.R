@@ -421,7 +421,8 @@ nma.model.contrast <- function(data_contrast = NULL,
                            outcome=outcome,
                            N=NULL,
                            sd=sd,
-                           mean.cov=mean.cov),
+                           mean.cov=mean.cov,
+                           study_c = data_contrast$studies),
                       class = "BUGSnetModel")
   return(bmodel)
 }

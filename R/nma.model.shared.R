@@ -514,7 +514,9 @@ nma.model.shared <- function(data_arm = NULL,
                            outcome=outcome,
                            N=N,
                            sd=sd,
-                           mean.cov=mean.cov),
+                           mean.cov=mean.cov,
+                           study_a = data_arm$studies,
+                           study_c = data_contrast$studies),
                       class = "BUGSnetModel")
   return(bmodel)
 }
