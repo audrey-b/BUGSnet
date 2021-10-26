@@ -2,7 +2,7 @@
 % Please edit documentation in R/nma.model.R
 \name{nma.model}
 \alias{nma.model}
-\title{Create Bugs Model for Arm-Based data}
+\title{Create Bugs Model for Arm-Level Data}
 \usage{
 nma.model(
   data = NULL,
@@ -25,11 +25,11 @@ nma.model(
 \arguments{
 \item{data}{A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}}
 
-\item{outcome}{A string indicating the name of your outcome variable for arm-based studies.}
+\item{outcome}{A string indicating the name of your outcome variable.}
 
-\item{N}{A string indicating the name of the variable containing the number of participants in each arm for arm-based data - required.}
+\item{N}{A string indicating the name of the variable containing the number of participants in each arm.}
 
-\item{sd}{A string (only required for continuous outcomes with arm-level data) indicating variable name
+\item{sd}{A string (only required for continuous outcomes) indicating variable name
 of the standard deviation of the outcome. Standard errors should be converted to standard deviation by multiplying by the square root of the sample size prior to using this function.}
 
 \item{reference}{A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
@@ -41,10 +41,10 @@ will be built.}
 \item{time}{A string (only required for binomial-cloglog or poisson-log models) indicating the name of variable
 indicating person-time followup (e.g person years) or study followup time.}
 
-\item{family}{A string indicating the family of the distribution of the outcome for arm-based trials. Options are:
-"binomial", "normal", "poisson"}
+\item{family}{A string indicating the family of the distribution of the outcome. Options are:
+"binomial", "normal", "poisson".}
 
-\item{link}{The link function for the nma model for arm-based models. Options are "logit" (binomial family), "log" (binomial family), "cloglog" (poisson family), "identity" (normal family).}
+\item{link}{The link function for the nma model. Options are "logit" (binomial family), "log" (binomial or poisson family), "cloglog" (binomial family), "identity" (normal family).}
 
 \item{effects}{A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".}
 
@@ -57,9 +57,9 @@ indicating person-time followup (e.g person years) or study followup time.}
 \item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.}
 
 \item{covariate}{Optional string indicating the name of the variable in your data set that you would like to
-adjust for via meta regression - only implemented for arm-based models. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
+adjust for via meta regression. By default, covariate=NULL and no covariate adjustment is applied. If the specified covariate is numeric then
 it will be centered for the analysis. If it is a character or factor then it will be treated as categorical. Currently only categorical variables
-with fewer than 3 levels are supported. The name of the covariate variable must be the same in the arm and contrast-based data (if both are used)}
+with fewer than 3 levels are supported.}
 }
 \value{
 \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:

@@ -1,5 +1,5 @@
 #' Create Bugs Model with Shared Parameters
-#' @description Creates BUGS code which can be ran through \code{nma.run()}.
+#' @description Creates BUGS code which can be run through \code{nma.run()}. Handles a combination of arm-level and contrast-level data.
 #' 
 #' @param data_arm A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}
 #' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}

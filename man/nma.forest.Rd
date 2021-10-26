@@ -2,7 +2,7 @@
 % Please edit documentation in R/nma.forest.R
 \name{nma.forest}
 \alias{nma.forest}
-\title{Forest plot}
+\title{Forest Plot}
 \usage{
 nma.forest(
   nma,

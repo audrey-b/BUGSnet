@@ -1,8 +1,8 @@
 # Computing pmdev_fitted for contrast data
-#' @param y is the data.frame of y from MCMC sampling
-#' @param ytilde is a numeric vector of length sum(na)
-#' @param Omega data.frame of Omega from MCMC sampling
-#' @param nma BUGSnetRun object (has info on data)
+# y is the data.frame of y from MCMC sampling
+# ytilde is a numeric vector of length sum(na)
+# Omega data.frame of Omega from MCMC sampling
+# nma BUGSnetRun object (has info on data)
 
 contrast_pmdev_fitted <- function(y, ytilde, Omega, nma) {
   

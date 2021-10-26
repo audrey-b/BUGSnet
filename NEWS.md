@@ -1,7 +1,5 @@
-- Deprecated nma.trace() in manual
+- nma.model.contrast function handles contrast-level data
 
-- Special characters now matching in net.structure()
+- nma.model.shared function handles a mix of contrast-level and arm-level data (share parameter models)
 
-- Added informative error messages in nma.model()
-
-- Removed dependencies on deprecated tidyverse functions 
+- Fixed error in nma.reg when covariate is a character with 2 levels
