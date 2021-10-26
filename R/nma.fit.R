@@ -216,22 +216,31 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ..
   arm_trials <- !is.na(arms)
   con_trials <- !arm_trials
 
+  #change trial names from numbers to actual trial identifiers
   if(length(arm_trials > 0)) {
 
-    trials[arm_trials] <- nma$model$study_a$study[as.numeric(trials[arm_trials])]
+    trials[arm_trials] <- nma$model$study_a[as.numeric(trials[arm_trials]),1]
 
   }
 
   if(length(con_trials > 0)) {
 
-    trials[con_trials] <- nma$model$study_c$study[as.numeric(trials[con_trials])]
+    trials[con_trials] <- nma$model$study_c[as.numeric(trials[con_trials]),1]
 
   }
   
   # Create a data frame with summary information
   x_val <- as.vector(unname(w)) # x values on plot are w_ik = sign(resid) * residual_deviance
   y_val <- as.vector(unlist(leverage)) # y values on plot are the leverage values
-  temp_data <- data.frame(trials, arms, x_val, y_val)
+  temp_data <- data.frame(trials, arms, x_val, y_val) # y_val is NaN when leverage can't be calculated
+  
+  if(FALSE %in% is.finite(temp_data$y_val)) { # if there are NaN leverages due to zero cells
+    
+    warning("Cells without leverages are not checked for outliers")
+    temp_data <- temp_data[which(is.finite(temp_data$y_val)),] # drop the arms which have NaN values
+    
+  }
+  
 
   # Check whether or not the data points lie outside x^2 + y = c for user-defined c
   p_vals <- mapply(function(x,y){if((x - 0)^2 + (y-c)>0) "Outside" else "Inside"},
