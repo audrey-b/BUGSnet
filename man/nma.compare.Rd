@@ -4,7 +4,7 @@
 \alias{nma.compare}
 \title{Consistency vs Inconsistency plot}
 \usage{
-nma.compare(consistency.model.fit, inconsistency.model.fit, ...)
+nma.compare(consistency.model.fit, inconsistency.model.fit)
 }
 \arguments{
 \item{consistency.model.fit}{Results of \code{nma.fit()} of an consistency model.}

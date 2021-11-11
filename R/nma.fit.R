@@ -333,19 +333,29 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ..
 #' #Plot the results against each other to assess inconsistency
 #' nma.compare(assess.consistency, assess.inconsistency)
 
-
-
-
-
-
-nma.compare <- function(consistency.model.fit, inconsistency.model.fit, ...){
-  x=as.numeric(consistency.model.fit$pmdev)
-  y=as.numeric(inconsistency.model.fit$pmdev)
-  upp <- max(0, max(x,y)*1.04)
-  ptsline <- seq(0,upp, length.out=2000)
-  plot(x, y,
-       xlim=c(0, upp),
-       ylim=c(0, upp),
-       ylab="Inconsistency model", xlab="Consistency model", pch=16, ...)
-  points(ptsline, ptsline, type = "l", lty=2)
+nma.compare <- function(consistency.model.fit, inconsistency.model.fit) {
+  
+  plotframe <- data.frame(consistency = as.numeric(fe_model_fit$pmdev), 
+                          inconsistency = as.numeric(inconsist_model_fit$pmdev))
+  
+  p <- ggplot(plotframe, aes(x = consistency, y = inconsistency)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+    labs(x = "Consistency model", y = "Inconsistency model") +
+    theme_classic()
+  
+  return(p)
+  
 }
+
+# nma.compare <- function(consistency.model.fit, inconsistency.model.fit, ...){
+#   x=as.numeric(consistency.model.fit$pmdev)
+#   y=as.numeric(inconsistency.model.fit$pmdev)
+#   upp <- max(0, max(x,y)*1.04)
+#   ptsline <- seq(0,upp, length.out=2000)
+#   plot(x, y,
+#        xlim=c(0, upp),
+#        ylim=c(0, upp),
+#        ylab="Inconsistency model", xlab="Consistency model", pch=16, ...)
+#   points(ptsline, ptsline, type = "l", lty=2)
+# }
