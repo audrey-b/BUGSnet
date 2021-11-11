@@ -10,8 +10,9 @@ nma.compare(consistency.model.fit, inconsistency.model.fit)
 \item{consistency.model.fit}{Results of \code{nma.fit()} of an consistency model.}
 
 \item{inconsistency.model.fit}{Results of \code{nma.fit()} of an inconsistency model.}
-
-\item{...}{Graphical arguments such as main=, ylab=, and xlab= may be passed in \code{plot()}.}
+}
+\value{
+A ggplot object
 }
 \description{
 Plots the posterior mean deviance of a consistency model vs an inconsistency model. This plot can help identify loops
