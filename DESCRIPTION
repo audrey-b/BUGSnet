@@ -28,7 +28,7 @@ Imports:
     tidyr (>= 1.0),
     plyr (>= 1.8.4),
     ggplot2 (>= 3.2.1),
-    igraph (>= 1.2.4.1),
+    igraph (>= 1.2.6),
     extrafont (>= 0.17),
     magrittr (>= 1.5),
     dplyr (>= 0.8.3),
