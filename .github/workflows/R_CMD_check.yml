@@ -60,19 +60,20 @@ jobs:
           do
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
-      
+          
       - name: Igraph fix1
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
-          install: git base-devel mingw-w64-${{ matrix.config }}-cmake mingw-w64-${{ matrix.config }}-ninja mingw-w64-${{ matrix.config }}-toolchain mingw-w64-${{ matrix.config }}-glpk mingw-w64-${{ matrix.config }}-gmp mingw-w64-${{ matrix.config }}-libxml2 mingw-w64-${{ matrix.config }}-suitesparse mingw-w64-${{ matrix.config }}-lapack
+          msystem: ${{ matrix.msystem }}
+          install: git base-devel mingw-w64-${{ matrix.arch }}-cmake mingw-w64-${{ matrix.arch }}-ninja mingw-w64-${{ matrix.arch }}-toolchain mingw-w64-${{ matrix.arch }}-glpk mingw-w64-${{ matrix.arch }}-gmp mingw-w64-${{ matrix.arch }}-libxml2 mingw-w64-${{ matrix.arch }}-suitesparse mingw-w64-${{ matrix.arch }}-lapack
           update: true
           
       - name: Igraph fix2
         if: runner.os == 'Windows'
         run: |
-          mkdir -p build-${{ matrix.config }}
-          cd build-${{ matrix.config }}
+          mkdir -p build-${{ matrix.arch }}
+          cd build-${{ matrix.arch }}
           cmake .. -GNinja -DBUILD_SHARED_LIBS='ON' -DIGRAPH_GLPK_SUPPORT=ON -DIGRAPH_GRAPHML_SUPPORT=ON -DIGRAPH_ENABLE_TLS=ON -DIGRAPH_VERIFY_FINALLY_STACK=ON -DBLA_VENDOR=Generic -DIGRAPH_PRINT_ARITH_HEADER=ON
       
       - name: Install JAGS macOS
