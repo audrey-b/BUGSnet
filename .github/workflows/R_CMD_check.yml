@@ -69,6 +69,12 @@ jobs:
           install: git base-devel mingw-w64-${{ matrix.config.arch }}-cmake mingw-w64-${{ matrix.config.arch }}-ninja mingw-w64-${{ matrix.config.arch }}-toolchain mingw-w64-${{ matrix.config.arch }}-glpk mingw-w64-${{ matrix.config.arch }}-gmp mingw-w64-${{ matrix.config.arch }}-libxml2 mingw-w64-${{ matrix.config.arch }}-suitesparse mingw-w64-${{ matrix.config.arch }}-lapack
           update: true
           
+      - name: Checkout
+        if: runner.os == 'Windows'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
       - name: Igraph fix2
         if: runner.os == 'Windows'
         run: |
