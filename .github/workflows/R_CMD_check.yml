@@ -61,27 +61,14 @@ jobs:
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
           
-      - name: Igraph fix1
+      - name: Install glpk for igraph
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.config.msystem }}
           install: git base-devel mingw-w64-${{ matrix.config.arch }}-cmake mingw-w64-${{ matrix.config.arch }}-ninja mingw-w64-${{ matrix.config.arch }}-toolchain mingw-w64-${{ matrix.config.arch }}-glpk mingw-w64-${{ matrix.config.arch }}-gmp mingw-w64-${{ matrix.config.arch }}-libxml2 mingw-w64-${{ matrix.config.arch }}-suitesparse mingw-w64-${{ matrix.config.arch }}-lapack
           update: true
-          
-      - name: Checkout
-        if: runner.os == 'Windows'
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          
-      - name: Igraph fix2
-        if: runner.os == 'Windows'
-        run: |
-          mkdir -p build-${{ matrix.config.arch }}
-          cd build-${{ matrix.config.arch }}
-          cmake .. -GNinja -DBUILD_SHARED_LIBS='ON' -DIGRAPH_GLPK_SUPPORT=ON -DIGRAPH_GRAPHML_SUPPORT=ON -DIGRAPH_ENABLE_TLS=ON -DIGRAPH_VERIFY_FINALLY_STACK=ON -DBLA_VENDOR=Generic -DIGRAPH_PRINT_ARITH_HEADER=ON
-      
+    
       - name: Install JAGS macOS
         if: runner.os == 'macOS'
         run: |
