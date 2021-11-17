@@ -20,7 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, r: 'release', arch: x86_64, msystem: MINGW64}
           - {os: macOS-latest, r: 'release'}
           - {os: ubuntu-20.04, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
           - {os: ubuntu-20.04, r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
@@ -45,14 +44,6 @@ jobs:
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
 
-      - name: Cache R packages
-        if: runner.os != 'Windows'
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
-
       - name: Install system dependencies
         if: runner.os == 'Linux'
         run: |
@@ -61,11 +52,6 @@ jobs:
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
       
-      - name: Install glpk for igraph on Windows
-        if: runner.os == 'Windows'
-        run: |
-          pacman -Sy --noconfirm mingw-w64-i686-glpk mingw-w64-i686-libxml2 mingw-w64-i686-gmp mingw-w64-x86_64-glpk mingw-w64-x86_64-libxml2 mingw-w64-x86_64-gmp
-    
       - name: Install JAGS macOS
         if: runner.os == 'macOS'
         run: |
@@ -75,17 +61,7 @@ jobs:
       - name: Install JAGS Linux
         if: runner.os == 'Linux'
         run: sudo apt-get install jags
-
-      - name: Download JAGS Windows
-        if: runner.os == 'Windows'
-        run: (New-Object System.Net.WebClient).DownloadFile('https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Windows/JAGS-4.3.0.exe', 'C:\JAGS-4.3.0.exe')
-        shell: powershell
         
-      - name: Install JAGS Windows
-        if: runner.os == 'Windows'
-        run: C:\JAGS-4.3.0.exe /S
-        shell: cmd
-          
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
