@@ -76,6 +76,7 @@
 
 nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, main = ""){
   
+  outlier <- NULL # get rid of check note
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
@@ -331,8 +332,10 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ma
 
 nma.compare <- function(consistency.model.fit, inconsistency.model.fit) {
   
-  plotframe <- data.frame(consistency = as.numeric(fe_model_fit$pmdev), 
-                          inconsistency = as.numeric(inconsist_model_fit$pmdev))
+  consistency <- NULL # get rid of check notes
+  inconsistency <- NULL
+  plotframe <- data.frame(consistency = as.numeric(consistency.model.fit$pmdev), 
+                          inconsistency = as.numeric(inconsistency.model.fit$pmdev))
   
   p <- ggplot(plotframe, aes(x = consistency, y = inconsistency)) +
     geom_point() +
