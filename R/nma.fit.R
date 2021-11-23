@@ -253,9 +253,9 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ma
     }) +
     labs(x = expression(w[ik]), y = expression(leverage[ik]), title = main)+
     # Add text to plot
-    geom_text(x = 1.7, y = 4, label = ifelse(plot.pD, paste("pD=", round(pD, 2)), "")) +
-    geom_text(x = 1.7, y = 3.8, label = ifelse(plot.Dres, paste("Dres=", round(totresdev,2)), "")) +
-    geom_text(x = 1.7, y = 3.6, label = ifelse(plot.DIC, paste("DIC=", round(DIC, 2)), "")) +
+    geom_text(x = 1.6, y = 4, label = ifelse(plot.pD, paste("pD=", round(pD, 2)), "")) +
+    geom_text(x = 1.6, y = 3.8, label = ifelse(plot.Dres, paste("Dres=", round(totresdev,2)), "")) +
+    geom_text(x = 1.6, y = 3.6, label = ifelse(plot.DIC, paste("DIC=", round(DIC, 2)), "")) +
     theme_classic()
 
   # Summarize and clean up results table; output is the outlying points and values

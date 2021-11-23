@@ -24,6 +24,7 @@ The purpose of this vignette is to show how BUGSnet can be used to perform NMA u
 The format for the contrast-based summary data object that gets passed to `data.prep` is important. The object should have one row per arm. The contrast-based summary data goes in one column. In this dataset, this column is called `differences`. In this column, the rows corresponding to arm 1 for each study has `NA`. The standard errors of the contrast-based summary goes in another column. In this dataset, that column is called `se.diffs`. Similarly to the previous column, rows corresponding to arm 1 of a study should have `NA`. If the network includes multi-arm trials, we require an additional column used to specify the variance of the response in arm 1 for each trial, which has a variance in the rows corresponding to a first arm and `NA`s elsewhere. In this dataset, this column is called `var.arm1`. Additionally, there must be a column which specifies which study each arm corresponds to (in this example, `study`) and a column which specifies which treatment is used in each arm (in this example, `treatment`). The `parkinsons` data is shown below.
 ```{r, echo = F, message = F}
 library(BUGSnet)
+library(gridExtra)
 data(parkinsons)
 knitr::kable(parkinsons)
 ```
@@ -109,9 +110,10 @@ random_effects_results <- nma.run(random_effects_model,
 
 Compare the fit of the fixed and random effects models by comparing the leverage plots and DIC.
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
-nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
-nma.fit(random_effects_results, main= "Random Effects Model")
+fe <- nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+re <- nma.fit(random_effects_results, main= "Random Effects Model")
+
+grid.arrange(fe$plot, re$plot, ncol = 2)
 ```
 
 The DIC is less for the fixed effect model. The leverage plot for the fixed effect model also looks a bit better, although the differences are small. Overall, we will continue with the fixed effects model.
@@ -137,16 +139,15 @@ fe_inconsistency_results <- nma.run(fe_inconsistency_model,
 ```
 We use rainbow plots and DIC to assess fit.
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
 fe_model_fit <- nma.fit(fixed_effects_results, main = "Consistency Model" )
 inconsist_model_fit <- nma.fit(fe_inconsistency_results, main= "Inconsistency Model")
+grid.arrange(fe_model_fit$plot, inconsist_model_fit$plot, ncol = 2)
 ```
 
 Here, the consistency model has a lower DIC. 
 
 Furthermore, a plot of the posterior mean deviance of the individual data points in the inconsistency model against their posterior mean deviance in the consistency model can highlight descrepancies between the two models.
 ```{r,fig.width=5 , fig.height = 4, fig.align="centre"}
-par(mfrow=c(1,1))
 nma.compare(fe_model_fit, inconsist_model_fit)
 ```
 

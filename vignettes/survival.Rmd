@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 
 ```{r, include = FALSE}
 library(BUGSnet)
+library(gridExtra)
 ```
  
 The purpose of this example is to demonstrate how to use BUGSnet to perform network meta-analysis on time-to-event data, where each study has a different followup time. The data was taken from the NICE DSU TSD2 [@TSD2], page 66. The results of our package are concordant with those reported in the TSD.
@@ -168,9 +169,9 @@ random_effects_results <- nma.run(random_effects_model,
 Compare fixed vs random effects models by comparing leverage plots and the DIC. A plot of the $leverage_{ik}$ vs $w_{ik}$ (Bayesian deviance residual) for each of the $k$ arms in all $i$ trials can help highlight potential outliers when fitting our model. If a data point lies outside the purple arc ($x^2 + y =3$), then this data point can be said to be contributing to the model's poor fit.
 
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
 fe_model_fit <- nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
 re_model_fit <- nma.fit(random_effects_results, main= "Random Effects Model")
+grid.arrange(fe_model_fit$plot, re_model_fit$plot, ncol = 2)
 ```
 
 The random effects model is obviously the better choice here. The DIC is considerably lower in the random effects model. The fixed effects model shows that 8 points are largely contributing to the model's poor fit. The random effects model appears to have only 1 outlier, which should be investigated. We can see which arm/study is reponsible for this datapoint by using the command `re_model_fit$w`. From this we can see that Placebo arm from the "MRC-E" study is contributing to the model's poor fit. This may call for a reconsideration of including this study in our evidence base, or to investigate potential effect modifiers. But for the sake of this example, we will assume that this study arm should remain in the evidence base and that there are no imbalanced effect modifiers.
@@ -198,9 +199,9 @@ re_inconsistency_results <- nma.run(re_inconsistency_model,
 
 Again, rainbow plots and DIC calculations can highlight outliers and can compare model fit between the two models. 
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
 re_model_fit <- nma.fit(random_effects_results, main = "Consistency Model" )
 inconsist_model_fit <- nma.fit(re_inconsistency_results, main= "Inconsistency Model")
+grid.arrange(re_model_fit$plot, inconsist_model_fit$plot, ncol = 2)
 ```
 
 When assessing the fit of both models, the consistency model has a smaller DIC, but the inconsistency model seems to have a neater leverage plot. You'll notice that there are a couple of other metrics that are outputted with the leverage plots, namely, the leverage ($pD$) and the posterior mean of the residual deviance ($\bar{D}_{res}$). The leverage can be thought of as the "effective number of parameters", while the residual deviance can be thought of as the "model fit" (the lower the better). We can see that the inconsistency model produces slightly a smaller $\bar{D}_{res}$, but at the expense of increased model complexity (larger $pD$). In general, the consistency model seems to be favourable here, due to it's adequate fit and parsimony.

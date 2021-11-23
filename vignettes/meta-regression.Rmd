@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 ``` {r}
 library(BUGSnet)
-
+library(gridExtra)
 data(afib)
 dataprep <- data.prep(arm.data = afib,
                       varname.t = "treatment",
@@ -111,9 +111,9 @@ random_effects_results <- nma.run(random_effects_model,
 # Model Choice
 Compare fixed vs random effects models by comparing leverage plots and the DIC
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
-nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
-nma.fit(random_effects_results, main= "Random Effects Model")
+fe <- nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+re <- nma.fit(random_effects_results, main= "Random Effects Model")
+grid.arrange(fe$plot, re$plot, ncol = 2)
 ```
 
 The random effects model seems to be more appropriate here due to a lower DIC, and slightly better leverage plot.
