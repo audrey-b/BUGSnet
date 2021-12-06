@@ -25,6 +25,7 @@ The format for the contrast-based summary data object that gets passed to `data.
 ```{r, echo = F, message = F}
 library(BUGSnet)
 library(gridExtra)
+library(ggplot2)
 data(parkinsons)
 knitr::kable(parkinsons)
 ```

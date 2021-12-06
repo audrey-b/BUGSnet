@@ -209,20 +209,20 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ma
   #change trial names from numbers to actual trial identifiers
   if(length(arm_trials > 0)) {
 
-    Trial[arm_trials] <- nma$model$study_a[as.numeric(Trial[arm_trials]),1]
+    Trial[arm_trials] <- nma$model$study_a[as.numeric(Trial[arm_trials]),1]$study
 
   }
 
   if(length(con_trials > 0)) {
 
-    Trial[con_trials] <- nma$model$study_c[as.numeric(Trial[con_trials]),1]
+    Trial[con_trials] <- nma$model$study_c[as.numeric(Trial[con_trials]),1]$study
 
   }
-  
+
   # Create a data frame with summary information
   w_ik <- as.vector(unname(w)) # x values on plot are w_ik = sign(resid) * residual_deviance
   lev_ik <- as.vector(unlist(leverage)) # y values on plot are the leverage values
-  temp_data <- data.frame(Trial, Arm, w_ik, lev_ik) # lev_ik is NaN when leverage can't be calculated
+  temp_data <- data.frame(Trial = Trial, Arm = Arm, w_ik = w_ik, lev_ik = lev_ik) # lev_ik is NaN when leverage can't be calculated
   
   if(FALSE %in% is.finite(temp_data$lev_ik)) { # if there are NaN leverages due to zero cells
     
@@ -259,7 +259,11 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ma
     theme_classic()
 
   # Summarize and clean up results table; output is the outlying points and values
-  results <- subset(temp_data, outlier == "Yes")
+  outliers <- temp_data[which(temp_data$outlier == "Yes")]
+  return(outliers)
+  if(ncol(outliers)>0) { # sort results by trial name
+    outliers <- outliers[order(outliers$Trial),]
+  }
   
   return(list(DIC=DIC,
               Dres = totresdev,
@@ -267,7 +271,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ma
               leverage=leverage,
               w=w,
               pmdev=pmdev,
-              outliers = results[order(results$Trial),], # sorting by trial
+              outliers = outliers,
               plot = rainbow)
   )
 }
