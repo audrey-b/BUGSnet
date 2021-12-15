@@ -3,6 +3,7 @@ on:
     branches:
       - main
       - master
+
   pull_request:
     branches:
       - main
@@ -20,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, r: 'release'}
+          - {os: windows-latest, r: 'release', msystem: MINGW64, arch: x86_64 }
           - {os: macOS-latest, r: 'release'}
           - {os: ubuntu-20.04, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
           - {os: ubuntu-20.04, r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
@@ -44,7 +45,7 @@ jobs:
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
-
+        
       - name: Cache R packages
         if: runner.os != 'Windows'
         uses: actions/cache@v2
@@ -53,14 +54,22 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
-      - name: Install system dependencies
+      - name: Install linux system dependencies
         if: runner.os == 'Linux'
         run: |
           while read -r cmd
           do
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
-          
+      
+      - name: Install windows system dependencies 
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.config.msystem }}
+          install: git base-devel mingw-w64-${{ matrix.config.arch }}-cmake mingw-w64-${{ matrix.config.arch }}-toolchain mingw-w64-${{ matrix.config.arch }}-glpk mingw-w64-${{ matrix.config.arch }}-gmp mingw-w64-${{ matrix.config.arch }}-zlib mingw-w64-${{ matrix.config.arch }}-libxml2 mingw-w64-${{ matrix.config.arch }}-suitesparse mingw-w64-${{ matrix.config.arch }}-nlopt
+          update: true
+
       - name: Install JAGS macOS
         if: runner.os == 'macOS'
         run: |
@@ -70,17 +79,15 @@ jobs:
       - name: Install JAGS Linux
         if: runner.os == 'Linux'
         run: sudo apt-get install jags
-
-      - name: Download JAGS Windows
-        if: runner.os == 'Windows'
-        run: (New-Object System.Net.WebClient).DownloadFile('https://sourceforge.net/projects/mcmc-jags/files/JAGS/4.x/Windows/JAGS-4.3.0.exe', 'C:\JAGS-4.3.0.exe')
-        shell: powershell
-        
+      
       - name: Install JAGS Windows
         if: runner.os == 'Windows'
-        run: C:\JAGS-4.3.0.exe /S
+        run: |
+          curl.exe -o wjags.exe --url https://deac-fra.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Windows/JAGS-4.3.0.exe
+          wjags.exe /S
+          del wjags.exe
         shell: cmd
-          
+        
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
