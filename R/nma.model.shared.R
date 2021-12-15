@@ -303,7 +303,9 @@ nma.model.shared <- function(data_arm = NULL,
     # Data checking for contrast input
     
     # check that first arm difference is NA, change them to 0
-    if(!all(is.na(bugsdata3$y_c[,1]))) {
+    check_nas <-bugsdata3$y_c[,1]
+    
+    if(!all(bugsdata3$y_c[,1] %in% c(NA, "NA"))) {
       
       stop("The response in the first arm of each contrast-based trial should be NA.")
       
@@ -313,9 +315,16 @@ nma.model.shared <- function(data_arm = NULL,
     }
     
     # check that first arm se is NA
-    if(!all(is.na(bugsdata3$se.diffs[,1]))) {
+    if(!all(bugsdata3$se.diffs[,1] %in% c(NA, "NA"))) {
       
       stop("The standard errors in the first arm of each contrast-based trial should be NA.")
+      
+    }
+    
+    # Check that se's are positive
+    if(!all(bugsdata3$se.diffs[,-c(1)] > 0, na.rm = T)) {
+      
+      stop("The standard errors of contrasts should be positive")
       
     }
     
@@ -327,15 +336,19 @@ nma.model.shared <- function(data_arm = NULL,
       } else {
         
         #check that only the first arm is specified
-        if(!all(is.na(c(bugsdata3$var.arm1[,-c(1)])))) {
+        if(!all(c(bugsdata3$var.arm1[,-c(1)]) %in% c(NA, "NA"), na.rm = T)) {
           
           stop("Only the observed variances for the control arms for contrast-based trials should be included, all other arms should be NA")
           
         }  else if(!all(is.numeric(bugsdata3$var.arm1[bugsdata3$na_c >2,1]))) { # make sure the control arms for all multi arm trials is numeric
           
-          stop("Control arm observed variances for multi-arm conrtast-based trials must be numeric")
+          stop("Control arm observed variances for multi-arm contrast-based trials must be numeric")
           
-        } 
+        } else if (!all(bugsdata3$var.arm1[bugsdata3$na_c >2,1] > 0)) { # make sure variances are positiveF
+          
+          stop("COntrol arm observed variances for multi-arm contrast-based trials must be positive")
+          
+        }
         # set the variances to 0 in the first column to avoid compilation error
         bugsdata3$var.arm1[bugsdata3$na_c <3,1] <- 0
         

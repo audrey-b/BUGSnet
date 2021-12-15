@@ -209,13 +209,13 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ma
   #change trial names from numbers to actual trial identifiers
   if(length(arm_trials > 0)) {
 
-    Trial[arm_trials] <- nma$model$study_a[as.numeric(Trial[arm_trials]),1]$study
+    Trial[arm_trials] <- nma$model$study_a[as.numeric(Trial[arm_trials]),1]
 
   }
 
   if(length(con_trials > 0)) {
 
-    Trial[con_trials] <- nma$model$study_c[as.numeric(Trial[con_trials]),1]$study
+    Trial[con_trials] <- nma$model$study_c[as.numeric(Trial[con_trials]),1]
 
   }
 
@@ -259,8 +259,8 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, ma
     theme_classic()
 
   # Summarize and clean up results table; output is the outlying points and values
-  outliers <- temp_data[which(temp_data$outlier == "Yes")]
-  return(outliers)
+  outliers <- temp_data[which(temp_data$outlier == "Yes"),]
+
   if(ncol(outliers)>0) { # sort results by trial name
     outliers <- outliers[order(outliers$Trial),]
   }
