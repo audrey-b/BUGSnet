@@ -2,16 +2,15 @@
 #' @description Computes the Deviance Information Criteria (DIC) and produces a leverage plot (as in the NICE Technical Support Document 2)
 #' for a given model. These can be used to assess and compare the fit of different models (i.e fixed vs random effects, consistency vs
 #' inconsistency). \code{nma.fit} also produces a plot comparing the leverage of each data point against their contribution to
-#' the total posterior deviance. Points lying outside the purple dotted line are generally identified as contributing to the model's poor fit.
-#' Points with high leverage are influencial i.e. they have a stong influence on the estimates.
+#' the total posterior deviance. Points lying outside the purple curve (x^2+y = c where c = 3) are generally identified as contributing to the model's poor fit and considered outliers.
+#' Outliers are plotted in red. Points with high leverage are influencial i.e. they have a stong influence on the estimates.
 #' 
 #' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}. 
 #' @param plot.pD Whether to include pD on the plot. Default is TRUE.
 #' @param plot.DIC Whether to include DIC on the plot. Default is TRUE.
 #' @param plot.Dres Whether to include Dres on the plot. Default is TRUE.
-#' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}. These arguments will only effect the
-#' leverage plot.
-#' 
+#' @param c value of c in x^2+y = c which determines what is considered an outlier - default is 3 based on TSD-2
+#' @param main Optional main title for the plot
 #' @return \code{DIC} - A number indicating the Deviance Information Criteria. The DIC is calculated as the sum of \code{Dres} and \code{pD}. 
 #' A larger DIC is indicative of a worse model fit.
 #' @return \code{leverage} - A vector with one value per study arm indicating the leverage of each data point (study arm). Leverage is defined as \code{pmdev} minus the 
@@ -22,8 +21,8 @@
 #' @return \code{pmdev} - A vector with one value per study arm representing the posterior mean residual deviance for each data point (study arm).
 #' @return \code{Dres} - The posterior mean of the residual deviance.
 #' @return \code{pD} - The effective number of parameters, calculated as the sum of the leverages.
-
-#' 
+#' @return \code{outliers} - A data.frame with the trial identifier (and arm number if the trial supplied arm-based data) of the points which are outliers according to the value of c.
+#' @return \code{plot} - The ggplot object
 #' @examples
 #' 
 #' data(diabetes.sim)
@@ -75,8 +74,9 @@
 #' @export
 #' @seealso \code{\link{nma.run}}
 
-nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
+nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, c = 3, main = ""){
   
+  outlier <- NULL # get rid of check note
   if (class(nma) != "BUGSnetRun")
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
@@ -173,20 +173,11 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 
   DIC = pD + totresdev
   
-  
-  
-  eq = function(x,c){c-x^2}
-  x=seq(-3, 3, 0.001)
-  c1=eq(x, c=rep(1, 6001))
-  
+  # combining arm and and contrast leverage, w, pmdev based on type of summary data in network
   if(arm) {
     
-    plot(w_a, leverage_a, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
-         ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
-    
     if(contrast) {
-      
-      points(w_c, leverage_c) # add contrast points after plotting arm points
+
       # return both arm and contrast leverages, w, pmdev
       leverage <- c(as.numeric(leverage_a[1,]), leverage_c) 
       w <- c(w_a, w_c)
@@ -200,32 +191,88 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
     
   } else {
     
-    plot(w_c, leverage_c, xlab=expression('w'[ik]), ylab=expression('leverage'[ik]),
-         ylim=c(0, max(c1+3, na.rm=TRUE)*1.15), xlim=c(-3,3), ...)
     # only return contrast leverage, w, pmdev
     leverage <- leverage_c
     w <- w_c
     pmdev <- pmdev_c
   } 
-
-  points(x, ifelse(c1 < 0, NA, c1),   lty=1, col="firebrick3",    type="l")
-  points(x, ifelse(c1 < -1, NA, c1)+1, lty=2, col="chartreuse4",   type="l")
-  points(x, ifelse(c1 < -2, NA, c1)+2, lty=3, col="mediumpurple3", type="l")
-  points(x, ifelse(c1 < -3, NA, c1)+3, lty=4, col="deepskyblue3",  type="l")
-  if (plot.pD ==TRUE){text(2, 4.3, paste("pD=", round(pD, 2)), cex = 0.8)}
-  if (plot.Dres == TRUE){text(2, 3.9, paste("Dres=", round(totresdev,2)), cex = 0.8)}
-  if (plot.DIC==TRUE){text(2, 3.5, paste("DIC=", round(DIC,2)), cex = 0.8)}
   
-  # leverage <- c(as.numeric(leverage_a[1,]), leverage_c)
-  # w <- c(w_a, w_c)
-  # pmdev <- c(pmdev_a, pmdev_c)
+  # Detecting Outliers
+  
+  # Do pre-processing on strings to extract corresponding trial and arm labels
+  split_results <- strsplit(names(pmdev), "[.]")
+  Trial <- c(sapply(split_results, "[", 2))
+  Arm <- c(sapply(split_results, "[", 3))
+  arm_trials <- !is.na(Arm)
+  con_trials <- !arm_trials
+
+  #change trial names from numbers to actual trial identifiers
+  if(length(arm_trials > 0)) {
+
+    Trial[arm_trials] <- nma$model$study_a[as.numeric(Trial[arm_trials]),1]
+
+  }
+
+  if(length(con_trials > 0)) {
+
+    Trial[con_trials] <- nma$model$study_c[as.numeric(Trial[con_trials]),1]
+
+  }
+
+  # Create a data frame with summary information
+  w_ik <- as.vector(unname(w)) # x values on plot are w_ik = sign(resid) * residual_deviance
+  lev_ik <- as.vector(unlist(leverage)) # y values on plot are the leverage values
+  temp_data <- data.frame(Trial = Trial, Arm = Arm, w_ik = w_ik, lev_ik = lev_ik) # lev_ik is NaN when leverage can't be calculated
+  
+  if(FALSE %in% is.finite(temp_data$lev_ik)) { # if there are NaN leverages due to zero cells
+    
+    warning("Cells without leverages are not checked for outliers")
+    temp_data <- temp_data[which(is.finite(temp_data$lev_ik)),] # drop the arms which have NaN values
+    
+  }
+  
+  # Check whether or not the data points lie outside x^2 + y = c for user-defined c
+  temp_data$outlier <- mapply(function(x,y){if((x - 0)^2 + (y-c)>0) "Yes" else "No"},
+                   x=temp_data$w_ik, y=temp_data$lev_ik)
+  
+  # Create the rainbow plot
+  
+  fn <- function(x,c) {c-x^2}
+  col_list <- c("firebrick3", "chartreuse4", "mediumpurple3", "deepskyblue3")
+  
+  rainbow <- ggplot(temp_data, aes(x = w_ik, y = lev_ik, color = outlier)) +
+    geom_point(shape = 1, size = 2) +
+    scale_color_manual(values = c("black", "red2"), guide = "none")+ # outlier points are plotted in red
+    # Add curves to plot
+    lapply(c(1,2,3,4), function(i) {
+      stat_function(fun = fn, args = list(c = i), xlim = c(-sqrt(i), sqrt(i)), 
+                    colour = col_list[i], 
+                    linetype = i,
+                    size = 0.7,
+                    inherit.aes = F)
+    }) +
+    labs(x = expression(w[ik]), y = expression(leverage[ik]), title = main)+
+    # Add text to plot
+    geom_text(x = 1.6, y = 4, label = ifelse(plot.pD, paste("pD=", round(pD, 2)), "")) +
+    geom_text(x = 1.6, y = 3.8, label = ifelse(plot.Dres, paste("Dres=", round(totresdev,2)), "")) +
+    geom_text(x = 1.6, y = 3.6, label = ifelse(plot.DIC, paste("DIC=", round(DIC, 2)), "")) +
+    theme_classic()
+
+  # Summarize and clean up results table; output is the outlying points and values
+  outliers <- temp_data[which(temp_data$outlier == "Yes"),]
+
+  if(ncol(outliers)>0) { # sort results by trial name
+    outliers <- outliers[order(outliers$Trial),]
+  }
   
   return(list(DIC=DIC,
               Dres = totresdev,
               pD = pD,
               leverage=leverage,
               w=w,
-              pmdev=pmdev)
+              pmdev=pmdev,
+              outliers = outliers,
+              plot = rainbow)
   )
 }
 
@@ -235,9 +282,7 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #' 
 #' @param consistency.model.fit Results of \code{nma.fit()} of an consistency model.
 #' @param inconsistency.model.fit Results of \code{nma.fit()} of an inconsistency model.
-#' @param ... Graphical arguments such as main=, ylab=, and xlab= may be passed in \code{plot()}.
-#' 
-
+#' @return A ggplot object
 #' @export
 #' @seealso \code{\link{nma.run}}
 #' @examples
@@ -289,19 +334,19 @@ nma.fit  <- function(nma, plot.pD=TRUE, plot.DIC=TRUE, plot.Dres=TRUE, ...){
 #' #Plot the results against each other to assess inconsistency
 #' nma.compare(assess.consistency, assess.inconsistency)
 
-
-
-
-
-
-nma.compare <- function(consistency.model.fit, inconsistency.model.fit, ...){
-  x=as.numeric(consistency.model.fit$pmdev)
-  y=as.numeric(inconsistency.model.fit$pmdev)
-  upp <- max(0, max(x,y)*1.04)
-  ptsline <- seq(0,upp, length.out=2000)
-  plot(x, y,
-       xlim=c(0, upp),
-       ylim=c(0, upp),
-       ylab="Inconsistency model", xlab="Consistency model", pch=16, ...)
-  points(ptsline, ptsline, type = "l", lty=2)
+nma.compare <- function(consistency.model.fit, inconsistency.model.fit) {
+  
+  consistency <- NULL # get rid of check notes
+  inconsistency <- NULL
+  plotframe <- data.frame(consistency = as.numeric(consistency.model.fit$pmdev), 
+                          inconsistency = as.numeric(inconsistency.model.fit$pmdev))
+  
+  p <- ggplot(plotframe, aes(x = consistency, y = inconsistency)) +
+    geom_point() +
+    geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+    labs(x = "Consistency model", y = "Inconsistency model") +
+    theme_classic()
+  
+  return(p)
+  
 }

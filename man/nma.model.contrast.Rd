@@ -23,7 +23,7 @@ nma.model.contrast(
 
 \item{differences}{A string indicating the name of the differences for contrast-based studies}
 
-\item{se.diffs}{A string indicating the variable name of the standard errors of the differences.}
+\item{se.diffs}{A string indicating the variable name of the standard errors of the differences}
 
 \item{var.arm1}{A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the treatment in arm 1 of each study}
 

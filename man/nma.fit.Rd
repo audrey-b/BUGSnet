@@ -4,7 +4,14 @@
 \alias{nma.fit}
 \title{Assess Model Fit}
 \usage{
-nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, ...)
+nma.fit(
+  nma,
+  plot.pD = TRUE,
+  plot.DIC = TRUE,
+  plot.Dres = TRUE,
+  c = 3,
+  main = ""
+)
 }
 \arguments{
 \item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}
@@ -15,8 +22,9 @@ nma.fit(nma, plot.pD = TRUE, plot.DIC = TRUE, plot.Dres = TRUE, ...)
 
 \item{plot.Dres}{Whether to include Dres on the plot. Default is TRUE.}
 
-\item{...}{Graphical arguments such as main=, ylab=, and xlab= may be passed as in \code{plot()}. These arguments will only effect the
-leverage plot.}
+\item{c}{value of c in x^2+y = c which determines what is considered an outlier - default is 3 based on TSD-2}
+
+\item{main}{Optional main title for the plot}
 }
 \value{
 \code{DIC} - A number indicating the Deviance Information Criteria. The DIC is calculated as the sum of \code{Dres} and \code{pD}.
@@ -34,13 +42,17 @@ the model and is calculated as the sign of the difference of the observed outcom
 \code{Dres} - The posterior mean of the residual deviance.
 
 \code{pD} - The effective number of parameters, calculated as the sum of the leverages.
+
+\code{outliers} - A data.frame with the trial identifier (and arm number if the trial supplied arm-based data) of the points which are outliers according to the value of c.
+
+\code{plot} - The ggplot object
 }
 \description{
 Computes the Deviance Information Criteria (DIC) and produces a leverage plot (as in the NICE Technical Support Document 2)
 for a given model. These can be used to assess and compare the fit of different models (i.e fixed vs random effects, consistency vs
 inconsistency). \code{nma.fit} also produces a plot comparing the leverage of each data point against their contribution to
-the total posterior deviance. Points lying outside the purple dotted line are generally identified as contributing to the model's poor fit.
-Points with high leverage are influencial i.e. they have a stong influence on the estimates.
+the total posterior deviance. Points lying outside the purple curve (x^2+y = c where c = 3) are generally identified as contributing to the model's poor fit and considered outliers.
+Outliers are plotted in red. Points with high leverage are influencial i.e. they have a stong influence on the estimates.
 }
 \examples{
 

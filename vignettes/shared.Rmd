@@ -24,6 +24,8 @@ The purpose of this vignette is to demonstrate how shared parameter models can b
 There are seven studies for which we have data. `parkinsons_arm` has arm-based data for studies 1-3. We will also use the contrast-based data for studies 4-7 from the `parkinsons` data set. For details on the format of the contrast-based data, see the contrast vignette. The `parkinsons_arm` dataset is shown below.
 ```{r, echo = F, message = F}
 library(BUGSnet)
+library(ggplot2)
+library(gridExtra)
 data(parkinsons_arm)
 knitr::kable(parkinsons_arm)
 ```
@@ -122,9 +124,10 @@ random_effect_results <- nma.run(random_effect_model,
 
 Compare the fit of the fixed and random effects models by comparing the leverage plots and DIC.
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
-nma.fit(fixed_effect_results, main = "Fixed Effects Model" )
-nma.fit(random_effect_results, main= "Random Effects Model")
+fe <- nma.fit(fixed_effect_results, main = "Fixed Effects Model" )
+re <- nma.fit(random_effect_results, main= "Random Effects Model")
+
+grid.arrange(fe$plot, re$plot, ncol = 2)
 ```
 
 The fixed effect model has a smaller DIC and a nicer leverage plot. We will continue with the fixed effect model.
@@ -155,9 +158,9 @@ fe_inconsistency_results <- nma.run(fe_inconsistency_model,
 
 We use rainbow plots and DIC to assess fit.
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
 fe_model_fit <- nma.fit(fixed_effect_results, main = "Consistency Model" )
 inconsist_model_fit <- nma.fit(fe_inconsistency_results, main= "Inconsistency Model")
+grid.arrange(fe_model_fit$plot, inconsist_model_fit$plot, ncol = 2)
 ```
 
 The consistency model has a lower DIC and the leverage plots are very similar. Therefore, we will conclude there is not evidence of inconsistency in the network.

@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 ``` {r}
 library(BUGSnet)
-
+library(gridExtra)
 data(thrombolytic)
 age <- rnorm(nrow(thrombolytic), 60, 10)
 dich.slr <- data.prep(arm.data = cbind(thrombolytic, age),
@@ -126,10 +126,10 @@ random_effects_results <- nma.run(random_effects_model,
 
 # Assess model fit
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
-nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
-nma.fit(random_effects_results, main= "Random Effects Model")
+fe <- nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
+re <- nma.fit(random_effects_results, main= "Random Effects Model")
 
+grid.arrange(fe$plot, re$plot, ncol = 2)
 ```
 
 
