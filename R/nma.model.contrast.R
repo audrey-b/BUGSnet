@@ -3,7 +3,7 @@
 #' 
 #' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}
 #' @param differences A string indicating the name of the differences for contrast-based studies
-#' @param se.diffs A string indicating the variable name of the standard errors of the differences.
+#' @param se.diffs A string indicating the variable name of the standard errors of the differences
 #' @param var.arm1 A string (only required for networks with multi-arm trials) indicating the variable name of the variance of the treatment in arm 1 of each study
 #' @param reference A string for the treatment that will be seen as the 'referent' comparator and labeled as treatment 1 in the BUGS code. This is often
 #' a placebo or control drug of some kind.  
@@ -131,74 +131,10 @@ nma.model.contrast <- function(data_contrast = NULL,
                                        from=ctrt$trt.ini,
                                        to=ctrt$trt.jags) %>% as.integer)
   
-  # # TODO test of this implementation works for arm and cb data
-  # #pre-process the covariate if specified
-  # if (!is.null(covariate)) {
-  #   covariates <- c(adata$covariate, cdata$covariate)
-  #   if (is.numeric(covariates) == TRUE){
-  #     #issue warning if covariate appears to be categorical
-  #     if (length(unique(covariates)) < 5) {
-  #       warning(paste0("The specified covariate is being treated as continuous. Ignore this warning if this is the intended behaviour. ",
-  #                      "For the covariate to be treated as a categorical variable it must be converted to a factor in the data that is ",
-  #                      "passed to data.prep."))
-  #     }
-  #     
-  #     #de-mean covariate if continuous
-  #     mean.cov <- mean(covariates, na.rm=TRUE)
-  #     adata$covariate <- adata$covariate-mean.cov
-  #     cdata$covariate <- cdata$covariate-mean.cov
-  #   } else if (is.factor(covariates) == TRUE || is.character(covariates) == TRUE) {
-  #     #check that covariate has fewer than 3 levels and convert strings and factors to binary covariates
-  #     if (length(unique(covariates)) > 2)
-  #       stop("BUGSnet does not currently support meta-regression with categorical variables that have more than two levels.")
-  #     if (is.character(covariates) == TRUE) {
-  #       adata$covariate <- factor(adata$covariate, levels = unique(covariates))
-  #       cdata$covariate <- factor(cdata$covariate, levels = unique(covariates))
-  #       adata$covariate <- as.numeric(adata$covariate != levels(adata$covariate)[1])
-  #       cdata$covariate <- as.numeric(cdata$covariate != levels(adata$covariate)[1])
-  #     }
-  #   }
-  #   
-  # } else{mean.cov <- NULL}
   mean.cov <- NULL
   
   # determine number of treatments in dataset
   nt <- length(unique(trts))
-  
-  #generate BUGS data object for arm-based data
-  
-  # if(arm) {
-  #   
-  #   bugstemp <- adata %>% arrange(trial, trt.jags) %>% group_by(trial) %>% mutate(arm = row_number()) %>%
-  #     ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
-  #   bugsdata2 <- list()
-  #   for (v in unique(bugstemp$variable))
-  #     bugsdata2[[v]] <- as.matrix(bugstemp %>% filter(variable == v) %>% select(-trial, -variable))
-  #   #modify BUGS arm object for the various family/link combinations
-  #   names(bugsdata2)[names(bugsdata2) == "trt.jags"] <- "t_a"
-  #   names(bugsdata2)[names(bugsdata2) == "N"] <- "n"
-  #   names(bugsdata2)[names(bugsdata2) == "covariate"] <- "x_a"
-  #   if (family == "binomial" && link %in% c("log","logit")){
-  #     names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
-  #     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a")]
-  #   } else if (family == "normal" && link=="identity"){
-  #     names(bugsdata2)[names(bugsdata2) == "r1"] <- "y"
-  #     bugsdata2$se <- bugsdata2$sd / sqrt(bugsdata2$n)
-  #     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "y", "se", "t_a", "x_a")]
-  #   } else if (family == "poisson" && link == "log"){
-  #     names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
-  #     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "E"
-  #     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "E", "t_a", "x_a")]
-  #   } else if (family == "binomial" && link == "cloglog"){
-  #     names(bugsdata2)[names(bugsdata2) == "r1"] <- "r"
-  #     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
-  #     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a", "time")]
-  #   }
-  #   
-  #   bugsdata2$ns_a <- data_arm$studies %>% nrow()
-  #   bugsdata2$na_a <- data_arm$n.arms %>% select(n.arms) %>% t() %>% as.vector
-  #   
-  # } else (bugsdata2 <- data.frame())
   
   # generate BUGS data object for cb data
   bugstemp2 <- cdata %>% arrange(trial) %>% group_by(trial) %>% mutate(arm = row_number()) %>% # changed
@@ -220,7 +156,9 @@ nma.model.contrast <- function(data_contrast = NULL,
   # Data checking for contrast input
   
   # check that first arm difference is NA, change them to 0
-  if(!all(is.na(bugsdata3$y_c[,1]))) {
+  check_nas <-bugsdata3$y_c[,1]
+  
+  if(!all(bugsdata3$y_c[,1] %in% c(NA, "NA"))) {
     
     stop("The response in the first arm of each contrast-based trial should be NA.")
     
@@ -230,9 +168,16 @@ nma.model.contrast <- function(data_contrast = NULL,
   }
   
   # check that first arm se is NA
-  if(!all(is.na(bugsdata3$se.diffs[,1]))) {
+  if(!all(bugsdata3$se.diffs[,1] %in% c(NA, "NA"))) {
     
     stop("The standard errors in the first arm of each contrast-based trial should be NA.")
+    
+  }
+  
+  # Check that se's are positive
+  if(!all(bugsdata3$se.diffs[,-c(1)] > 0, na.rm = T)) {
+    
+    stop("The standard errors of contrasts should be positive")
     
   }
   
@@ -244,15 +189,19 @@ nma.model.contrast <- function(data_contrast = NULL,
     } else {
       
       #check that only the first arm is specified
-      if(!all(is.na(c(bugsdata3$var.arm1[,-c(1)])))) {
+      if(!all(c(bugsdata3$var.arm1[,-c(1)]) %in% c(NA, "NA"), na.rm = T)) {
         
         stop("Only the observed variances for the control arms for contrast-based trials should be included, all other arms should be NA")
         
       }  else if(!all(is.numeric(bugsdata3$var.arm1[bugsdata3$na_c >2,1]))) { # make sure the control arms for all multi arm trials is numeric
         
-        stop("Control arm observed variances for multi-arm conrtast-based trials must be numeric")
+        stop("Control arm observed variances for multi-arm contrast-based trials must be numeric")
         
-      } 
+      } else if (!all(bugsdata3$var.arm1[bugsdata3$na_c >2,1] > 0)) { # make sure variances are positiveF
+        
+        stop("COntrol arm observed variances for multi-arm contrast-based trials must be positive")
+        
+      }
       # set the variances to 0 in the first column to avoid compilation error
       bugsdata3$var.arm1[bugsdata3$na_c <3,1] <- 0
       
@@ -285,8 +234,8 @@ nma.model.contrast <- function(data_contrast = NULL,
   ###Priors###
   ############
 
-  max.delta <- paste0(nma.prior(data_arm=NULL, data_contrast, outcome=outcome, differences = differences, scale=scale, N=NULL, sd=NULL, time = NULL))
-  
+  max.delta <- paste0(nma.prior(data_arm=NULL, data_contrast = data_contrast, outcome=outcome,
+                                differences = differences, scale=scale, N=NULL, sd=NULL, time = NULL))
   # BASELINE EFFECTS PRIOR
   if (prior.mu == "DEFAULT"){
     prior.mu.str <- sprintf("for(i in 1:ns_a){
@@ -421,7 +370,8 @@ nma.model.contrast <- function(data_contrast = NULL,
                            outcome=outcome,
                            N=NULL,
                            sd=sd,
-                           mean.cov=mean.cov),
+                           mean.cov=mean.cov,
+                           study_c = data_contrast$studies),
                       class = "BUGSnetModel")
   return(bmodel)
 }

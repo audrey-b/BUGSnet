@@ -250,95 +250,9 @@ nma.model <- function(data = NULL,
     names(bugsdata2)[names(bugsdata2) == "timevar"] <- "time"
     bugsdata2 <- bugsdata2[names(bugsdata2) %in% c("ns_a", "nt", "na_a", "r", "n", "t_a", "x_a", "time")]
   }
-# <<<<<<< HEAD
-# =======
-#   
-#   #add number of treatments, studies, and arms to BUGS data object
-#   bugsdata2$nt <- data$treatments %>% nrow()
-#   bugsdata2$ns <- data$studies %>% nrow()
-#   bugsdata2$na <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
-# >>>>>>> upstream/master
   
   bugsdata2$ns_a <- data$studies %>% nrow()
   bugsdata2$na_a <- data$n.arms %>% select(n.arms) %>% t() %>% as.vector
-  
-  # # generate BUGS data object for cb data
-  # 
-  # if(contrast) {
-  #   
-  #   bugstemp2 <- cdata %>% arrange(trial) %>% group_by(trial) %>% mutate(arm = row_number()) %>% # changed
-  #     ungroup() %>% select(-trt) %>% gather("variable", "value", -trial, -arm) %>% spread(arm, value)
-  #   bugsdata3 <- list()
-  #   
-  #   for (v in unique(bugstemp2$variable))
-  #     bugsdata3[[v]] <- as.matrix(bugstemp2 %>% filter(variable == v) %>% select(-trial, -variable))
-  #   
-  #   # modify BUGS contrast object and add treatment index, response, covariate, studies, number of arms to data
-  #   
-  #   names(bugsdata3)[names(bugsdata3) == "trt.jags"] <- "t_c"  
-  #   names(bugsdata3)[names(bugsdata3) == "r1"] <- "y_c"
-  #   names(bugsdata3)[names(bugsdata3) == "covariate"] <- "x_c"
-  #   bugsdata3 <- bugsdata3[names(bugsdata3) %in% c("ns_c", "nt", "na_c", "y_c", "se.diffs", "var.ref", "t_c", "x_c")]
-  #   
-  #   bugsdata3$ns_c <- data_contrast$studies %>% nrow()
-  #   bugsdata3$na_c <- data_contrast$n.arms %>% select(n.arms) %>% t() %>% as.vector
-  #   
-  #   # Data checking for contrast input
-  #   
-  #   # check that first arm difference is NA, change them to 0
-  #   if(!all(is.na(bugsdata3$y_c[,1]))) {
-  #     
-  #     stop("The response in the first arm of each contrast-based trial should be NA.")
-  #     
-  #   } else {
-  #     #convert to 0's
-  #     bugsdata3$y_c[,1] <- 0
-  #   }
-  #   
-  #   # check that first arm se is NA
-  #   if(!all(is.na(bugsdata3$se.diffs[,1]))) {
-  #     
-  #     stop("The standard errors in the first arm of each contrast-based trial should be NA.")
-  #     
-  #   }
-  #   
-  #   # check if there are multi-arm trials, and if there are, check that var.ref is specified for the first arm
-  #   if(!all(bugsdata3$na_c == 2)) {
-  #     
-  #     message("there are multi-arm trials")
-  #     if(is.null(var.ref)) { 
-  #       stop("var.ref must be specified if there are multi-arm contrast-based trials.") 
-  #     } else {
-  #       
-  #       #check that only the first arm is specified
-  #       if(!all(is.na(c(bugsdata3$var.ref[,-c(1)])))) {
-  #         
-  #         stop("Only the observed variances for the control arms for contrast-based trials should be included, all other arms should be NA")
-  #         
-  #       }  else if(!all(is.numeric(bugsdata3$var.ref[bugsdata3$na_c >2,1]))) { # make sure the control arms for all multi arm trials is numeric
-  #         
-  #         stop("Control arm observed variances for multi-arm conrtast-based trials must be numeric")
-  #         
-  #         bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2)
-  #         
-  #       }
-  #       
-  #     }
-  #   } else {
-  #     
-  #     if(!is.null(var.ref)) { # if var.ref is specified when there are no multi-armed trials, set them all to 0 and print warning
-  #       
-  #       message("Control arm variances are not used for contrast-based trials with two arms.")
-  #       
-  #     }
-  #     
-  #     bugsdata3$var.ref <- matrix(0, nrow = bugsdata3$ns_c, ncol = 2) # set to zero to avoid compilation error
-  #     
-  #   }
-  #   
-  # } else {bugsdata3 <- data.frame()}
-  
-  
   
   # make legend for treatment names and numbering in jags program
   add.to.model <- trt.key %>%
@@ -443,7 +357,7 @@ nma.model <- function(data = NULL,
   
   # make the code for the model
   
-  model <- makeBUGScode(family=family,       ################ BUG seems to be here!!!!!!!!!!! Outputs have confirmed
+  model <- makeBUGScode(family=family,
                         link=link,
                         effects=effects,
                         inconsistency=(type=="inconsistency"),
@@ -497,7 +411,8 @@ nma.model <- function(data = NULL,
                            outcome=outcome,
                            N=N,
                            sd=sd,
-                           mean.cov=mean.cov),
+                           mean.cov=mean.cov,
+                           study_a = data$studies),
                       class = "BUGSnetModel")
   return(bmodel)
 }
