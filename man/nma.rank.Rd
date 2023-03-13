@@ -16,18 +16,22 @@ nma.rank(
 \arguments{
 \item{nma}{A \code{BUGSnetRun} object produced by running \code{nma.run()}.}
 
-\item{largerbetter}{A boolean variable indicating whether a larger probability should indicate a more effective treatment (TRUE) or
-if a smaller probability should indicate a more effective treatment (FALSE).}
+\item{largerbetter}{A boolean variable indicating whether a larger probability should indicate a
+more effective treatment (\code{TRUE}) or if a smaller probability should indicate a more
+effective treatment (\code{FALSE}).}
 
 \item{sucra.lwd}{Line width relative to the default (default=1) in the SUCRA plot.}
 
-\item{sucra.palette}{A string indicating the colour set from RcolorBrewer for the SUCRA plot. "Set1" is used by default and is automatically extended if
-there are many treatments in your network.}
+\item{sucra.palette}{A string indicating the colour set from RcolorBrewer for the SUCRA plot.
+"Set1" is used by default and is automatically extended if there are many treatments in your
+network.}
 
-\item{ranko.palette}{A string indicating the colour set from RcolorBrewer for the rankogram. "Blues" is used by default and is automatically extended if
-there are many treatments in your network.}
+\item{ranko.palette}{A string indicating the colour set from RcolorBrewer for the rankogram.
+"Blues" is used by default and is automatically extended if there are many treatments in your
+network.}
 
-\item{cov.value}{Must be specified for meta-regression. This is the value of the covariate for which to report the results.}
+\item{cov.value}{Must be specified for meta-regression. This is the value of the covariate for
+which to report the results.}
 }
 \value{
 \code{ranktable} - A rank table showing the probability of each treatment being the nth best treatment.
@@ -44,33 +48,39 @@ is useful for ordering treatments when creating the league heat plot with \code{
 \code{rankogram} - A rankogram showing the probability of each treatment being the nth best treatment.
 }
 \description{
-Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A Sucra table summarizes the probabilities
-that each treatment is the best, second best...worst treatment in the network.
+Produces a SUCRA (Surface Under the Cumulative Ranking Curve) plot and table. A SUCRA table
+summarizes the probabilities that each treatment is the best, second best...worst treatment in
+the network.
 }
 \examples{
 data(diabetes.sim)
 
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
 #Random effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="consistency",
-       time="followup"
-       )
+diabetes.re.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "consistency",
+  time = "followup"
+)
  
-diabetes.re.c.res <- nma.run(diabetes.re.c,
-n.adapt=100,
-n.burnin=0,
-n.iter=100)
+diabetes.re.c.res <- nma.run(
+  model = diabetes.re.c,
+  n.adapt = 100,
+  n.burnin = 0,
+  n.iter = 100
+)
  
 #get sucra results
 sucra_results <- nma.rank(nma = diabetes.re.c.res, largerbetter = FALSE)

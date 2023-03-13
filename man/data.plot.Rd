@@ -39,7 +39,6 @@ Plots a particular patient characteristic by study or by treatment. Useful for a
 differences in potential effect modifiers.
 }
 \examples{
-
 data(diabetes.sim)
 
 diabetes.slr <- data.prep(arm.data = diabetes.sim, 
@@ -60,7 +59,6 @@ data.plot(data = diabetes.slr,
              half.length = "age_SD",
              avg.hline=FALSE,
              by = "study")
-             
 }
 \seealso{
 \code{\link{data.prep}}

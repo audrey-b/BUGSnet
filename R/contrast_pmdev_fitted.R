@@ -4,6 +4,7 @@
 # Omega data.frame of Omega from MCMC sampling
 # nma BUGSnetRun object (has info on data)
 
+#' @noRd
 contrast_pmdev_fitted <- function(y, ytilde, Omega, nma) {
   
   ns <- nma$model$data$ns_c

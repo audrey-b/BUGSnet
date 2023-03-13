@@ -12,7 +12,7 @@ Outputs are highly customizable and include network plots, tables of network cha
 \details{
 To be able to use this package, you must have installed JAGS (Just Another Gibbs Sampler) on your computer.
 
-How to cite this work? Type citation("BUGSnet").
+How to cite this work? Type \code{citation("BUGSnet")}.
 }
 \references{
 \insertRef{JAGSmanual}{BUGSnet}

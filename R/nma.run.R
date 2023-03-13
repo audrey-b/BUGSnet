@@ -1,5 +1,8 @@
-#' Run NMA model 
-#' @description Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
+#' @title
+#' Run NMA model
+#' 
+#' @description
+#' Takes bugs code from an object produced by \code{nma.model} and runs model using \code{jags}.
 #' 
 #' @param model A \code{BUGSnetModel} object produced by running \code{nma.model}.
 #' @param monitor A vector of all variables that you would like to monitor. Default is "DEFAULT" which will monitor the relative treatment effects \code{d} 
@@ -21,50 +24,61 @@
 #' @return \code{trt.key} - Treatments mapped to numbers, used to run BUGS code.
 #' @return \code{family} - Family that was used for the NMA model (e.g normal, binomial, poisson)
 #' @return \code{link} - Link function that was used for the NMA model (e.g normal, binomial, poisson)
-#' @export
-#' @seealso \code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}, \code{\link{jags.model}}
+#' 
+#' @seealso
+#' \code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}, \code{\link{jags.model}}
+#' 
+#' @importFrom rjags coda.samples jags.model
+#' @importFrom stats update
+#' 
 #' @examples
 #' data(diabetes.sim)
 #' 
-#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-#' varname.t = "Treatment", 
-#' varname.s = "Study")
+#' diabetes.slr <- data.prep(
+#'   arm.data = diabetes.sim, 
+#'   varname.t = "Treatment", 
+#'   varname.s = "Study"
+#' )
 #' 
 #' #Random effects, consistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#'diabetes.re.c <- nma.model(data = diabetes.slr,
-#'        outcome = "diabetes", 
-#'        N = "n",
-#'        reference = "Placebo",
-#'        family = "binomial",
-#'        link = "cloglog",
-#'        effects = "random",
-#'        type="consistency",
-#'        time="followup"
-#'        )
+#' diabetes.re.c <- nma.model(
+#'   data = diabetes.slr,
+#'   outcome = "diabetes", 
+#'   N = "n",
+#'   reference = "Placebo",
+#'   family = "binomial",
+#'   link = "cloglog",
+#'   effects = "random",
+#'   type = "consistency",
+#'   time = "followup"
+#' )
 #'  
-#'diabetes.re.c.res <- nma.run(diabetes.re.c,
-#'n.adapt=100,
-#'n.burnin=0,
-#'n.iter=100)
-#'        
+#' diabetes.re.c.res <- nma.run(
+#'   model = diabetes.re.c,
+#'   n.adapt = 100,
+#'   n.burnin = 0,
+#'   n.iter = 100
+#' )
 
-
-nma.run <- function(model,
-                    monitor="DEFAULT",
-                    DIC=TRUE,
-                    n.adapt = 1000, 
-                    n.burnin = floor(n.iter / 2), 
-                    n.iter, 
-                    thin=1,
-                    n.chains=3,
-                    inits = "DEFAULT"){
+#' @export
+nma.run <- function(
+  model,
+  monitor = "DEFAULT",
+  DIC = TRUE,
+  n.adapt = 1000, 
+  n.burnin = floor(n.iter / 2), 
+  n.iter, 
+  thin = 1,
+  n.chains = 3,
+  inits = "DEFAULT"
+){
   
   # check if there is contrast data and arm data
   contrast <- !is.null(model$data$y_c)
   arm <- !is.null(model$data$na_a)
   
-  if(class(model) != "BUGSnetModel")
+  if (!inherits(model, 'BUGSnetModel'))
     stop("\'model\' must be a valid BUGSnetModel object created using the nma.model function.")
   
   if (!is.null(inits) && inits == "DEFAULT")

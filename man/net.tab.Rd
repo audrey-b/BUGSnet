@@ -11,9 +11,11 @@ net.tab(data, outcome, N, type.outcome, time = NULL)
 
 \item{outcome}{A string indicating the name of the outcome variable}
 
-\item{N}{A string indicating the name of the variable containing the number of participants in each arm}
+\item{N}{A string indicating the name of the variable containing the number of participants in
+each arm}
 
-\item{type.outcome}{A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-time reported),
+\item{type.outcome}{A string. Options are: "binomial", "continuous", "rate" (e.g # of events
+and # person-time reported),
 "rate2" (e.g # events and followup time reported)}
 
 \item{time}{A string required when type.outcome = "rate" or "rate2". Name of variable

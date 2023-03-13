@@ -1,5 +1,8 @@
+#' @title
 #' Create Bugs Model for contrast-Level data
-#' @description Creates BUGS code which can be ran through \code{nma.run()}.
+#' 
+#' @description
+#' Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
 #' @param data_contrast A \code{BUGSnetData} object containing the data from contrast-based trials produced by \code{data.prep()}
 #' @param differences A string indicating the name of the differences for contrast-based studies
@@ -13,7 +16,8 @@
 #' @param prior.sigma A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
-#' @param scale A string indicating the scale of the data, such as "Mean Difference" or "Log-Odds Ratio",
+#' @param scale A string indicating the scale of the data, such as "Mean Difference" or "Log-Odds Ratio".
+#' 
 #' @return \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
 #' @return \code{bugs} - A long character string containing BUGS code that will be run in \code{jags}.
 #' @return \code{data} - The data used in the BUGS code.
@@ -22,63 +26,71 @@
 #' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 #' @return ...
 #' 
-#' @examples
-#' 
-#' 
-#' data(diabetes.sim)
-#' 
-#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-#' varname.t = "Treatment", 
-#' varname.s = "Study")
-#' 
-#' #Random effects, consistency model.
-#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#'diabetes.re.c <- nma.model(data = diabetes.slr,
-#'        outcome = "diabetes", 
-#'        N = "n",
-#'        reference = "Placebo",
-#'        family = "binomial",
-#'        link = "cloglog",
-#'        effects = "random",
-#'        type="consistency",
-#'        time="followup"
-#'        )
-#'        
-#' #Fixed effects, consistency model.
-#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#'diabetes.fe.c <- nma.model(data = diabetes.slr,
-#'        outcome = "diabetes", 
-#'        N = "n",
-#'        reference = "Placebo",
-#'        family = "binomial",
-#'        link = "cloglog",
-#'        effects = "fixed",
-#'        type="consistency",
-#'        time="followup"
-#'        )
-#'         
-#' @export
-#'
 #' @references
 #' \insertRef{gemtc}{BUGSnet}
 #' 
 #' \insertRef{TSD3}{BUGSnet}
 #' 
+#' @seealso
+#' \code{\link{data.prep}}, \code{\link{nma.run}}
 #' 
-#' @seealso \code{\link{data.prep}}, \code{\link{nma.run}}
+#' @importFrom dplyr add_row arrange filter group_by mutate row_number select transmute ungroup
+#' @importFrom magrittr %>% %<>%
+#' @importFrom plyr mapvalues
+#' @importFrom tibble tibble
+#' @importFrom tidyr gather spread
+#' 
+#' @examples
+#' data(diabetes.sim)
+#' 
+#' diabetes.slr <- data.prep(
+#'   arm.data = diabetes.sim, 
+#'   varname.t = "Treatment", 
+#'   varname.s = "Study"
+#' )
+#' 
+#' #Random effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#' diabetes.re.c <- nma.model(
+#'   data = diabetes.slr,
+#'   outcome = "diabetes", 
+#'   N = "n",
+#'   reference = "Placebo",
+#'   family = "binomial",
+#'   link = "cloglog",
+#'   effects = "random",
+#'   type = "consistency",
+#'   time = "followup"
+#' )
+#'        
+#' #Fixed effects, consistency model.
+#' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
+#' diabetes.fe.c <- nma.model(
+#'   data = diabetes.slr,
+#'   outcome = "diabetes", 
+#'   N = "n",
+#'   reference = "Placebo",
+#'   family = "binomial",
+#'   link = "cloglog",
+#'   effects = "fixed",
+#'   type = "consistency",
+#'   time = "followup"
+#' )
 
-
-nma.model.contrast <- function(data_contrast = NULL,
-                      differences,
-                      se.diffs,
-                      var.arm1 = NULL,
-                      reference,
-                      type="consistency",
-                      effects,
-                      scale,
-                      prior.mu = "DEFAULT",
-                      prior.d = "DEFAULT",
-                      prior.sigma = "DEFAULT"){
+#' @export
+nma.model.contrast <- function(
+  data_contrast = NULL,
+  differences,
+  se.diffs,
+  var.arm1 = NULL,
+  reference,
+  type = "consistency",
+  effects,
+  scale,
+  prior.mu = "DEFAULT",
+  prior.d = "DEFAULT",
+  prior.sigma = "DEFAULT"
+){
   
   contrast <- TRUE
   time <- NULL
@@ -97,7 +109,7 @@ nma.model.contrast <- function(data_contrast = NULL,
   # if(is.null(data_arm)) {arm <- F}
   # if(is.null(data_contrast)) {contrast <- F}
   
-  if(!is.null(data_contrast) && class(data_contrast) != "BUGSnetData")
+  if (!is.null(data_contrast) && !inherits(data_contrast, 'BUGSnetData'))
     stop("\'data_contrast\' must be a valid BUGSnetData object created using the data.prep function.")
   
 
@@ -425,4 +437,3 @@ nma.model.contrast <- function(data_contrast = NULL,
                       class = "BUGSnetModel")
   return(bmodel)
 }
-

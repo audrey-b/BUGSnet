@@ -43,52 +43,59 @@ the total posterior deviance. Points lying outside the purple dotted line are ge
 Points with high leverage are influencial i.e. they have a stong influence on the estimates.
 }
 \examples{
-
 data(diabetes.sim)
 
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
 #Random effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="consistency",
-       time="followup"
-       )
+diabetes.re.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "consistency",
+  time = "followup"
+)
  
-diabetes.re.c.res <- nma.run(diabetes.re.c,
-n.adapt=100,
-n.burnin=0,
-n.iter=100)
+diabetes.re.c.res <- nma.run(
+  model = diabetes.re.c,
+  n.adapt = 100,
+  n.burnin = 0,
+  n.iter = 100
+)
 
 #Fixed effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.fe.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "fixed",
-       type="consistency",
-       time="followup"
-       )
+diabetes.fe.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "fixed",
+  type="consistency",
+  time="followup"
+)
  
-diabetes.fe.c.res <- nma.run(diabetes.fe.c,
-n.adapt=100,
-n.burnin=0,
-n.iter=100)  
+diabetes.fe.c.res <- nma.run(
+  model = diabetes.fe.c,
+  n.adapt = 100,
+  n.burnin = 0,
+  n.iter = 100
+)  
 
 #Compare fixed vs random effects via leverage plots and DIC 
 par(mfrow=c(1,2))
-nma.fit(diabetes.fe.c.res, main = "Fixed Effects Model" )
+nma.fit(diabetes.fe.c.res, main = "Fixed Effects Model")
 nma.fit(diabetes.re.c.res, main= "Random Effects Model")
 }
 \seealso{

@@ -59,28 +59,32 @@ Takes bugs code from an object produced by \code{nma.model} and runs model using
 \examples{
 data(diabetes.sim)
 
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
 #Random effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="consistency",
-       time="followup"
-       )
+diabetes.re.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "consistency",
+  time = "followup"
+)
  
-diabetes.re.c.res <- nma.run(diabetes.re.c,
-n.adapt=100,
-n.burnin=0,
-n.iter=100)
-       
+diabetes.re.c.res <- nma.run(
+  model = diabetes.re.c,
+  n.adapt = 100,
+  n.burnin = 0,
+  n.iter = 100
+)
 }
 \seealso{
 \code{\link{nma.model}}, \code{\link{nma.fit}}, \code{\link{nma.league}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}, \code{\link{nma.regplot}}, \code{\link{nma.trace}}, \code{\link{jags.model}}

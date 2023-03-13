@@ -52,7 +52,7 @@ indicating person-time followup (e.g person years) or study followup time.}
 
 \item{prior.d}{A string of BUGS code that defines define priors on relative treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
-\item{prior.sigma}{A string of BUGS code that defines the prior on the variance of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
+\item{prior.sigma}{A string of BUGS code that defines the prior on the standard deviation of relative treatment effects. By default, a uniform distribution with range 0 to u is used, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
 \item{prior.beta}{Optional string that defines the prior on the meta-regression coefficients. Options are "UNRELATED", "EXCHANGEABLE", "EQUAL" \insertCite{@TSD3}{BUGSnet} or a string of BUGS code.}
 
@@ -79,7 +79,7 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 Creates BUGS code which can be ran through \code{nma.run()}.
 }
 \details{
-For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
+For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are:
 \describe{
 \item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
 \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
@@ -88,8 +88,6 @@ For meta-regression, the prespecified prior choices for the regression coefficie
 where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 }
 \examples{
-
-
 data(diabetes.sim)
 
 diabetes.slr <- data.prep(arm.data = diabetes.sim, 
@@ -121,7 +119,6 @@ diabetes.fe.c <- nma.model(data = diabetes.slr,
        type="consistency",
        time="followup"
        )
-        
 }
 \references{
 \insertRef{gemtc}{BUGSnet}

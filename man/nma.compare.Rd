@@ -19,45 +19,53 @@ where inconsistency is present. Ideally, both models will contribute approximate
 }
 \examples{
 data(diabetes.sim)
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
 #Random effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="consistency",
-       time="followup"
-       )
+diabetes.re.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes",
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "consistency",
+  time = "followup"
+)
  
-diabetes.re.c.res <- nma.run(diabetes.re.c,
-n.adapt=100,
-n.burnin=0,
-n.iter=100)
+diabetes.re.c.res <- nma.run(
+  model = diabetes.re.c,
+  n.adapt = 100,
+  n.burnin = 0,
+  n.iter = 100
+)
 
 #Random effects, inconsistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.i <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="inconsistency",
-       time="followup"
-       )
+diabetes.re.i <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "inconsistency",
+  time = "followup"
+)
  
-diabetes.re.i.res <- nma.run(diabetes.re.i,
-n.adapt=100,
-n.burnin=0,
-n.iter=100)  
+diabetes.re.i.res <- nma.run(
+  model = diabetes.re.i,
+  n.adapt = 100,
+  n.burnin = 0,
+  n.iter = 100
+)  
 
 # Assess model fit for a both an inconsistency model and consistency model using nma.fit()
 assess.consistency <- nma.fit(diabetes.re.c.res)

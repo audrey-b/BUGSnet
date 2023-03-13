@@ -80,11 +80,10 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 ...
 }
 \description{
-Creates BUGS code which can be run through \code{nma.run()}. Handles a combination of arm-level and contrast-level data.
+Creates BUGS code which can be run through \code{nma.run()}. Handles a combination of arm-level
+and contrast-level data.
 }
 \examples{
-
-
 data(diabetes.sim)
 
 diabetes.slr <- data.prep(arm.data = diabetes.sim, 
@@ -93,30 +92,31 @@ varname.s = "Study")
 
 #Random effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="consistency",
-       time="followup"
-       )
+diabetes.re.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "consistency",
+  time = "followup"
+)
        
 #Fixed effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.fe.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "fixed",
-       type="consistency",
-       time="followup"
-       )
-        
+diabetes.fe.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "fixed",
+  type = "consistency",
+  time = "followup"
+)
 }
 \references{
 \insertRef{gemtc}{BUGSnet}

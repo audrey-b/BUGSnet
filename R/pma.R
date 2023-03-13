@@ -1,7 +1,11 @@
 #no compatibility for data type: event rates with different study follow up times
 
+#' @title
 #' Pairwise meta-analysis
-#' @description implements pairwise meta-analysis via the package \code{meta}
+#' 
+#' @description
+#' implements pairwise meta-analysis via the package \code{meta}
+#' 
 #' @param data A BUGSnetData object produced by \code{data.prep()}
 #' @param name.trt1 A string indicating the name of the comparator treatment (often Placebo)
 #' @param name.trt2 A string indicating the name of the experimental treatment
@@ -22,41 +26,51 @@
 #' @return \code{raw} - dataset containing summary statistics of meta-analysis (effect estimates,
 #'  confidence bounds, I-squared, Q-statistic)
 #'  
-#' @note Depending on the the value of \code{type.outcome}, this function will implement the functions
-#' \code{metabin} (dichotomous outcomes), \code{metacont} (continuos outcomes), or \code{metainc} (rate outcomes)
-#'  from the package \code{meta}. 
+#' @note
+#' Depending on the the value of \code{type.outcome}, this function will implement the functions
+#' \code{metabin} (dichotomous outcomes), \code{metacont} (continuous outcomes), or \code{metainc}
+#' (rate outcomes) from the package \code{meta}. 
 #' 
+#' @seealso
+#' \code{\link{data.prep}}
+#' 
+#' @importFrom dplyr filter select
+#' @importFrom magrittr %>%
+#' @importFrom meta forest metabin metacont metainc
 #' 
 #' @examples
-#' 
 #' data(diabetes.sim)
 #' 
-#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-#' varname.t = "Treatment", 
-#' varname.s = "Study")
+#' diabetes.slr <- data.prep(
+#'   arm.data = diabetes.sim, 
+#'   varname.t = "Treatment", 
+#'   varname.s = "Study"
+#' )
 #' 
-#' pma(data = diabetes.slr,
-#' type.outcome="binomial",
-#' sm="OR",
-#' name.trt1 = "Placebo", 
-#' name.trt2 = "Diuretic", 
-#' outcome = "diabetes",
-#' N = "n")
-#'                            
-#' @export
-#' @seealso \code{\link{data.prep}}
+#' pma(
+#'   data = diabetes.slr,
+#'   type.outcome = "binomial",
+#'   sm = "OR",
+#'   name.trt1 = "Placebo", 
+#'   name.trt2 = "Diuretic", 
+#'   outcome = "diabetes",
+#'   N = "n"
+#' )
 
-pma <- function(data,
-                     name.trt1, 
-                     name.trt2, 
-                     outcome,
-                     N,
-                     sd = NULL,
-                     time = NULL,
-                     type.outcome,
-                     method = "MH",
-                     method.tau="DL",
-                     sm){
+#' @export
+pma <- function(
+  data,
+  name.trt1,
+  name.trt2,
+  outcome,
+  N,
+  sd = NULL,
+  time = NULL,
+  type.outcome,
+  method = "MH",
+  method.tau = "DL",
+  sm
+){
   
   #Bind variables to function
   comparison <- NULL
@@ -64,7 +78,7 @@ pma <- function(data,
   trt.c <- NULL
   
   
-  if(class(data) != "BUGSnetData")
+  if (!inherits(data, 'BUGSnetData'))
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   if(type.outcome=="continuous" & is.null(sd)) stop("sd must be specified for continuous outcomes")
@@ -192,4 +206,3 @@ pma <- function(data,
   }
   
 }
-

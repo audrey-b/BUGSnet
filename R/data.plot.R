@@ -1,5 +1,8 @@
+#' @title 
 #' Patient Characteristic Plot
-#' @description Plots a particular patient characteristic by study or by treatment. Useful for assessing
+#' 
+#' @description
+#' Plots a particular patient characteristic by study or by treatment. Useful for assessing
 #' differences in potential effect modifiers.
 #' 
 #' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
@@ -14,10 +17,16 @@
 #' the studies reporting the median as turquoise.
 #' @param avg.hline If TRUE, adds overall average line to plot. Default is TRUE.
 #' @param text.size Font size of the text. Default is 20.
-
+#'              
+#' @seealso
+#' \code{\link{data.prep}}
+#' 
+#' @importFrom dplyr mutate select
+#' @importFrom ggplot2 aes_string element_blank element_text facet_grid ggplot geom_errorbar geom_hline geom_point labs unit
+#' @importFrom magrittr %>%
+#' @importFrom rlang !!
 #' 
 #' @examples
-#' 
 #' data(diabetes.sim)
 #' 
 #' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
@@ -38,19 +47,19 @@
 #'              half.length = "age_SD",
 #'              avg.hline=FALSE,
 #'              by = "study")
-#'              
-#' @seealso \code{\link{data.prep}}
-#' @export
 
-data.plot <- function(data,
-                          covariate, 
-                          half.length = NULL,
-                      by = "study",
-                          avg.hline=TRUE,
-                          fill.str=NULL,
-                      text.size=20){
+#' @export
+data.plot <- function(
+  data,
+  covariate, 
+  half.length = NULL,
+  by = "study",
+  avg.hline = TRUE,
+  fill.str = NULL,
+  text.size = 20
+){
   
-  if(class(data) != "BUGSnetData")
+  if (!inherits(data, 'BUGSnetData'))
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   patients.data <- data$arm.data
@@ -78,7 +87,7 @@ data.plot <- function(data,
   else {eb = NULL}
   
   if (avg.hline){
-    overall.mean <- patients.data %>% select(covariate)%>%colMeans( na.rm=TRUE) %>% as.numeric()
+    overall.mean <- patients.data %>% select(covariate) %>% colMeans(na.rm=TRUE) %>% as.numeric()
     om <- geom_hline(yintercept = overall.mean, color = "red", linetype=2)}
   else{om=NULL}
   

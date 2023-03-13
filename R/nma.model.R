@@ -1,5 +1,8 @@
+#' @title
 #' Create Bugs Model for Arm-Level Data
-#' @description Creates BUGS code which can be ran through \code{nma.run()}.
+#' 
+#' @description
+#' Creates BUGS code which can be ran through \code{nma.run()}.
 #' 
 #' @param data A \code{BUGSnetData} object containing the data from arm-based trials produced by \code{data.prep()}
 #' @param outcome A string indicating the name of your outcome variable.
@@ -24,6 +27,7 @@
 #' with fewer than 3 levels are supported.
 #' @param type If type="inconsistency", an inconsistency model will be built. By default, type="consistency" and a consistency model is built.
 #' will be built.
+#' 
 #' @return \code{nma.model} returns an object of class \code{BUGSnetModel} which is a list containing the following components:
 #' @return \code{bugs} - A long character string containing BUGS code that will be run in \code{jags}.
 #' @return \code{data} - The data used in the BUGS code.
@@ -32,8 +36,8 @@
 #' @return \code{trt.key} - Treatments mapped to integer numbers, used to run BUGS code.
 #' @return ...
 #' 
-#' @details 
-#' For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are
+#' @details
+#' For meta-regression, the prespecified prior choices for the regression coefficients \eqn{\beta_{(1,2)},…,\beta_{(1,K)}} are:
 #' \describe{
 #'   \item{Unrelated:}{\deqn{iid t(0, u^2, 1)}}
 #'   \item{Exchangeable:}{\deqn{iid N(b, \gamma^2), b ~ t(0, u^2, 1), \gamma ~ U(0,u)}}
@@ -41,10 +45,20 @@
 #' }
 #' where \eqn{u} is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.
 #' 
+#' @references
+#' \insertRef{gemtc}{BUGSnet}
+#' 
+#' \insertRef{TSD3}{BUGSnet}
+#' 
+#' @seealso
+#' \code{\link{data.prep}}, \code{\link{nma.run}}
+#' 
+#' @importFrom dplyr add_row arrange filter group_by mutate row_number select transmute ungroup
+#' @importFrom magrittr %>% %<>%
+#' @importFrom tibble tibble
+#' @importFrom tidyr gather spread
 #' 
 #' @examples
-#' 
-#' 
 #' data(diabetes.sim)
 #' 
 #' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
@@ -76,40 +90,32 @@
 #'        type="consistency",
 #'        time="followup"
 #'        )
-#'         
+
 #' @export
-#'
-#' @references
-#' \insertRef{gemtc}{BUGSnet}
-#' 
-#' \insertRef{TSD3}{BUGSnet}
-#' 
-#' 
-#' @seealso \code{\link{data.prep}}, \code{\link{nma.run}}
-
-
-nma.model <- function(data = NULL,
-                          outcome,
-                          N = NULL,
-                          sd=NULL,
-                          reference,
-                          type="consistency",
-                          time=NULL,
-                          family = NULL,
-                          link = NULL,
-                          effects,
-                          prior.mu = "DEFAULT",
-                          prior.d = "DEFAULT",
-                          prior.sigma = "DEFAULT",
-                          prior.beta = NULL,
-                          covariate = NULL){
+nma.model <- function(
+  data = NULL,
+  outcome,
+  N = NULL,
+  sd = NULL,
+  reference,
+  type = "consistency",
+  time = NULL,
+  family = NULL,
+  link = NULL,
+  effects,
+  prior.mu = "DEFAULT",
+  prior.d = "DEFAULT",
+  prior.sigma = "DEFAULT",
+  prior.beta = NULL,
+  covariate = NULL
+){
   
   armdat <- TRUE
   contrast <- FALSE
   # 
   # if(is.null(data)) {arm <- F}
   # if(is.null(data_contrast)) {contrast <- F}
-  if((!is.null(data) && class(data) != "BUGSnetData"))
+  if (!is.null(data) && !inherits(data, 'BUGSnetData'))
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
 
   # Bind variables to function
@@ -501,4 +507,3 @@ nma.model <- function(data = NULL,
                       class = "BUGSnetModel")
   return(bmodel)
 }
-

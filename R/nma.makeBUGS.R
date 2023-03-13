@@ -1,6 +1,20 @@
 #add warning messages for incompatible link and family
 
-makeBUGScode <- function(family, link, effects, inconsistency, prior.mu.str, prior.d.str, prior.sigma2.str, meta.covariate, prior.meta.reg, auto, arm, contrast){
+#' @noRd
+makeBUGScode <- function(
+  family,
+  link,
+  effects,
+  inconsistency,
+  prior.mu.str,
+  prior.d.str,
+  prior.sigma2.str,
+  meta.covariate,
+  prior.meta.reg,
+  auto,
+  arm,
+  contrast
+){
   
   # Set up family and monitor strings for arm-based reporting trials
   

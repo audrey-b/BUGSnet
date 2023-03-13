@@ -1,3 +1,11 @@
+#' @importFrom dplyr across bind_cols count distinct filter group_by left_join mutate n rename select ungroup
+#' @importFrom magrittr %>%
+#' @importFrom rlang !! quo
+#' @importFrom stringr coll str_detect
+#' @importFrom tidyr nest
+#' @importFrom utils combn
+
+#' @noRd
 network.structure <- function(data.nma) {
   
   # Bind Variables to function
@@ -9,8 +17,8 @@ network.structure <- function(data.nma) {
   mtchvar <- NULL
   
   
-  trial <- rlang::quo(!! as.name(data.nma$varname.s))
-  varname.t.quo <- rlang::quo(!! as.name(data.nma$varname.t))
+  trial <- quo(!! as.name(data.nma$varname.s))
+  varname.t.quo <- quo(!! as.name(data.nma$varname.t))
   
   if ("n" %in% colnames(data.nma$arm.data)) {
     nodes <- data.nma$arm.data %>% select(-n) %>% count(!! varname.t.quo) %>% rename(node.weight = n) %>%
@@ -53,8 +61,8 @@ network.structure <- function(data.nma) {
     mutate(trt = as.character(trt),
            from = as.character(from),
            to = as.character(to)) %>%
-    mutate(flag = ifelse(stringr::str_detect(trt, stringr::coll(from)) &
-                           stringr::str_detect(trt, stringr::coll(to)), 1, 0)) %>%
+    mutate(flag = ifelse(str_detect(trt, coll(from)) &
+                           str_detect(trt, coll(to)), 1, 0)) %>%
     filter(flag == 1) %>%
     select(-c(mtchvar, flag, trt)) %>%
     nest(data=c(!! trial)) %>%

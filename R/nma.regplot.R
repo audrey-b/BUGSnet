@@ -1,15 +1,27 @@
+#' @title
 #' Plot of relative treatment effects vs covariate values for meta-regression.
-#' @description Produces a plot of relative treatment effects on the linear scale vs covariate values for meta-regression.
+#' 
+#' @description
+#' Produces a plot of relative treatment effects on the linear scale vs covariate values for
+#' meta-regression.
 #' 
 #' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
-#' @param x.range The range of the x axis (covariate values). By default, the range will be the same as in the data.
+#' @param x.range The range of the x axis (covariate values). By default, the range will be the same
+#' as in the data.
 #' @param lwd Line width relative to the default (default=1).
-#' @param palette A string indicating the colour set from RcolorBrewer for the plot. "set1" is great, but you may need a different colour set if 
-#' there are many treatments in your network.
+#' @param palette A string indicating the colour set from RcolorBrewer for the plot. "set1" is
+#' great, but you may need a different colour set if there are many treatments in your network.
 #' 
 #' @return \code{regplot} - A plot of the relative treatment effects vs covariate values for meta-regression.
-#' @export
+#' 
 #' @seealso \code{\link{nma.run}}
+#' 
+#' @importFrom dplyr full_join left_join matches mutate select summarise_all
+#' @importFrom ggplot2 aes geom_line ggplot labs scale_color_manual theme_bw
+#' @importFrom grDevices colorRampPalette
+#' @importFrom magrittr %>% %<>%
+#' @importFrom RColorBrewer brewer.pal brewer.pal.info
+#' @importFrom tidyr gather
 #' 
 #' @examples 
 #' data(afib)
@@ -20,24 +32,33 @@
 #' 
 #' #Random effects, consistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#'afib.re.c <- nma.model(data=afib.slr,
-#'outcome="events",
-#'N="sampleSize",
-#'reference="02",
-#'family="binomial",
-#'link="logit",
-#'effects="random",
-#'covariate="stroke",
-#'prior.beta="EXCHANGEABLE")
+#' afib.re.c <- nma.model(
+#'   data = afib.slr,
+#'   outcome = "events",
+#'   N = "sampleSize",
+#'   reference = "02",
+#'   family = "binomial",
+#'   link = "logit",
+#'   effects = "random",
+#'   covariate = "stroke",
+#'   prior.beta = "EXCHANGEABLE"
+#' )
 #'  
-#'afib.re.c.res <- nma.run(afib.re.c,
-#'n.adapt=100,
-#'n.burnin=0,
-#'n.iter=100)
+#' afib.re.c.res <- nma.run(
+#'   model = afib.re.c,
+#'   n.adapt = 100,
+#'   n.burnin = 0,
+#'   n.iter = 100)
 #'
-#'nma.regplot(afib.re.c.res)
+#' nma.regplot(afib.re.c.res)
 
-nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
+#' @export
+nma.regplot <- function(
+  nma,
+  x.range = NULL,
+  lwd = 1,
+  palette = "Set1"
+){
   
   #Bind variables to function
   d <- NULL
@@ -47,7 +68,7 @@ nma.regplot <- function(nma, x.range=NULL, lwd=1, palette="Set1"){
   
   
   
-  if (class(nma) != "BUGSnetRun")
+  if (!inherits(nma, 'BUGSnetRun'))
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
   if(is.null(x.range)){

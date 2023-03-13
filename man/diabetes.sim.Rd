@@ -11,13 +11,11 @@ A dataset.
 data(diabetes.sim)
 }
 \description{
-This is the same as the Diabetes dataset but we have
-added a simulated age variable to this dataset for the purpose of
-demonstrating certain features within BUGSNET.
+This is the same as the Diabetes dataset but we have added a simulated age variable to this
+dataset for the purpose of demonstrating certain features within BUGSNET.
 }
 \examples{
 data(diabetes.sim)
-
 }
 \references{
 \insertRef{TSD2}{BUGSnet}
