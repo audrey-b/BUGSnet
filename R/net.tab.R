@@ -1,7 +1,22 @@
-###CURRENT ISSUES
-####1) comparison.charac() needs overall mean for continuous variables
+#' @importFrom dplyr across bind_cols bind_rows count filter group_by left_join rename select summarise
+#' @importFrom igraph clusters graph_from_data_frame is.connected
+#' @importFrom magrittr %>% %<>%
+#' @importFrom rlang !! quo
+#' @importFrom tibble tibble
+#' @importFrom tidyr nest
+#' @importFrom utils combn
 
-network.charac <- function(data.nma, outcome, N, type.outcome, time){
+### CURRENT ISSUES
+# 1) comparison.charac() needs overall mean for continuous variables
+
+#' @noRd
+network.charac <- function(
+  data.nma,
+  outcome,
+  N,
+  type.outcome,
+  time
+){
   
   # Bind variables to function
   event0 <- NULL
@@ -20,8 +35,8 @@ network.charac <- function(data.nma, outcome, N, type.outcome, time){
            stop('The "N" variable (number of participants) must be an integer')
     }
   
-  outcome2 <- rlang::quo(!! as.name(outcome))#this may be redundant now
-  N2 <- rlang::quo(!! as.name(N))
+  outcome2 <- quo(!! as.name(outcome))#this may be redundant now
+  N2 <- quo(!! as.name(N))
   
     n.interventions <- data.nma$arm.data %>% select(data.nma$varname.t) %>% unique() %>% nrow()
     
@@ -204,7 +219,7 @@ intervention.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
      select(-w.outcome)
     
   } else if (type.outcome =="rate"){
-    time2 <- rlang::quo(!! as.name(time))
+    time2 <- quo(!! as.name(time))
     
     person.time <- data.nma$arm.data %>% 
       group_by(across(data.nma$varname.t)) %>% 
@@ -319,18 +334,30 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
   return(tmp2)
 }
 
+
+#' @title
 #' Generate Network Characteristics
-#' @description Generates tables of network characteristics
+#' 
+#' @description
+#' Generates tables of network characteristics
+#' 
 #' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
 #' @param outcome A string indicating the name of the outcome variable
-#' @param N A string indicating the name of the variable containing the number of participants in each arm
-#' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events and # person-time reported), 
+#' @param N A string indicating the name of the variable containing the number of participants in
+#' each arm
+#' @param type.outcome A string. Options are: "binomial", "continuous", "rate" (e.g # of events
+#' and # person-time reported), 
 #' "rate2" (e.g # events and followup time reported)
 #' @param time A string required when type.outcome = "rate" or "rate2". Name of variable 
-#'   indicating person-time followup (e.g person years) or study followup time
+#' indicating person-time followup (e.g person years) or study followup time
+#'
 #' @return \code{network} - Table of network characteristics
 #' @return \code{intervention} - Summary statistics broken down by treatment
 #' @return \code{comparison} - Summary statistics broken down by treatment comparison
+#' 
+#' @seealso
+#' \code{\link{data.prep}}
+#' 
 #' @examples
 #' data(diabetes.sim)
 #' 
@@ -343,18 +370,19 @@ comparison.charac <- function(data.nma, outcome, N, type.outcome, time=NULL) {
 #' N = "n",
 #' type.outcome = "rate2",
 #' time = "followup")
-#' @seealso \code{\link{data.prep}}
+
 #' @export
-
-
-
-net.tab <- function(data, outcome, N, type.outcome, time=NULL){
+net.tab <- function(
+  data,
+  outcome,
+  N,
+  type.outcome,
+  time = NULL
+){
   return(list(network = network.charac(data, outcome, N, type.outcome,time),
               intervention = intervention.charac(data, outcome, N, type.outcome, time),
               comparison = comparison.charac(data, outcome, N, type.outcome, time)))
   
-  if(class(data) != "BUGSnetData")
+  if (!inherits(data, 'BUGSnetData'))
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
 }
-
-

@@ -1,5 +1,9 @@
+#' @importFrom dplyr mutate pull select
+#' @importFrom magrittr %>%
+
 # Calculates estimate of max-delta to be used in prior calculation
 
+#' @noRd
 nma.prior <- function(data_arm, data_contrast, outcome, differences, scale, N, sd=NULL, time = NULL){
   
   if(!is.null(data_arm)){
@@ -118,7 +122,3 @@ nma.prior <- function(data_arm, data_contrast, outcome, differences, scale, N, s
   return(max(abs(c(deltas,deltas2))))
 
 }
-
-
-
-  

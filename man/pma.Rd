@@ -56,25 +56,27 @@ implements pairwise meta-analysis via the package \code{meta}
 }
 \note{
 Depending on the the value of \code{type.outcome}, this function will implement the functions
-\code{metabin} (dichotomous outcomes), \code{metacont} (continuos outcomes), or \code{metainc} (rate outcomes)
-from the package \code{meta}.
+\code{metabin} (dichotomous outcomes), \code{metacont} (continuous outcomes), or \code{metainc}
+(rate outcomes) from the package \code{meta}.
 }
 \examples{
-
 data(diabetes.sim)
 
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
-pma(data = diabetes.slr,
-type.outcome="binomial",
-sm="OR",
-name.trt1 = "Placebo", 
-name.trt2 = "Diuretic", 
-outcome = "diabetes",
-N = "n")
-                           
+pma(
+  data = diabetes.slr,
+  type.outcome = "binomial",
+  sm = "OR",
+  name.trt1 = "Placebo", 
+  name.trt2 = "Diuretic", 
+  outcome = "diabetes",
+  N = "n"
+)
 }
 \seealso{
 \code{\link{data.prep}}

@@ -1,15 +1,15 @@
 Package: BUGSnet
 Title: Bayesian network meta-analyses in compliance with best practice and reporting guidelines
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
   person("Audrey", "Beliveau", email = "audrey.beliveau@uwaterloo.ca", role = c("aut","cph", "cre")),
-  person("Justin", "Slater", email = "jslater@lighthouseoutcomes.com", role = c("aut")),
+  person("Justin", "Slater", email = "jslater@lighthouseoutcomes.com", role = "aut"),
   person("Devon", "Boyne", email = "devon.boyne1@ucalgary.ca", role = c("aut", "cph")),
-  person("Eric", "Mackay", email = "emackay@lighthouseoutcomes.com", role = c("ctb")),
-  person("Lighthouse Outcomes Inc.", role=c("cph")),
-  person("Harmohit Singh", "Bindra", email = "hsbindra@uwaterloo.ca", role = c("ctb")),
-  person("Augustine", "Wigle", email = "amhwigle@uwaterloo.ca", role = c("ctb"))
-  ) 
+  person("Eric", "Mackay", email = "emackay@lighthouseoutcomes.com", role = "ctb"),
+  person("Harmohit Singh", "Bindra", email = "hsbindra@uwaterloo.ca", role = "ctb"),
+  person("Augustine", "Wigle", email = "amhwigle@uwaterloo.ca", role = "ctb"),
+  person("Lighthouse Outcomes Inc.", role = "cph")
+  )
 Description: BUGSnet (Bayesian inference Using Gibbs Sampling to conduct 
     NETwork meta-analysis) is a feature-rich R package to conduct Bayesian 
     network meta-analyses in compliance with best practice and reporting 
@@ -18,38 +18,40 @@ Description: BUGSnet (Bayesian inference Using Gibbs Sampling to conduct
     characteristics, league tables and league heat plots, SUCRA plots, 
     rankograms, forest plots, leverage plots, traceplots, posterior mean 
     deviance comparison plots.
-Depends: R (>= 3.6),
-  rjags (>= 4.9)
 License: CC BY-NC-SA 4.0
-Encoding: UTF-8
-LazyData: yes
-RoxygenNote: 7.1.1
+License_is_FOSS: yes
+License_restricts_use: yes
+URL: https://bugsnetsoftware.github.io
+BugReports: https://github.com/audrey-b/BUGSnet/issues
+Depends:
+    R (>= 3.6.1)
 Imports:
-    tidyr (>= 1.0),
-    plyr (>= 1.8.4),
-    ggplot2 (>= 3.2.1),
-    igraph (>= 1.2.4.1),
-    extrafont (>= 0.17),
-    magrittr (>= 1.5),
+    coda,
     dplyr (>= 0.8.3),
+    ggplot2 (>= 3.2.1),
+    graphics (>= 3.6.1),
+    gridExtra (>= 2.3),
+    igraph (>= 1.2.4.1),
+    magrittr (>= 1.5),
     meta (>= 5.0.0),
+    plyr (>= 1.8.4),
     purrr (>= 0.3.3),
-    scales (>= 1.0.0),
     RColorBrewer (>= 1.1.2),
     Rdpack (>= 0.11.0),
-    graphics (>= 3.6.1),
-    utils (>= 3.6.1),
+    rjags (>= 4.9),
     rlang (>= 0.4.1),
-    tibble (>= 2.1.3),
+    scales (>= 1.0.0),
     stringr (>= 1.4.0),
-    gridExtra (>= 2.3),
-    mcmcr
+    tibble (>= 2.1.3),
+    tidyr (>= 1.0),
+    utils (>= 3.6.1)
 Suggests: 
     knitr (>= 1.25),
     rmarkdown (>= 1.16),
-    devtools (>= 2.2.1),
-    roxygen2 (>= 6.1.1),
     testthat (>= 2.2.1)
+Encoding: UTF-8
+LazyData: yes
 VignetteBuilder: knitr
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace", "collate"))
 RdMacros: Rdpack

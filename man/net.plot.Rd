@@ -64,23 +64,26 @@ Produces network plot where nodes represent treatments and edges represent direc
 evidence (e.g an RCT) comparing treatments.
 }
 \examples{
-
 data(diabetes.sim)
 
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
 # use default settings
 net.plot(diabetes.slr)
 
 # Highlight all direct comparisons with Placebo. Adjust node and edge size, centre node labels
-net.plot(diabetes.slr, 
-node.scale=4, 
-edge.scale=1.5, 
-flag="Placebo", 
-label.offset1=0, 
-label.offset2=0)
+net.plot(
+  data = diabetes.slr, 
+  node.scale = 4, 
+  edge.scale = 1.5, 
+  flag="Placebo", 
+  label.offset1 = 0, 
+  label.offset2 = 0
+)
 }
 \seealso{
 \code{\link{data.prep}}, \code{igraph::layout_}

@@ -35,7 +35,7 @@ will be built.}
 
 \item{effects}{A string indicating the type of treatment effect relative to baseline. Options are "fixed" or "random".}
 
-\item{scale}{A string indicating the scale of the data, such as "Mean Difference" or "Log-Odds Ratio",}
+\item{scale}{A string indicating the scale of the data, such as "Mean Difference" or "Log-Odds Ratio".}
 
 \item{prior.mu}{A string of BUGS code that defines priors on the baseline treatment effects. By default, independent normal priors are used with mean 0 and standard deviation 15u, where u is the largest maximum likelihood estimator in single trials \insertCite{@see @gemtc}{BUGSnet}.}
 
@@ -61,40 +61,41 @@ examples are "Risk Ratio" (relative risk), "Odds Ratio", "Mean Difference", "Haz
 Creates BUGS code which can be ran through \code{nma.run()}.
 }
 \examples{
-
-
 data(diabetes.sim)
 
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
 #Random effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="consistency",
-       time="followup"
-       )
+diabetes.re.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "consistency",
+  time = "followup"
+)
        
 #Fixed effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.fe.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "fixed",
-       type="consistency",
-       time="followup"
-       )
-        
+diabetes.fe.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "fixed",
+  type = "consistency",
+  time = "followup"
+)
 }
 \references{
 \insertRef{gemtc}{BUGSnet}

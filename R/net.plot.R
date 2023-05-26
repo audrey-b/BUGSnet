@@ -1,6 +1,10 @@
+#' @title
 #' Network Plot
-#' @description Produces network plot where nodes represent treatments and edges represent direct
+#' 
+#' @description
+#' Produces network plot where nodes represent treatments and edges represent direct
 #' evidence (e.g an RCT) comparing treatments.
+#' 
 #' @param data A \code{BUGSnetData} object produced by \code{data.prep()}.
 # @param outcome A string of the outcome variable to use for the plot (missing values are discarded).
 #' @param node.scale Size of the nodes (default=5)
@@ -22,54 +26,64 @@
 #' for layout options
 #' @param layout.params Additional parameters to be passed to the chosen 'layout' function. See \code{igraph::layout_} for more information
 # @param ... extra parameters for plotting
-#' @examples
+#'
+#' @seealso
+#' \code{\link{data.prep}}, \code{igraph::layout_}
 #' 
+#' @importFrom dplyr mutate pull select
+#' @importFrom igraph E ecount incident V vcount
+#' @importFrom magrittr %>%
+#' @importFrom scales rescale
+#' 
+#' @examples
 #' data(diabetes.sim)
 #' 
-#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-#' varname.t = "Treatment", 
-#' varname.s = "Study")
+#' diabetes.slr <- data.prep(
+#'   arm.data = diabetes.sim, 
+#'   varname.t = "Treatment", 
+#'   varname.s = "Study"
+#' )
 #' 
 #' # use default settings
 #' net.plot(diabetes.slr)
 #' 
 #' # Highlight all direct comparisons with Placebo. Adjust node and edge size, centre node labels
-#' net.plot(diabetes.slr, 
-#' node.scale=4, 
-#' edge.scale=1.5, 
-#' flag="Placebo", 
-#' label.offset1=0, 
-#' label.offset2=0)
+#' net.plot(
+#'   data = diabetes.slr, 
+#'   node.scale = 4, 
+#'   edge.scale = 1.5, 
+#'   flag="Placebo", 
+#'   label.offset1 = 0, 
+#'   label.offset2 = 0
+#' )
+
 #' @export
-#' @seealso \code{\link{data.prep}}, \code{igraph::layout_}
-
-
-
-
-net.plot <- function(data,
-                     #outcome,
-                     node.scale=5, 
-                     edge.scale=2, 
-                     flag=NULL, 
-                     study.counts = FALSE,
-                     label.offset1=0, 
-                     label.offset2=1, 
-                     graph.scale=TRUE,
-                     node.lab.cex = 1,
-                     edge.lab.cex = 1,
-                     node.colour = "#f69c54",
-                     edge.colour = "grey",
-                     edge.lab.colour = "blue",
-                     flag.edge.colour = "lightpink",
-                     layout = "layout_in_circle",
-                     layout.params = NULL) {
+net.plot <- function(
+  data,
+  #outcome,
+  node.scale = 5, 
+  edge.scale = 2, 
+  flag = NULL, 
+  study.counts = FALSE,
+  label.offset1 = 0, 
+  label.offset2 = 1, 
+  graph.scale = TRUE,
+  node.lab.cex = 1,
+  edge.lab.cex = 1,
+  node.colour = "#f69c54",
+  edge.colour = "grey",
+  edge.lab.colour = "blue",
+  flag.edge.colour = "lightpink",
+  layout = "layout_in_circle",
+  layout.params = NULL
+) {
   
   # Bind variables to function
   x <- NULL
   y <- NULL
   z <- NULL
   
-  if(class(data) != "BUGSnetData")
+  if (!inherits(data, 'BUGSnetData'))
     stop("\'data\' must be a valid BUGSnetData object created using the data.prep function.")
   
   if (!is.character(layout) || length(layout) != 1)

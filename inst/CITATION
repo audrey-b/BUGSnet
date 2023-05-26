@@ -1,16 +1,24 @@
-citHeader("To cite BUGSnet in publications use:")
+doi <- "10.1186/s12874-019-0829-2"
 
-bibentry(bibtype="Article",
-  title = "{BUGSnet}: an {R} package to facilitate the conduct and reporting of {Bayesian} network meta-analyses}",
-  author = c(person("Audrey", "B\'eliveau"),
-            person("Devon J.", "Boyne"),
-            person("Justin", "Slater"),
-            person("Darren", "Brenner"),
-            person("Paul", "Arora")),
-  journal = "{BMC} {Medical} {Research} {Methodology}",
-	year = {2019},
-	volume = {19},
-	number = {196},
-	textVersion = paste("Béliveau A., Boyne DJ, Slater J, Brenner D and Arora P. (2019)", 
-                    "BUGSnet: an R package to facilitate the conduct and reporting of Bayesian network meta-analyses.",
-                    "BMC Medical Research Methodology, 19:196."))
+bibentry(
+  bibtype="Article",
+  title = "{BUGSnet}: an {R} package to facilitate the conduct and reporting of {Bayesian} network meta-analyses",
+  author = c(person("Audrey", "B\\'eliveau"),
+             person(c("Devon", "J."), "Boyne"),
+             person("Justin", "Slater"),
+             person("Darren", "Brenner"),
+             person("Paul", "Arora")),
+  journal = "{BMC Medical Research Methodology}",
+  year = "2019",
+  volume = "19",
+  number = "1",
+  pages = "196",
+  doi = doi,
+  header = "To cite BUGSnet in publications use:",
+  textVersion = paste("Béliveau A., Boyne D.J., Slater J., Brenner D. and Arora P.",
+                      "(2019).",
+                      "BUGSnet: an R package to facilitate the conduct and reporting of Bayesian network meta-analyses.",
+                      "BMC Medical Research Methodology, 19(1):196.",
+                      paste("DOI:", doi)),
+  key = "bugsnet-package"
+)

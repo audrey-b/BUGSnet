@@ -1,4 +1,20 @@
-by.comparison <- function(data.nma, outcome, type.outcome="binomial", N, sd=NULL, time = NULL){
+#' @importFrom dplyr left_join mutate rename select
+#' @importFrom magrittr %>%
+#' @importFrom purrr map
+#' @importFrom tibble as_tibble
+#' @importFrom tidyr nest unnest
+#' @importFrom utils combn
+#' @importFrom magrittr %<>%
+
+#' @noRd
+by.comparison <- function(
+  data.nma,
+  outcome,
+  type.outcome = "binomial",
+  N,
+  sd = NULL,
+  time = NULL
+){
   
   #Binding variables to function
   trial <- NULL

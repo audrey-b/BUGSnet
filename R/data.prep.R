@@ -1,5 +1,9 @@
+#' @title
 #' Data preparation
-#' @description Puts data into appropriate form for subsequent analysis using BUGSnet.
+#' 
+#' @description
+#' Puts data into appropriate form for subsequent analysis using BUGSnet.
+#' 
 #' @param arm.data Data with 1 row for each study arm.
 #' @param varname.t A string indicating the name of the treatment variable.
 #' @param varname.s A string indicating the name of the study variable.
@@ -12,6 +16,13 @@
 #' @return \code{varname.t} - A string containing the name of the treatment variable
 #' @return \code{varname.s} - A string containing the name of the study variable
 #' 
+#' @seealso
+#' \code{\link{net.plot}}, \code{\link{net.tab}}, \code{\link{data.plot}}, \code{\link{nma.model}}
+#'
+#' @importFrom dplyr arrange group_by mutate n select summarize ungroup
+#' @importFrom magrittr %<>%
+#' @importFrom rlang !! quo
+#'
 #' @examples 
 #' data(diabetes.sim)
 #' 
@@ -22,18 +33,17 @@
 #' diabetes.slr$arm.data
 #' diabetes.slr$treatments
 #' diabetes.slr$studies
+
 #' @export
-#' @seealso \code{\link{net.plot}}, \code{\link{net.tab}}, \code{\link{data.plot}}, \code{\link{nma.model}}
-
-
-data.prep <- function(arm.data,
-                      #patient.data = NULL,
-                      varname.t,
-                      varname.s
+data.prep <- function(
+  arm.data,
+  #patient.data = NULL,
+  varname.t,
+  varname.s
 ){
   
-  varname.t.quo <- rlang::quo(!! as.name(varname.t))
-  varname.s.quo <- rlang::quo(!! as.name(varname.s))
+  varname.t.quo <- quo(!! as.name(varname.t))
+  varname.s.quo <- quo(!! as.name(varname.s))
   
   
   arm.data %<>% mutate(!! varname.t.quo := as.character(!! varname.t.quo),

@@ -1,5 +1,9 @@
+#' @title
 #' Forest Plot
-#' @description Produces a forest plot of point estimates and 95% credible intervals obtained with the quantile method.
+#' @description
+#' Produces a forest plot of point estimates and 95% credible intervals obtained with the quantile
+#' method.
+#' 
 #' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
 #' @param comparator The treatment to use as a comparator
 #' @param central.tdcy The posterior statistic used in order to measure relative effectiveness. The options are "mean" and "median". Default is median.
@@ -8,9 +12,18 @@
 #' @param x.trans Optional. A string indicating a transformation to apply to the x-axis. Setting this parameter to "log" is useful when there are extreme values or to allow an easier interpretation of odds ratios and relative ratios (if e.g. treatment B is twice as far from the line y=1 then treatment A then it's OR/RR is twice that of treatment A.) 
 #' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.
 #' @param cov.value  Must be specified for meta-regression. This is the value of the covariate for which to report the results.
-
+#' 
 #' @return \code{forestplot} - A forest plot.
 #'
+#' @seealso
+#' \code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.rank}}
+#' 
+#' @importFrom dplyr left_join mutate rename select starts_with summarise_all
+#' @importFrom ggplot2 aes coord_flip geom_hline geom_pointrange ggplot scale_x_discrete scale_y_continuous theme_classic xlab ylab
+#' @importFrom magrittr %>% %<>%
+#' @importFrom scales pretty_breaks
+#' @importFrom tidyr gather
+#' 
 #' @examples
 #' data(diabetes.sim)
 #' 
@@ -20,37 +33,40 @@
 #' 
 #' #Random effects, consistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#'diabetes.re.c <- nma.model(data = diabetes.slr,
-#'        outcome = "diabetes", 
-#'        N = "n",
-#'        reference = "Placebo",
-#'        family = "binomial",
-#'        link = "cloglog",
-#'        effects = "random",
-#'        type="consistency",
-#'        time="followup"
-#'        )
-#'  
-#'diabetes.re.c.res <- nma.run(diabetes.re.c,
-#'n.adapt=100,
-#'n.burnin=0,
-#'n.iter=100)
-#'      
-#'        
+#' diabetes.re.c <- nma.model(
+#'   data = diabetes.slr,
+#'   outcome = "diabetes", 
+#'   N = "n",
+#'   reference = "Placebo",
+#'   family = "binomial",
+#'   link = "cloglog",
+#'   effects = "random",
+#'   type = "consistency",
+#'   time = "followup"
+#' )
+#' 
+#' diabetes.re.c.res <- nma.run(
+#'   model = diabetes.re.c,
+#'   n.adapt = 100,
+#'   n.burnin = 0,
+#'   n.iter = 100
+#' )
+#' 
 #' #make forest plot
 #' nma.forest(nma = diabetes.re.c.res, comparator="Placebo")
+
+
 #' @export
-#' @seealso \code{\link{nma.run}}, \code{\link{nma.league}}, \code{\link{nma.rank}} 
-
-
-nma.forest <- function(nma, 
-                       comparator, 
-                       central.tdcy = "median", 
-                       order = NULL,
-                       log.scale=FALSE,
-                       lwd=1,
-                       x.trans=NULL,
-                       cov.value=NULL) {
+nma.forest <- function(
+  nma, 
+  comparator, 
+  central.tdcy = "median", 
+  order = NULL,
+  log.scale = FALSE,
+  lwd = 1,
+  x.trans = NULL,
+  cov.value = NULL
+){
   
   # Bind variables to function
   key <- NULL
@@ -59,7 +75,7 @@ nma.forest <- function(nma,
   lci <- NULL
   uci <- NULL
   
-  if (class(nma) != "BUGSnetRun")
+  if (!inherits(nma, 'BUGSnetRun'))
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
   if(!is.null(nma$model$covariate) & is.null(cov.value)) stop("cov.value must be specified for meta-regression")
@@ -180,16 +196,15 @@ nma.forest <- function(nma,
   
   if(is.null(x.trans)){
     f.plot <- f.plot +
-      scale_y_continuous(breaks = scales::pretty_breaks(n=10 ))
+      scale_y_continuous(breaks = pretty_breaks(n=10 ))
   }
   else{
     
     f.plot <- f.plot +
       scale_y_continuous(trans=x.trans,
-                         breaks = scales::pretty_breaks(n=10))
+                         breaks = pretty_breaks(n=10))
   }
   
   return("forestplot"=f.plot)
   
 }
-

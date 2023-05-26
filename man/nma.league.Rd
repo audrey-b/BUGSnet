@@ -43,36 +43,44 @@ nma.league(
 \code{heatplot} - League heat plot, where a color scale is used to represent relative treatment effects and ** are used to highlight statistically significant differences.
 }
 \description{
-Produces a league table and a league heat plot that contain point estimates of relative effectiveness
-for all possible pairs of treatments point estimates along with 95\% credible intervals obtained with the quantile method.
+Produces a league table and a league heat plot that contain point estimates of relative
+effectiveness for all possible pairs of treatments point estimates along with 95\% credible
+intervals obtained with the quantile method.
 }
 \examples{
 data(diabetes.sim)
 
-diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-varname.t = "Treatment", 
-varname.s = "Study")
+diabetes.slr <- data.prep(
+  arm.data = diabetes.sim, 
+  varname.t = "Treatment", 
+  varname.s = "Study"
+)
 
 #Random effects, consistency model.
 #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-diabetes.re.c <- nma.model(data = diabetes.slr,
-       outcome = "diabetes", 
-       N = "n",
-       reference = "Placebo",
-       family = "binomial",
-       link = "cloglog",
-       effects = "random",
-       type="consistency",
-       time="followup"
-       )
+diabetes.re.c <- nma.model(
+  data = diabetes.slr,
+  outcome = "diabetes", 
+  N = "n",
+  reference = "Placebo",
+  family = "binomial",
+  link = "cloglog",
+  effects = "random",
+  type = "consistency",
+  time = "followup"
+)
  
-diabetes.re.c.res <- nma.run(diabetes.re.c,
-n.adapt=100,
-n.burnin=0,
-n.iter=100)
+diabetes.re.c.res <- nma.run(
+  model = diabetes.re.c,
+  n.adapt = 100,
+  n.burnin = 0,
+  n.iter = 100)
 
- 
-league_table <- nma.league(nma=diabetes.re.c.res, central.tdcy="median")
+league_table <- nma.league(
+  nma = diabetes.re.c.res,
+  central.tdcy = "median"
+)
+
 league_table$heatplot
 league_table$table
 league_table$longtable

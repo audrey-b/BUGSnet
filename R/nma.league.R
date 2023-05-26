@@ -1,6 +1,11 @@
+#' @title
 #' League Table and Heat Plot
-#' @description Produces a league table and a league heat plot that contain point estimates of relative effectiveness 
-#' for all possible pairs of treatments point estimates along with 95% credible intervals obtained with the quantile method.
+#' 
+#' @description
+#' Produces a league table and a league heat plot that contain point estimates of relative
+#' effectiveness for all possible pairs of treatments point estimates along with 95% credible
+#' intervals obtained with the quantile method.
+#' 
 #' @param nma A \code{BUGSnetRun} object produced by running \code{nma.run()}.
 #' @param central.tdcy The statistic that you want to use in order to measure relative effectiveness. The options are "mean" and "median".
 #' @param log.scale If TRUE, odds ratios, relative risk or hazard ratios are reported on the log scale. Default is FALSE.
@@ -15,49 +20,63 @@
 #' @return \code{longtable} - League table in the long format.
 #' @return \code{heatplot} - League heat plot, where a color scale is used to represent relative treatment effects and ** are used to highlight statistically significant differences.
 #' 
+#' @seealso
+#' \code{\link{nma.run}}, \code{\link{nma.rank}}, \code{\link{nma.forest}}
+#' 
+#' @importFrom dplyr bind_cols bind_rows everything filter left_join mutate rename select summarise_all
+#' @importFrom magrittr %>%
+#' @importFrom tidyr gather
+#' 
 #' @examples
 #' data(diabetes.sim)
 #' 
-#' diabetes.slr <- data.prep(arm.data = diabetes.sim, 
-#' varname.t = "Treatment", 
-#' varname.s = "Study")
+#' diabetes.slr <- data.prep(
+#'   arm.data = diabetes.sim, 
+#'   varname.t = "Treatment", 
+#'   varname.s = "Study"
+#' )
 #' 
 #' #Random effects, consistency model.
 #' #Binomial family, cloglog link. This implies that the scale will be the Hazard Ratio.
-#'diabetes.re.c <- nma.model(data = diabetes.slr,
-#'        outcome = "diabetes", 
-#'        N = "n",
-#'        reference = "Placebo",
-#'        family = "binomial",
-#'        link = "cloglog",
-#'        effects = "random",
-#'        type="consistency",
-#'        time="followup"
-#'        )
+#' diabetes.re.c <- nma.model(
+#'   data = diabetes.slr,
+#'   outcome = "diabetes", 
+#'   N = "n",
+#'   reference = "Placebo",
+#'   family = "binomial",
+#'   link = "cloglog",
+#'   effects = "random",
+#'   type = "consistency",
+#'   time = "followup"
+#' )
 #'  
-#'diabetes.re.c.res <- nma.run(diabetes.re.c,
-#'n.adapt=100,
-#'n.burnin=0,
-#'n.iter=100)
-#'
-#'  
-#' league_table <- nma.league(nma=diabetes.re.c.res, central.tdcy="median")
+#' diabetes.re.c.res <- nma.run(
+#'   model = diabetes.re.c,
+#'   n.adapt = 100,
+#'   n.burnin = 0,
+#'   n.iter = 100)
+#' 
+#' league_table <- nma.league(
+#'   nma = diabetes.re.c.res,
+#'   central.tdcy = "median"
+#' )
+#' 
 #' league_table$heatplot
 #' league_table$table
 #' league_table$longtable
+
 #' @export
-#' @seealso \code{\link{nma.run}}, \code{\link{nma.rank}}, \code{\link{nma.forest}} 
-
-
-nma.league <- function(nma, 
-                       central.tdcy = "median",
-                       log.scale = FALSE,
-                       order = NULL,
-                       low.colour = "darkgoldenrod1", 
-                       mid.colour = "white",
-                       high.colour = "cornflowerblue",
-                       cov.value=NULL,
-                       digits = 2) {
+nma.league <- function(
+  nma, 
+  central.tdcy = "median",
+  log.scale = FALSE,
+  order = NULL,
+  low.colour = "darkgoldenrod1", 
+  mid.colour = "white",
+  high.colour = "cornflowerblue",
+  cov.value = NULL,
+  digits = 2
+) {
   
   # Bind variables to function
   trt <- NULL
@@ -65,7 +84,7 @@ nma.league <- function(nma,
   Comparator <- NULL
   
   
-  if (class(nma) != "BUGSnetRun")
+  if (!inherits(nma, 'BUGSnetRun'))
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
   if(!is.null(nma$model$covariate) & is.null(cov.value)) stop("cov.value must be specified for meta-regression")
@@ -241,17 +260,21 @@ nma.league <- function(nma,
 }
 
 
+#' @importFrom dplyr filter
+#' @importFrom ggplot2 aes element_blank geom_text geom_tile ggplot scale_fill_gradient2 scale_x_discrete scale_y_discrete theme theme_dark
+#' @importFrom magrittr %>%
 
-
-
-league.heat.plot <- function(leaguetable,
-                             central.tdcy,
-                             order = NULL,
-                             low.colour = "red", 
-                             mid.colour = "white",
-                             high.colour = "springgreen4",
-                             midpoint,
-                             digits){
+#' @noRd
+league.heat.plot <- function(
+  leaguetable,
+  central.tdcy,
+  order = NULL,
+  low.colour = "red", 
+  mid.colour = "white",
+  high.colour = "springgreen4",
+  midpoint,
+  digits
+){
   
   #Bind Variables to function
   Treatment <- NULL
@@ -290,4 +313,3 @@ league.heat.plot <- function(leaguetable,
   
   return(heatplot)
 }
-

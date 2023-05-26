@@ -1,7 +1,10 @@
-
+#' @title
 #' Trace plots and convergence diagnostics for MCMC chains
-#' @description Produces trace plots and Gelman-Rubin and Geweke convergence diagnostics for the MCMC chains obtained from 
-#' \code{nma.run()}. The Gelman-Rubin and Geweke diagnostics are implemented using functions from the \code{coda} package. 
+#' 
+#' @description
+#' Produces trace plots and Gelman-Rubin and Geweke convergence diagnostics for the MCMC chains obtained from 
+#' \code{nma.run()}. The Gelman-Rubin and Geweke diagnostics are implemented using functions from the \code{coda} package.
+#' 
 #' @param nma A \code{BUGSnetRun} object produced by \code{nma.run()}
 #' @param trace If TRUE, outputs trace plots. Default is TRUE.
 #' @param gelman.rubin If TRUE, runs Gelman-Rubin diagnostic. Default is TRUE.
@@ -20,6 +23,16 @@
 #' @return \code{geweke} An object of class \code{geweke.results} containing the Geweke diagnostic results. A formatted table 
 #' with custom significance level can be printed using \code{print(x, alpha = 0.05)}.
 #' 
+#' @seealso
+#' \code{\link{nma.run}}
+#' 
+#' @importFrom coda gelman.diag geweke.diag
+#' @importFrom ggplot2 aes_string element_text geom_density geom_line geom_text ggplot ggtitle theme xlab ylab
+#' @importFrom gridExtra grid.arrange
+#' @importFrom magrittr %>%
+#' @importFrom stats qnorm
+#' @importFrom stringr str_extract str_sub
+#' 
 #' @examples 
 #' data(thrombolytic)
 #' dich.slr <- data.prep(arm.data = thrombolytic, varname.t = "treatment", 
@@ -31,21 +44,21 @@
 #' random_effects_results <- nma.run(random_effects_model, n.adapt=100, 
 #'                                   n.burnin=0, n.iter=100)
 #' nma.diag(random_effects_results)
-#' @export
-#' @seealso \code{\link{nma.run}}
 
-nma.diag <- function(nma, 
-                     trace = TRUE,
-                     gelman.rubin = TRUE, 
-                     geweke = TRUE,
-                     params = "all",
-                     thin = 1, 
-                     ncol = 1,
-                     nrow = 3,
-                     plot_prompt = TRUE,
-                     geweke_frac1 = 0.1,
-                     geweke_frac2 = 0.5)
-{
+#' @export
+nma.diag <- function(
+  nma, 
+  trace = TRUE,
+  gelman.rubin = TRUE, 
+  geweke = TRUE,
+  params = "all",
+  thin = 1, 
+  ncol = 1,
+  nrow = 3,
+  plot_prompt = TRUE,
+  geweke_frac1 = 0.1,
+  geweke_frac2 = 0.5
+){
   
   # Bind variables to function
   str_sub <- NULL
@@ -53,7 +66,7 @@ nma.diag <- function(nma,
   gelman.diag <- NULL
   geweke.diag <- NULL
   
-  if (class(nma) != "BUGSnetRun")
+  if (!inherits(nma, 'BUGSnetRun'))
     stop("\'nma\' must be a valid BUGSnetRun object created using the nma.run function.")
   
   if (trace == FALSE && gelman.rubin == FALSE && geweke == FALSE)
@@ -135,7 +148,7 @@ nma.diag <- function(nma,
         if (trimws(tolower(pstr), which = "both") == "stop")
           break
       }
-      gridExtra::grid.arrange(grobs = traceplots[((i-1)*2*nrow*ncol+1):min((i*2*nrow*ncol),length(traceplots))], ncol = 2 * ncol)
+      grid.arrange(grobs = traceplots[((i-1)*2*nrow*ncol+1):min((i*2*nrow*ncol),length(traceplots))], ncol = 2 * ncol)
     }
   }
   
@@ -149,6 +162,7 @@ nma.diag <- function(nma,
 
 }
 
+#' @noRd
 print.gelman.rubin.results <- function(obj, gelman.rubin.threshold = 1.2)
 {
   psrf <- obj$psrf
@@ -164,6 +178,7 @@ print.gelman.rubin.results <- function(obj, gelman.rubin.threshold = 1.2)
              "\n--------------------------------\n", paste0("* PSRF > ", gelman.rubin.threshold), "\n\n"))
 }
 
+#' @noRd
 print.geweke.results <- function(obj, alpha = 0.05)
 {
   gwtbl <- list()
