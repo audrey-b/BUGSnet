@@ -37,6 +37,7 @@
 #' @importFrom dplyr filter select
 #' @importFrom magrittr %>%
 #' @importFrom meta forest metabin metacont metainc
+#' @importFrom tidyselect all_of
 #' 
 #' @examples
 #' data(diabetes.sim)
@@ -86,8 +87,8 @@ pma <- function(
   data.nma <- data
   
   # Check if number of events and participants is integer
-  tmp.check1 <- data.nma$arm.data %>% select(outcome)
-  tmp.check2 <- data.nma$arm.data %>% select(N)
+  tmp.check1 <- data.nma$arm.data %>% select(all_of(outcome))
+  tmp.check2 <- data.nma$arm.data %>% select(all_of(N))
   
   if(type.outcome %in% c("binomial","rate") && all(tmp.check1%%1!=0)) {
     stop('The "outcome" variable (number of events) must be an integer')

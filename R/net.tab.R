@@ -5,7 +5,8 @@
 #' @importFrom tibble tibble
 #' @importFrom tidyr nest
 #' @importFrom utils combn
-
+#' @importFrom tidyselect all_of
+#' 
 ### CURRENT ISSUES
 # 1) comparison.charac() needs overall mean for continuous variables
 
@@ -25,7 +26,7 @@ network.charac <- function(
   n.arms <- NULL
 
   # Check if number of events and participants is integer
-  tmp.check1 <- data.nma$arm.data %>% select(outcome)
+  tmp.check1 <- data.nma$arm.data %>% select(all_of(outcome))
   tmp.check2 <- data.nma$arm.data %>% select(N)
   
   if(type.outcome == "binomial" && all(tmp.check1%%1!=0)) {
@@ -92,10 +93,10 @@ network.charac <- function(
     
     if(type.outcome=="binomial"){
 
-      n.events <- data.nma$arm.data %>% select(outcome) %>% sum 
+      n.events <- data.nma$arm.data %>% select(all_of(outcome)) %>% sum 
       
       tmp3 <- suppressMessages(data.nma$arm.data %>% 
-        select(data.nma$varname.s, outcome) %>% 
+        select(data.nma$varname.s, all_of(outcome)) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
         group_by(across(data.nma$varname.s)) %>%
         summarise(s=sum(event0), n.arms=sum(one)) %>%
@@ -121,10 +122,10 @@ network.charac <- function(
     }
     if(type.outcome %in% c("rate", "rate2")){
       
-      n.events <- data.nma$arm.data %>% select(outcome) %>% sum 
+      n.events <- data.nma$arm.data %>% select(all_of(outcome)) %>% sum 
       
       tmp3 <- data.nma$arm.data %>% 
-        select(data.nma$varname.s, outcome) %>% 
+        select(data.nma$varname.s, all_of(outcome)) %>% 
         mutate(event0=(as.integer((!! outcome2)==0)), one=1) %>% 
         group_by(across(data.nma$varname.s)) %>%
         summarise(s=sum(event0), n.arms=sum(one)) %>%
@@ -136,7 +137,7 @@ network.charac <- function(
       
       n.studies.all.0 <- tmp3$all.0 %>% sum
       
-      mean.person.time.Fup <- data.nma$arm.data %>% select(time) %>% colMeans %>% round(digits=2)
+      mean.person.time.Fup <- data.nma$arm.data %>% select(all_of(time)) %>% colMeans %>% round(digits=2)
       str.mean.person.time.Fup <- ifelse(type.outcome=="rate", "Mean person-time of studies", "Mean person follow up time")
       
       add.tble <- tibble(Characteristic=c("Total Number of Events in Network",
@@ -156,7 +157,7 @@ network.charac <- function(
     if (type.outcome=="continuous"){
       
       just.N <- data.nma$arm.data %>% select(N)
-      just.outcome <- data.nma$arm.data %>% select(outcome)
+      just.outcome <- data.nma$arm.data %>% select(all_of(outcome))
       
       total <- sum(just.N*just.outcome)
       

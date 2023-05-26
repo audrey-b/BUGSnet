@@ -5,6 +5,8 @@
 #' @importFrom tidyr nest unnest
 #' @importFrom utils combn
 #' @importFrom magrittr %<>%
+#' @importFrom tidyselect all_of
+
 
 #' @noRd
 by.comparison <- function(
@@ -26,7 +28,7 @@ by.comparison <- function(
   trt.e <- NULL
   trt.c <- NULL
   
-  data <- data.nma$arm.data %>% select(outcome, data.nma$varname.t, data.nma$varname.s, N, sd, time)
+  data <- data.nma$arm.data %>% select(all_of(outcome), data.nma$varname.t, data.nma$varname.s, all_of(N), all_of(sd), all_of(time))
   names(data)[names(data) == data.nma$varname.t] <- "trt"
   names(data)[names(data) == data.nma$varname.s] <- "trial"
   
@@ -34,7 +36,7 @@ by.comparison <- function(
 
     names(data)[names(data) == data.nma$sd] <- "sd"
     
-    data %<>% select(trial, trt, outcome, N, sd)
+    data %<>% select(trial, trt, all_of(outcome), all_of(N), all_of(sd))
     data.st <- select(data, trial, trt)
     data.st %<>% nest(treatments=c(trt))
     data.st %<>%
@@ -42,15 +44,15 @@ by.comparison <- function(
       select(-treatments) %>%
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
-      left_join(data %>% select(trial, outcome, N, trt, sd), by = c("trial", "trt.e" = "trt")) %>%
-      left_join(data %>% select(trial, outcome, N, trt, sd), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
+      left_join(data %>% select(trial, all_of(outcome), all_of(N), trt, all_of(sd)), by = c("trial", "trt.e" = "trt")) %>%
+      left_join(data %>% select(trial, all_of(outcome), all_of(N), trt, all_of(sd)), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
       mutate(comparison = ifelse(trt.e < trt.c, 
                                  paste(trt.e, trt.c, sep = " vs. "),
                                  paste(trt.c, trt.e, sep = " vs. ")))
     
   } else if (type.outcome=="binomial"){
     
-    data %<>% select(trial, trt, outcome, N)
+    data %<>% select(trial, trt, all_of(outcome), all_of(N))
     data.st <- select(data, trial, trt) 
     data.st %<>% nest(treatments=c(trt))
     data.st %<>% 
@@ -58,8 +60,8 @@ by.comparison <- function(
       select(-treatments) %>% 
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
-      left_join(data %>% select(trial, outcome, N, trt), by = c("trial", "trt.e" = "trt")) %>%
-      left_join(data %>% select(trial, outcome, N, trt), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
+      left_join(data %>% select(trial, all_of(outcome), all_of(N), trt), by = c("trial", "trt.e" = "trt")) %>%
+      left_join(data %>% select(trial, all_of(outcome), all_of(N), trt), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
       mutate(comparison = ifelse(trt.e < trt.c, 
                                  paste(trt.e, trt.c, sep = " vs. "),
                                  paste(trt.c, trt.e, sep = " vs. "))) 
@@ -68,7 +70,7 @@ by.comparison <- function(
     
     names(data)[names(data) == data.nma$time] <- "time"
     
-    data %<>% select(trial, trt, outcome, N, time)
+    data %<>% select(trial, trt, all_of(outcome), all_of(N), all_of(time))
     data.st <- select(data, trial, trt)
     data.st %<>% nest(treatments=c(trt))
     data.st %<>%
@@ -76,8 +78,8 @@ by.comparison <- function(
       select(-treatments) %>%
       unnest(cols = c(comparisons)) %>%
       rename(trt.e=V1, trt.c=V2) %>%
-      left_join(data %>% select(trial, outcome, N, trt, time), by = c("trial", "trt.e" = "trt")) %>%
-      left_join(data %>% select(trial, outcome, N, trt, time), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
+      left_join(data %>% select(trial, all_of(outcome), all_of(N), trt, all_of(time)), by = c("trial", "trt.e" = "trt")) %>%
+      left_join(data %>% select(trial, all_of(outcome), all_of(N), trt, all_of(time)), by = c("trial", "trt.c" = "trt"), suffix=c(".e",".c"))%>%
       mutate(comparison = ifelse(trt.e < trt.c, 
                                  paste(trt.e, trt.c, sep = " vs. "),
                                  paste(trt.c, trt.e, sep = " vs. "))) 

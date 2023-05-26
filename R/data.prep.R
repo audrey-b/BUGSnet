@@ -22,6 +22,7 @@
 #' @importFrom dplyr arrange group_by mutate n select summarize ungroup
 #' @importFrom magrittr %<>%
 #' @importFrom rlang !! quo
+#' @importFrom tidyselect all_of
 #'
 #' @examples 
 #' data(diabetes.sim)
@@ -51,8 +52,8 @@ data.prep <- function(
   
   bdata <- structure(list(arm.data=arm.data,
                           #patient.data = patient.data,
-                          treatments=arm.data %>% select(varname.t) %>% unique %>% arrange(!! varname.t.quo),
-                          studies=arm.data %>% select(varname.s) %>% unique %>% arrange(!! varname.s.quo),
+                          treatments=arm.data %>% select(all_of(varname.t)) %>% unique %>% arrange(!! varname.t.quo),
+                          studies=arm.data %>% select(all_of(varname.s)) %>% unique %>% arrange(!! varname.s.quo),
                           n.arms= arm.data %>% group_by(!! varname.s.quo) %>% summarize(n.arms = n()) %>% ungroup() %>% arrange,
                           varname.t = varname.t,
                           varname.s = varname.s),

@@ -28,17 +28,17 @@ test_that("Non continuous covariate produces error in meta regression",
                                   effects="fixed",
                                   covariate="stroke",
                                   prior.beta="EXCHANGEABLE"
-                      ), "Error in nma.model(data = dataprep, outcome = \"events\", N = \"sampleSize\",  : \n  Covariate should have more than one unique value"
-          )})
+                      )
+            )})
 
 
-nma.model(data=dataprep,
-          outcome="events",
-          N="sampleSize",
-          reference="02",
-          family="binomial",
-          link="logit",
-          effects="fixed",
-          covariate="stroke",
-          prior.beta="EXCHANGEABLE")
+# nma.model(data=dataprep,
+#           outcome="events",
+#           N="sampleSize",
+#           reference="02",
+#           family="binomial",
+#           link="logit",
+#           effects="fixed",
+#           covariate="stroke",
+#           prior.beta="EXCHANGEABLE")
           

@@ -56,7 +56,7 @@ network.structure <- function(data.nma) {
     mutate(trt = paste( unlist(data), collapse=';')) %>%
     select(!! trial, trt) %>%
     mutate(mtchvar = 1)
-  edges <- left_join(pairs2, studylabs, by="mtchvar") %>%
+  edges <- left_join(pairs2, studylabs, by="mtchvar", relationship = "many-to-many") %>%
     ungroup() %>%
     mutate(trt = as.character(trt),
            from = as.character(from),

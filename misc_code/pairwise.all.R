@@ -13,7 +13,7 @@ pairwise.all <- function(slr,
   
   #List all possible comparisons per study
   
-  data %<>% select(trial, trt, outcome, N)
+  data %<>% select(trial, trt, all_of(outcome), all_of(N))
   data.st <- select(data, trial, trt) 
   data.st %<>% nest(treatments=c(trt))
   data.st %<>% 
@@ -21,8 +21,8 @@ pairwise.all <- function(slr,
     select(-treatments) %>% 
     unnest() %>%
     rename(treatment=V1, comparator=V2) %>%
-    left_join(data %>% select(trial, outcome, N, trt), by = c("trial", "treatment" = "trt")) %>%
-    left_join(data %>% select(trial, outcome, N, trt), by = c("trial", "comparator" = "trt"), suffix=c(".t",".c"))
+    left_join(data %>% select(trial, all_of(outcome), all_of(N), trt), by = c("trial", "treatment" = "trt")) %>%
+    left_join(data %>% select(trial, all_of(outcome), all_of(N), trt), by = c("trial", "comparator" = "trt"), suffix=c(".t",".c"))
 
   meta1 <- metabin(data.st[,paste0(outcome,".t")] %>% t() %>% as.vector,
                    data.st[,paste0(N,".t")] %>% t() %>% as.vector,
