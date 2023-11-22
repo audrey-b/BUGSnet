@@ -7,6 +7,8 @@
 #' 
 #' @param data A \code{BUGSnetData} object produced by \code{data.prep()}
 #' @param covariate A string indicating the name of the patient characteristic to be plotted
+#' @param covariate.label An optional string indicating the label of the patient characteristic to be displayed. 
+#' Default is to display the covariate parameter as the axis label.
 #' @param half.length A string indicating how to calculate the half-length of error bars (optional)
 #' @param by If by="study" then data from arms will be grouped by study/trial. If by="treatment" then
 #' bar graph is grouped by treatment.
@@ -52,6 +54,7 @@
 data.plot <- function(
   data,
   covariate, 
+  covariate.label = covariate,
   half.length = NULL,
   by = "study",
   avg.hline = TRUE,
@@ -65,7 +68,7 @@ data.plot <- function(
   patients.data <- data$arm.data
   treatment.var <- data$varname.t
   trial.var <- data$varname.s
-  y.lab <- covariate
+  y.lab <- covariate.label
   if(is.null(half.length)){
     errorbar = FALSE
     errorbar.min = NULL
