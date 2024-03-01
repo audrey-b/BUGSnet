@@ -160,7 +160,6 @@ data.plot <- function(
         om + 
         theme(axis.text.x = element_text(angle = 90, hjust = 1),
               legend.title=element_blank(),
-              # plot.margin=unit(c(25, 5.5, 5.5, 50), "points"),
               plot.margin=unit(c(25, 5.5, 50, 5.5), "points"),
               strip.text.y = element_text(angle = 90),
               text = element_text(size=text.size)) +
