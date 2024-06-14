@@ -17,7 +17,7 @@
 #' the studies reporting the median as turquoise.
 #' @param avg.hline If TRUE, adds overall average line to plot. Default is TRUE.
 #' @param text.size Font size of the text. Default is 20.
-#' @param flip.coord If TRUE, coordinates will be flipped to display the plot in portrait mode. Default is FALSE.
+#' @param coord.flip If TRUE, coordinates will be flipped to display the plot in portrait mode. Default is FALSE.
 #'              
 #' @seealso
 #' \code{\link{data.prep}}
@@ -58,7 +58,7 @@ data.plot <- function(
   avg.hline = TRUE,
   fill.str = NULL,
   text.size = 20,
-  flip.coord = FALSE
+  coord.flip = FALSE
 ){
   
   if (!inherits(data, 'BUGSnetData'))
@@ -111,6 +111,14 @@ data.plot <- function(
     labs(y = y.lab, x="", caption = caption)+
     facet_grid(. ~ trial,  space="free_x", scales="free_x")
   
+  if (coord.flip == TRUE) {
+    p <- p + facet_grid(trial ~ . ,  space="free_y", scales="free_y") + 
+      theme(strip.text.y = element_text(angle = 0)) +
+      coord_flip()
+  } else {
+    p <- p + facet_grid(. ~ trial,  space="free_x", scales="free_x")
+  }
+  
   }
   else if (by == "treatment"){
     
@@ -125,14 +133,16 @@ data.plot <- function(
          plot.margin=unit(c(10, 4, 4, 20), "points"),
           strip.text.x = element_text(angle = 90),
          text = element_text(size=text.size)) +
-    labs(y = y.lab, x="", caption = caption)+
-    facet_grid(. ~ trt,  space="free_x", scales="free_x")
+    labs(y = y.lab, x="", caption = caption)
   
-  }
-  if (flip.coord == TRUE) {
-    p <- p + facet_grid(trt ~ . ,  space="free_y", scales="free_y") + coord_flip()
+  if (coord.flip == TRUE) {
+    p <- p + facet_grid(trt ~ . ,  space="free_y", scales="free_y") + 
+      theme(strip.text.y = element_text(angle = 0)) +
+      coord_flip()
   } else {
     p <- p + facet_grid(. ~ trt,  space="free_x", scales="free_x")
+  }
+  
   }
   p
 }
