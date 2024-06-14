@@ -98,8 +98,9 @@ data.plot(data = rate2.slr,
               covariate = "age", 
               half.length = "age_SD",
               by = "treatment",
-              avg.hline=TRUE, #add overall average line?
-              text.size = 12) 
+              avg.hline = TRUE, # add overall average line?
+              text.size = 12) +
+  ggplot2::ylab("Age (years)") # customize y-axis label
 ```
 
 If there are any imbalances in effect modifiers between trials, subgroup analysis or meta-regression can be employed. For this example, we will assume that there is no significant imbalance in effect modifiers.
@@ -128,23 +129,23 @@ In the fixed effect model, the $\delta_{ik}$’s are treated as fixed (from a fr
 Turning back to the analysis, the first step is to use `nma.model()` to build a model using BUGS code based on the user's specifications. The `reference` parameter indicates the name of the treatment that will be seen as the 'referent' comparator, this is often a placebo of some sort. In our case, we have set the referent treatment to "Diuretic" to be consistent with the TSD and literature.
 
 ```{r}
-random_effects_model <- nma.model(data=rate2.slr,
-                                 outcome="diabetes",
-                                 N="n",
-                                 reference="Diuretic",
-                                 family="binomial",
-                                 link="cloglog",
+random_effects_model <- nma.model(data = rate2.slr,
+                                 outcome = "diabetes",
+                                 N = "n",
+                                 reference = "Diuretic",
+                                 family = "binomial",
+                                 link = "cloglog",
                                  time = "followup",
-                                 effects= "random")
+                                 effects = "random")
 
-fixed_effects_model <- nma.model(data=rate2.slr,
-                                 outcome="diabetes",
-                                 N="n",
-                                 reference="Diuretic",
-                                 family="binomial",
-                                 link="cloglog",
+fixed_effects_model <- nma.model(data = rate2.slr,
+                                 outcome = "diabetes",
+                                 N = "n",
+                                 reference = "Diuretic",
+                                 family = "binomial",
+                                 link = "cloglog",
                                  time = "followup",
-                                 effects="fixed")
+                                 effects = "fixed")
 ```
 
 If you want to review the BUGS code that was created, you can use the commands `random_effects_model$model` and `fixed_effects_model$model` (see appendix for an example). Priors are defined on $d_{(1,2)},...,d_{(1,T)}$ and $\mu_1,...,\mu_M$ in both fixed and random effect models, and an additional prior is defined on $\sigma$ in the random effect model. By default, BUGSnet implements the vague priors proposed in @gemtc. You may specify your own priors instead by specifying the options `prior.mu`, `prior.d`and `prior.sigma` in the `nma.model()` function.
@@ -154,14 +155,14 @@ Once the NMA models have been specified, the next step is to run the models usin
 ```{r, results = "hide"}
 set.seed(20190828)
 fixed_effects_results <- nma.run(fixed_effects_model,
-                           n.adapt=1000,
-                           n.burnin=1000,
-                           n.iter=10000)
+                           n.adapt = 1000,
+                           n.burnin = 1000,
+                           n.iter = 10000)
 
 random_effects_results <- nma.run(random_effects_model,
-                           n.adapt=1000,
-                           n.burnin=1000,
-                           n.iter=10000)
+                           n.adapt = 1000,
+                           n.burnin = 1000,
+                           n.iter = 10000)
 
 ```
 
@@ -170,7 +171,7 @@ Compare fixed vs random effects models by comparing leverage plots and the DIC. 
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
 fe_model_fit <- nma.fit(fixed_effects_results, main = "Fixed Effects Model" )
-re_model_fit <- nma.fit(random_effects_results, main= "Random Effects Model")
+re_model_fit <- nma.fit(random_effects_results, main = "Random Effects Model")
 ```
 
 The random effects model is obviously the better choice here. The DIC is considerably lower in the random effects model. The fixed effects model shows that 8 points are largely contributing to the model's poor fit. The random effects model appears to have only 1 outlier, which should be investigated. We can see which arm/study is reponsible for this datapoint by using the command `re_model_fit$w`. From this we can see that Placebo arm from the "MRC-E" study is contributing to the model's poor fit. This may call for a reconsideration of including this study in our evidence base, or to investigate potential effect modifiers. But for the sake of this example, we will assume that this study arm should remain in the evidence base and that there are no imbalanced effect modifiers.
@@ -179,20 +180,20 @@ The random effects model is obviously the better choice here. The DIC is conside
 Next, we will assess consistency in the network by fitting a random effects inconsistency model and comparing it to our random effects consistency model [@lu2006assessing]. If our inconsistency model shows a better fit than the consistency model, then it is likely that there is inconsistency in the network.
 
 ```{r, results = "hide", fig.show = 'hide',  fig.width=8, fig.height = 8, fig.align="centre"}
-re_inconsistency_model <- nma.model(data=rate2.slr,
-                                   outcome="diabetes",
-                                   N="n",
-                                   reference="Diuretic",
-                                   family="binomial",
-                                   link="cloglog",
+re_inconsistency_model <- nma.model(data = rate2.slr,
+                                   outcome = "diabetes",
+                                   N = "n",
+                                   reference = "Diuretic",
+                                   family = "binomial",
+                                   link = "cloglog",
                                    time = "followup",
                                    type = "inconsistency", #specifies inconsistency model
-                                   effects="random")
+                                   effects = "random")
 
 re_inconsistency_results <- nma.run(re_inconsistency_model,
-                                         n.adapt=1000,
-                                         n.burnin=1000,
-                                         n.iter=10000)
+                                         n.adapt = 1000,
+                                         n.burnin = 1000,
+                                         n.iter = 10000)
 
 ```
 
@@ -200,7 +201,7 @@ Again, rainbow plots and DIC calculations can highlight outliers and can compare
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
 re_model_fit <- nma.fit(random_effects_results, main = "Consistency Model" )
-inconsist_model_fit <- nma.fit(re_inconsistency_results, main= "Inconsistency Model")
+inconsist_model_fit <- nma.fit(re_inconsistency_results, main = "Inconsistency Model")
 ```
 
 When assessing the fit of both models, the consistency model has a smaller DIC, but the inconsistency model seems to have a neater leverage plot. You'll notice that there are a couple of other metrics that are outputted with the leverage plots, namely, the leverage ($pD$) and the posterior mean of the residual deviance ($\bar{D}_{res}$). The leverage can be thought of as the "effective number of parameters", while the residual deviance can be thought of as the "model fit" (the lower the better). We can see that the inconsistency model produces slightly a smaller $\bar{D}_{res}$, but at the expense of increased model complexity (larger $pD$). In general, the consistency model seems to be favourable here, due to it's adequate fit and parsimony.
@@ -221,7 +222,7 @@ Simulaneous comparison of every treatment based on the results of the NMA analys
 The ranking probabilities can be displayed in the form of a rankogram.
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
-sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette= "Set1")
+sucra.out <- nma.rank(random_effects_results, largerbetter=FALSE, sucra.palette = "Set1")
 sucra.out$rankogram
 ```
 
@@ -232,7 +233,7 @@ knitr::kable(sucra.out$ranktable)
 
 A surface under the cumulative ranking curve (SUCRA) plot can also be displayed via `sucra.out$sucraplot`.
 
-```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
+```{r, echo = FALSE, fig.width = 7, fig.height = 4, dpi = 95, fig.align = "centre"}
 sucra.out$sucraplot
 ```
 
@@ -243,7 +244,7 @@ knitr::kable(sucra.out$sucratable)
 
 Since those plots were produced using ggplot2, one can easily customize the plots using ggplot2 commands, for instance via `sucra.out$sucraplot + theme_gray()`:
 
-```{r, echo=FALSE, fig.width=7, fig.height=4, dpi = 95, fig.align="centre"}
+```{r, echo=FALSE, fig.width = 7, fig.height = 4, dpi = 95, fig.align = "centre"}
 sucra.out$sucraplot + ggplot2::theme_gray()
 ```
 
@@ -254,7 +255,7 @@ League tables are another great way to summarize the results of an NMA. League t
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 league.out <- nma.league(random_effects_results,  
-                         central.tdcy="median",
+                         central.tdcy = "median",
                          order = sucra.out$order,
                          log.scale = FALSE,
                          low.colour = "springgreen4",
@@ -278,7 +279,7 @@ Forest plots are another great way to summarize the results of an NMA with respe
 
 ```{r, echo=TRUE, fig.width=7, fig.height=4, fig.align="centre"}
 nma.forest(random_effects_results,
-           central.tdcy="median",
+           central.tdcy = "median",
            comparator = "Placebo",
            log.scale = FALSE)
 ```

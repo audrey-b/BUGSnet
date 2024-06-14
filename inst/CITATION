@@ -20,5 +20,5 @@ bibentry(
                       "BUGSnet: an R package to facilitate the conduct and reporting of Bayesian network meta-analyses.",
                       "BMC Medical Research Methodology, 19(1):196.",
                       paste("DOI:", doi)),
-  key = "bugsnet-package"
+  key = "bugsnet"
 )

@@ -9,7 +9,6 @@
 #' How to cite this work? Type \code{citation("BUGSnet")}.
 #' 
 #' @name BUGSnet
-#' @docType package
 #' 
 #' @references
 #' \insertRef{JAGSmanual}{BUGSnet}

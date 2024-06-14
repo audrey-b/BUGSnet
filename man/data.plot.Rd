@@ -11,7 +11,8 @@ data.plot(
   by = "study",
   avg.hline = TRUE,
   fill.str = NULL,
-  text.size = 20
+  text.size = 20,
+  flip.coord = FALSE
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ reported, setting fill.str="type.measure" would colour all studies reporting the
 the studies reporting the median as turquoise.}
 
 \item{text.size}{Font size of the text. Default is 20.}
+
+\item{flip.coord}{If TRUE, coordinates will be flipped to display the plot in portrait mode. Default is FALSE.}
 }
 \description{
 Plots a particular patient characteristic by study or by treatment. Useful for assessing
