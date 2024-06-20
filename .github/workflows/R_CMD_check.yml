@@ -31,11 +31,9 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
 
-      - name: Install JAGS macOS
-        if: runner.os == 'macOS'
-        run: |
-          brew link --overwrite gcc
-          brew install jags
+      #- name: Install JAGS macOS
+      #  if: runner.os == 'macOS'
+      #  run: brew install jags
 
       - name: Install JAGS Linux
         if: runner.os == 'Linux'
