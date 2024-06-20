@@ -33,7 +33,8 @@ jobs:
 
       - name: Install JAGS macOS
         if: runner.os == 'macOS'
-        run: brew install jags; Rscript -e "install.packages('rjags', type = "source")"
+        run: brew install jags; |
+          Rscript -e "install.packages('rjags', type = "source")"
 
       - name: Install JAGS Linux
         if: runner.os == 'Linux'
