@@ -33,8 +33,7 @@ jobs:
 
       - name: Install JAGS macOS
         if: runner.os == 'macOS'
-        run: brew install pkg-config
-        run: brew install jags
+        run: brew install pkg-config; brew install jags
 
       - name: Install JAGS Linux
         if: runner.os == 'Linux'
