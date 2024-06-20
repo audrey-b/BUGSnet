@@ -1,4 +1,4 @@
-- updated JAGS to 4.3.1
+- updated JAGS to 4.3.2/4.3.1
 
 - added a portrait mode option for data.plot (flip.coord)
 

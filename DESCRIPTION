@@ -24,7 +24,7 @@ License_restricts_use: yes
 URL: https://bugsnetsoftware.github.io
 BugReports: https://github.com/audrey-b/BUGSnet/issues
 Depends:
-    R (>= 3.6.1)
+    R (>= 4.1)
 Imports:
     coda,
     dplyr (>= 0.8.3),
