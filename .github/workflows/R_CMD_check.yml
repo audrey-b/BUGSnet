@@ -33,8 +33,8 @@ jobs:
 
       - name: Install JAGS macOS
         if: runner.os == 'macOS'
-        run : |
-          rm '/usr/local/bin/gfortran'
+        run: |
+          brew link --overwrite gcc
           brew install jags
 
       - name: Install JAGS Linux
