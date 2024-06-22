@@ -1,6 +1,6 @@
 Package: BUGSnet
 Title: Bayesian network meta-analyses in compliance with best practice and reporting guidelines
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
   person("Audrey", "Beliveau", email = "audrey.beliveau@uwaterloo.ca", role = c("aut","cph", "cre")),
   person("Justin", "Slater", email = "jslater@lighthouseoutcomes.com", role = "aut"),

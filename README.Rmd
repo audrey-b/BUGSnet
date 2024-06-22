@@ -31,7 +31,7 @@ Go to the [Sourceforge](https://sourceforge.net/projects/mcmc-jags/) page.
 
 Click on Files > JAGS > 4.x 
 
-Select your operating system and download JAGS-4.3.1, then install.
+After selecting your operating system, download and install the most recent version of JAGS.
 
 ### 2. Install R ###
 
