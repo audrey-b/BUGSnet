@@ -7,9 +7,9 @@
 #' 
 #' @param data A \code{BUGSnetData} object produced by \code{data.prep()}.
 # @param outcome A string of the outcome variable to use for the plot (missing values are discarded).
-#' @param node.scale Size of the nodes (default=5)
-#' @param edge.scale Thickness of the edges (default=2).
-#' @param graph.scale Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.
+#' @param node.scale Size of the nodes (default = 5)
+#' @param edge.scale Thickness of the edges (default = 2).
+#' @param graph.scale Whether to make edges and nodes proportionally larger with the number of studies/arms. Default is TRUE.
 #' @param flag Used to highlight direct comparisons to particular treatments (optional).
 #' Set this value to treatment(s) of interest and it will highlight, in red, all of the edges
 #' going into the specified treatment(s).
@@ -33,7 +33,7 @@
 #' @importFrom dplyr mutate pull select
 #' @importFrom igraph E ecount incident V vcount
 #' @importFrom magrittr %>%
-#' @importFrom scales rescale
+#' @importFrom graphics strwidth
 #' 
 #' @examples
 #' data(diabetes.sim)
@@ -104,11 +104,12 @@ net.plot <- function(
   ## https://stackoverflow.com/questions/23209802/placing-vertex-label-outside-a-circular-layout-in-igraph
   
   n.treatments <- length(data$treatments[,1])
-  lab.locs <- -2*pi*seq(0, 1, length.out = n.treatments + 1)[-(n.treatments + 1)]
+  lab.offset <- rep(label.offset1, n.treatments)
   
-  lab.offset <- data.frame(x = abs(lab.locs), y=label.offset1, z = label.offset2) %>%
-    mutate(offset = ifelse(x < pi/6 | x > 5*pi/6 & x < 7*pi/6 | x > 11*pi/6, y+z, y)) %>%
-    select(offset) %>% pull 
+  lab.locs <- 2*pi*seq(0, 1, length.out = n.treatments + 1)[-(n.treatments + 1)]
+  near.x.axis <- which(lab.locs < pi/6 | lab.locs > 5*pi/6 & lab.locs < 7*pi/6 | lab.locs > 11*pi/6)
+  width <- strwidth(data$treatments[near.x.axis, 1], units = "inches")
+  lab.offset[near.x.axis] <- lab.offset[near.x.axis] + label.offset2 * width/min(width)
   
   if (graph.scale == TRUE) {
     vsize <- node.scale * V(net)$node.weight
@@ -147,48 +148,51 @@ net.plot <- function(
     }
     
     plot(net, 
-         vertex.size=vsize,
-         edge.width=ewidth,
+         vertex.size = vsize,
+         edge.width = ewidth,
          
-         vertex.color=vcol,
-         vertex.frame.color=vcol,
+         vertex.color = vcol,
+         vertex.frame.color = vcol,
          vertex.label.cex = node.lab.cex,
-         edge.color=ecol,
+         edge.color = ecol,
          
-         vertex.label=names(V(net)),
-         vertex.label.color="black",
-         vertex.label.family="sans",
+         vertex.label = names(V(net)),
+         vertex.label.color = "black",
+         vertex.label.family = "sans",
          
          
-         layout=do.call(get(layout, asNamespace("igraph")), c(list(net), layout.params)),
-         edge.label= elab,
-         edge.label.family="sans",
-         edge.label.cex=edge.lab.cex,
-         edge.label.color=edge.lab.colour,
-         edge.label.dist=0,
-         edge.label.deg=0,
+         layout=do.call(get(layout, asNamespace("igraph")), 
+                        c(list(net), layout.params)),
+         edge.label = elab,
+         edge.label.family = "sans",
+         edge.label.cex = edge.lab.cex,
+         edge.label.color = edge.lab.colour,
+         edge.label.dist = 0,
+         edge.label.deg = 0,
          
-         vertex.label.dist=lab.offset,
-         vertex.label.degree=lab.locs,
+         vertex.label.dist = lab.offset,
+         vertex.label.degree = -lab.locs,
          
          rescale = rscl) 
   } else {
     plot(net, 
-         vertex.size=vsize,
-         edge.width=ewidth,
-         vertex.label=names(V(net)), 
-         vertex.label.color="black",
-         vertex.color=node.colour,
-         vertex.frame.color=node.colour,
+         vertex.size = vsize,
+         edge.width = ewidth,
+         vertex.label = names(V(net)), 
+         vertex.label.color = "black",
+         vertex.color = node.colour,
+         vertex.frame.color = node.colour,
          vertex.label.cex = node.lab.cex,
          
-         edge.color=edge.colour,
+         edge.color = edge.colour,
          
-         vertex.label.family="sans",
+         vertex.label.family = "sans",
          
-         layout= do.call(get(layout, asNamespace("igraph")), c(list(net), layout.params)),
-         vertex.label.dist=lab.offset,
-         vertex.label.degree=lab.locs,
+         layout = do.call(get(layout, 
+                             asNamespace("igraph")), 
+                         c(list(net), layout.params)),
+         vertex.label.dist = lab.offset,
+         vertex.label.degree = -lab.locs,
          rescale = rscl)
   }
 }

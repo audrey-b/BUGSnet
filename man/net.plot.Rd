@@ -26,9 +26,9 @@ net.plot(
 \arguments{
 \item{data}{A \code{BUGSnetData} object produced by \code{data.prep()}.}
 
-\item{node.scale}{Size of the nodes (default=5)}
+\item{node.scale}{Size of the nodes (default = 5)}
 
-\item{edge.scale}{Thickness of the edges (default=2).}
+\item{edge.scale}{Thickness of the edges (default = 2).}
 
 \item{flag}{Used to highlight direct comparisons to particular treatments (optional).
 Set this value to treatment(s) of interest and it will highlight, in red, all of the edges
@@ -40,7 +40,7 @@ going into the specified treatment(s).}
 
 \item{label.offset2}{Additional label offset for nodes close to the x axis. Default = 0.}
 
-\item{graph.scale}{Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.}
+\item{graph.scale}{Whether to make edges and nodes proportionally larger with the number of studies/arms. Default is TRUE.}
 
 \item{node.lab.cex}{Size of node labels}
 
