@@ -11,7 +11,7 @@ net.plot(
   flag = NULL,
   study.counts = FALSE,
   label.offset1 = 0,
-  label.offset2 = 1,
+  label.offset2 = 0,
   graph.scale = TRUE,
   node.lab.cex = 1,
   edge.lab.cex = 1,
@@ -36,9 +36,9 @@ going into the specified treatment(s).}
 
 \item{study.counts}{If TRUE, prints the number of studies on each edge.}
 
-\item{label.offset1}{Node label location (x-axis) relative to node. Default=0}
+\item{label.offset1}{Node label offset relative to node. Default = 0.}
 
-\item{label.offset2}{Node label location (y-axis) relative to node. Default=1}
+\item{label.offset2}{Additional label offset for nodes close to the x axis. Default = 0.}
 
 \item{graph.scale}{Whether to make edges and nodes proportionnaly larger with the number of studies/arms. Default is TRUE.}
 

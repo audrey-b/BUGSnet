@@ -34,7 +34,7 @@ Now we load the `parkinsons` and `parkinsons_arm` datasets, and we will create a
 library(BUGSnet)
 data(parkinsons)
 data(parkinsons_arm)
-parkinsons_contrast <- parkinsons[parkinsons$study > 3,]
+parkinsons_contrast <- parkinsons[parkinsons$study > 3, ]
 parkinsons_contrast
 parkinsons_arm
 ```
@@ -107,14 +107,14 @@ The next step is to run the NMA model using `nma.run()`. Since we are working in
 ```{r, results = "hide"}
 set.seed(2021)
 fixed_effect_results <- nma.run(fixed_effect_model,
-                           n.adapt=1000,
-                           n.burnin=2000,
-                           n.iter=12000)
+                           n.adapt = 1000,
+                           n.burnin = 2000,
+                           n.iter = 12000)
 
 random_effect_results <- nma.run(random_effect_model,
-                           n.adapt=1000,
-                           n.burnin=4000,
-                           n.iter=15000)
+                           n.adapt = 1000,
+                           n.burnin = 4000,
+                           n.iter = 15000)
 
 ```
 
@@ -122,9 +122,9 @@ random_effect_results <- nma.run(random_effect_model,
 
 Compare the fit of the fixed and random effects models by comparing the leverage plots and DIC.
 ```{r, fig.width=7, fig.height=4, results = "hide"}
-par(mfrow = c(1,2))
+par(mfrow = c(1, 2))
 nma.fit(fixed_effect_results, main = "Fixed Effects Model" )
-nma.fit(random_effect_results, main= "Random Effects Model")
+nma.fit(random_effect_results, main = "Random Effects Model")
 ```
 
 The fixed effect model has a smaller DIC and a nicer leverage plot. We will continue with the fixed effect model.
@@ -148,16 +148,16 @@ fe_inconsistency_model <- nma.model.shared(data_arm = arm_prep,
                                        type = "inconsistency")
 
 fe_inconsistency_results <- nma.run(fe_inconsistency_model,
-                                         n.adapt=1000,
-                                         n.burnin=1000,
-                                         n.iter=10000)
+                                         n.adapt = 1000,
+                                         n.burnin = 1000,
+                                         n.iter = 10000)
 ```
 
 We use rainbow plots and DIC to assess fit.
 ```{r, fig.width=7, fig.height=4, results = "hide"}
 par(mfrow = c(1,2))
 fe_model_fit <- nma.fit(fixed_effect_results, main = "Consistency Model" )
-inconsist_model_fit <- nma.fit(fe_inconsistency_results, main= "Inconsistency Model")
+inconsist_model_fit <- nma.fit(fe_inconsistency_results, main =  "Inconsistency Model")
 ```
 
 The consistency model has a lower DIC and the leverage plots are very similar. Therefore, we will conclude there is not evidence of inconsistency in the network.
@@ -168,7 +168,7 @@ Simulaneous comparison of every treatment based on the results of the NMA analys
 
 ### Sucra Plot
 ```{r, echo=TRUE, fig.width=7, fig.height=4, dpi = 95}
-sucra.out <- nma.rank(fixed_effect_results, largerbetter=FALSE, sucra.palette= "Set1")
+sucra.out <- nma.rank(fixed_effect_results, largerbetter = FALSE, sucra.palette= "Set1")
 sucra.out$sucraplot
 ```
 
@@ -177,7 +177,7 @@ sucra.out$sucraplot
 League tables are another way to summarize the results of an NMA. League tables contain all information about relative effectiveness for all possible pairs of interventions [@rouse2017network]. BUGSnet includes 95% credible intervals. You can also plot the league table as a heatplot using the following code:
 ```{r, echo=TRUE, fig.width=7, fig.height=4}
 league.out <- nma.league(fixed_effect_results,  
-                         central.tdcy="median",
+                         central.tdcy = "median",
                          order = sucra.out$order,
                          low.colour = "springgreen4",
                          mid.colour = "white",
@@ -187,9 +187,9 @@ league.out$heatplot
 
 ### Forest Plot
 Forest plots are another great way to summarize the results of an NMA with respect to a particular comparator. The x-axis label is based on the scale of the arm-based data.
-```{r, echo=TRUE, fig.width=7, fig.height=4}
+```{r, echo=TRUE, fig.width=7, fig.height = 4}
 nma.forest(fixed_effect_results,
-           central.tdcy="median",
+           central.tdcy = "median",
            comparator = "1")
 ```
 

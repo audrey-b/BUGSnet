@@ -14,8 +14,8 @@
 #' Set this value to treatment(s) of interest and it will highlight, in red, all of the edges
 #' going into the specified treatment(s).
 #' @param study.counts If TRUE, prints the number of studies on each edge.
-#' @param label.offset1 Node label location (x-axis) relative to node. Default=0
-#' @param label.offset2 Node label location (y-axis) relative to node. Default=1
+#' @param label.offset1 Node label offset relative to node. Default = 0.
+#' @param label.offset2 Additional label offset for nodes close to the x axis. Default = 0.
 #' @param node.lab.cex Size of node labels
 #' @param edge.lab.cex Size of edge labels
 #' @param node.colour Node colour (string)
@@ -66,7 +66,7 @@ net.plot <- function(
   flag = NULL, 
   study.counts = FALSE,
   label.offset1 = 0, 
-  label.offset2 = 1, 
+  label.offset2 = 0, 
   graph.scale = TRUE,
   node.lab.cex = 1,
   edge.lab.cex = 1,
@@ -103,15 +103,11 @@ net.plot <- function(
   ## Source for function to offset node labels...
   ## https://stackoverflow.com/questions/23209802/placing-vertex-label-outside-a-circular-layout-in-igraph
   
-  radian.rescale <- function(x, start=0, direction=1) {
-    c.rotate <- function(x) (x + start) %% (2 * pi) * direction
-    c.rotate(rescale(x, c(0, 2 * pi), range(x)))
-  }
-  
-  lab.locs <- radian.rescale(x=1:nrow(nodes), direction=-1, start=0)
+  n.treatments <- length(data$treatments[,1])
+  lab.locs <- -2*pi*seq(0, 1, length.out = n.treatments + 1)[-(n.treatments + 1)]
   
   lab.offset <- data.frame(x = abs(lab.locs), y=label.offset1, z = label.offset2) %>%
-    mutate(offset = ifelse(x < pi/6 | x > 5*pi/6 & x < 7*pi/6 | x > 11*pi/6, y, y/z)) %>%
+    mutate(offset = ifelse(x < pi/6 | x > 5*pi/6 & x < 7*pi/6 | x > 11*pi/6, y+z, y)) %>%
     select(offset) %>% pull 
   
   if (graph.scale == TRUE) {
